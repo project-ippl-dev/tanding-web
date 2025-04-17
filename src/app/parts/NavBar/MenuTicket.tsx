@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@mui/material"
 import React from "react" 
 import StyledMenu from "../../components/StyledMenu"
@@ -22,4 +23,4 @@ export default function MenuTicket({ anchorEl, id, open, onClose, data }) {
             Menu Tiket
         </StyledMenu>
     )
-}   
+}

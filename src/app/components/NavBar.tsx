@@ -1,8 +1,7 @@
 "use client";
 import { AppBar, Backdrop, Badge, Box, Button, Container, Divider, IconButton, Toolbar, Typography, useMediaQuery } from "@mui/material";
-import React from "react";
-import {useTheme} from "@mui/material/styles";
-import { Theme } from '@mui/material/styles'
+import React, { useEffect, useState } from "react";
+import {useTheme, styled, Theme} from "@mui/material/styles";
 import SearchBox from "../parts/NavBar/SearchBox";
 import { ConfirmationNumber, MoreVert } from "@mui/icons-material";
 import ButtonLogin from "../parts/NavBar/ButtonLogin";
@@ -24,13 +23,6 @@ interface profileData {
 function customStyling(theme: Theme): styleData {
     const result = {
         logo: {
-            width: "auto",
-            height: "40px",
-            cursor: "pointer",
-            marginRight:'10px',
-            [theme.breakpoints.up('md')]:{
-                margin: theme.spacing(0, 3, 0, 5),
-            }
         },
         grow: {
             flexGrow: 1,
@@ -63,12 +55,6 @@ function customStyling(theme: Theme): styleData {
             textTransform: "none",
             },
             cursor: "pointer",
-        },
-        sectionDesktop: {
-            display: "none",
-            [theme.breakpoints.up("md")]: {
-            display: "flex",
-            },
         },
         dividerVertical: {
             height: "30px",
@@ -103,7 +89,6 @@ export default function NavBar({
     profile: profileData
     setDrawer?: (open: boolean) => void
 }) {
-
     const theme: Theme = useTheme();
     const isMdUp = useMediaQuery(theme.breakpoints.up("md"))
     const style: styleData = customStyling(theme);
@@ -112,6 +97,18 @@ export default function NavBar({
     ) : (
         <ButtonLogin/>
     )
+    // komponen styling 
+    const NavLogo = styled("img")(() => ({
+        width: "auto",
+        height: "40px",
+        cursor: "pointer",
+        marginRight:'10px',
+        [theme.breakpoints.up('md')]:{
+            margin: theme.spacing(0, 3, 0, 5),
+        }
+    })) 
+
+    // --------------------------------------------
 
     const tournamentList: React.ReactNode = profile?.data?.EventPrivilege ? (
         <Button sx={style.btnNavbar2}>
@@ -168,8 +165,7 @@ export default function NavBar({
                 >
                     <Container maxWidth="xl">
                         <Toolbar>
-                            <img
-                                style={style.logo}
+                            <NavLogo
                                 src="/img/logo.png" 
                                 alt="Logo" 
                                  />
@@ -194,8 +190,6 @@ export default function NavBar({
             <MenuKategori/>
             <MenuProfile/>
             <MenuNotifikasi/>
-            <MenuTicket/>
-            <Backdrop open={false} sx={style.backdrop}/>
         </div>
         </>
     )

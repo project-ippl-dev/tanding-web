@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import SideDrawer from "../components/Drawer";
+import Test from "../components/Drawer";
 
 
 export default function MainLayout({
@@ -11,25 +12,28 @@ export default function MainLayout({
     children: React.ReactNode
 }){
   
-  const [openDrawer, setOpenDrawer] = useState(false)
+    const [openDrawer, setOpenDrawer] = useState(false)
+    const closeDrawer = () => {setOpenDrawer(false)}
 
     return(
         <div>
             <header>
                 <NavBar setDrawer={setOpenDrawer}/>
                 {/* {!isMdUp && <AppBarMobile setOpenDrawer={setOpenDrawer} />} */}
-                <SideDrawer 
-                    drawerProps={{
-                        open: openDrawer,
-                        setDrawer: setOpenDrawer}
-                    }
-                />
+                {/* {<SideDrawer
+                    drawerOpen = {openDrawer}
+                    setDrawer={setOpenDrawer} 
+                />} */}
             </header>
             <main>
+                {<SideDrawer
+                    open={openDrawer}
+                    closeDrawer={closeDrawer}
+                ></SideDrawer>}
                 {children}
             </main>
             <footer>
-                <Footer />  
+                <Footer />
             </footer>
         </div>
     )

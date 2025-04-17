@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Card, CardHeader, CardContent } from "@mui/material";
 import { Theme, useTheme } from "@mui/material/styles";
