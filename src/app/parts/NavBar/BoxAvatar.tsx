@@ -1,50 +1,54 @@
-import { styleData } from "@/types/global"
-import { Avatar, Typography } from "@mui/material"
-import React from "react"
+"use client";
+import { styleData } from "@/types/global";
+import { ProfileData } from "@/types/profile";
+import { Avatar, Typography } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
+import { Theme } from "@mui/material/styles";
 
-interface profileData {
-    photo: string,
-    name: string
-}
-
-
-function customStyle(): styleData{
-   const result = {
-        root: {
-            display: "flex",
-            alignItems: "center",
-            margin: "0 40px 0 14px",
-            cursor: "pointer",
-        },
-        avatar: {
-            width: "30px",
-            height: "30px",
-        },
-        name: {
-            color: "black",
-            marginLeft: "10px",
-        },
-    }
-    return result
+function customStyle(theme: Theme | null): styleData {
+  return {
+    root: {
+      display: "flex",
+      alignItems: "center",
+      margin: theme ? theme.spacing(0, 5, 0, 2) : "0 40px 0 14px",
+      cursor: "pointer",
+    },
+    avatar: {
+      width: "30px",
+      height: "30px",
+    },
+    name: {
+      color: "black",
+      marginLeft: theme ? theme.spacing(1.25) : "10px",
+    },
+  };
 }
 
 export default function BoxAvatar({
-    data = {name: "test", photo: "/img/logo.png"},
-    className,
-    onClick
-}:{ 
-        data: profileData,
-        className?: string 
-        onClick?: () => void 
+  data = { name: "test", photo: "/img/logo.png" },
+  className,
+  onClick,
+}: {
+  data: ProfileData;
+  className?: string;
+  onClick?: () => void;
 }) {
-    const style: styleData = customStyle()
+  const theme = useTheme();
+  const [isClient, setIsClient] = useState(false);
+  const parameter = isClient ? theme : null;
+  const style: styleData = customStyle(parameter);
 
-    return(
-        <div className={className} style={style.root} onClick={onClick}>
-          <Avatar style={style.avatar} alt="image" src={data.photo} />
-          <Typography style={style.name} noWrap>
-            {data.name}
-          </Typography>
-        </div>
-    )
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return (
+    <div className={className} style={style.root} onClick={onClick}>
+      <Avatar style={style.avatar} alt="image" src={data.photo} />
+      <Typography style={style.name} noWrap>
+        {data.name}
+      </Typography>
+    </div>
+  );
 }

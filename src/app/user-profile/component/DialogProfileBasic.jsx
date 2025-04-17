@@ -12,58 +12,76 @@ import {
   Button,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-// import ImageUploader from "react-images-upload";
-// import * as yup from "yup";
-// import { yupResolver } from "@hookform/resolvers/yup";
-import TextFieldNumeric from "@/app/components/TextFieldNumeric"
-import DatePickerCustom  from "@/app/components/DatePickerCustom"
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import TextFieldNumeric from "@/app/components/TextFieldNumeric";
+import DatePickerCustom from "@/app/components/DatePickerCustom";
 
-/*
+// Validation schema
 const validationSchema = yup.object().shape({
-  name: yup.string().required("Data harus diisi"),
-  phone: yup.string().required("Data harus diisi"),
-  born_at: yup.string().required("Data harus diisi"),
-  born_on: yup
+  name: yup.string().required("Nama lengkap harus diisi"),
+  born_at: yup.string().required("Tempat lahir harus diisi"),
+  born_on: yup.date().required("Tanggal lahir harus diisi").typeError("Tanggal lahir tidak valid"),
+  identity_number: yup
     .string()
-    .required("Data harus diisi")
-    .typeError("Data harus diisi"),
-  identity_number: yup.string().required("Data harus diisi"),
-  gender: yup.string().required("Data harus diisi"),
-  about: yup.string().required("Data harus diisi"),
+    .matches(/^\d{16}$/, "Nomor KTP harus terdiri dari 16 digit")
+    .required("Nomor KTP harus diisi"),
+  phone: yup
+    .string()
+    .matches(/^\d{10,15}$/, "Nomor telepon harus terdiri dari 10-15 digit")
+    .required("Nomor telepon harus diisi"),
+  gender: yup.string().oneOf(["male", "female"], "Jenis kelamin tidak valid").required("Jenis kelamin harus diisi"),
+  about: yup.string().required("Tentang anda harus diisi"),
 });
-*/
 
 const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
   const [image, setImage] = useState([]);
   const { register, errors, handleSubmit, control, setValue } = useForm({
-   // resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema),
     shouldUnregister: false,
   });
 
-  const submitProfile = (data) => {
+  const submitProfile = async (data) => {
     setLoading(true);
-    action(
-      data,
-      !!image[0] ? image[0] : false,
-      profile.data.id,
-      setLoading,
-      profile.data.photo
-    );
-    onClose();
+    try {
+      const payload = {
+        ...data,
+        photo: !!image[0] ? image[0] : profile.data.photo,
+      };
+
+      // Send data to the server using fetch
+      const response = await fetch("/api/profile/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-token-here", // Optional header
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile");
+      }
+
+      action(data, !!image[0] ? image[0] : false, profile.data.id, setLoading, profile.data.photo);
+      onClose();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    /*
     if (profile?.data !== null && open) {
-      setValue("name", profile.data.name);
-      setValue("born_at", profile.data.born_at);
-      setValue("born_on", profile.data.born_on.time);
-      setValue("identity_number", profile.data.identity_number);
-      setValue("phone", profile.data.phone);
-      setValue("gender", profile.data.gender);
-      setValue("about", profile.data.about);
+      setValue("name", profile?.data.name);
+      setValue("born_at", profile?.data.born_at);
+      setValue("born_on", profile?.data.born_on.Time);
+      setValue("identity_number", profile?.data.identity_number);
+      setValue("phone", profile?.data.phone);
+      setValue("gender", profile?.data.gender);
+      setValue("about", profile?.data.about);
     }
-      */
   }, [open]);
 
   return (
@@ -89,17 +107,15 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
                   />
                */
             }
-
           </Box>
           <TextField
             fullWidth
             margin="normal"
             label="Nama Lengkap"
             placeholder="Tulis nama lengkap anda"
-            // inputRef={register}
-            name="name"
-            // error={!!errors?.name}
-            // helperText={errors?.name?.message}
+            {...register("name")}
+            error={!!errors?.name}
+            helperText={errors?.name?.message}
             slotProps={{
               inputLabel: { shrink: true },
             }}
@@ -109,10 +125,9 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             margin="normal"
             label="Tempat Lahir"
             placeholder="Tempat lahir anda"
-            // inputRef={register}
-            name="born_at"
-            // error={!!errors?.born_at}
-            // helperText={errors?.born_at?.message}
+            {...register("born_at")}
+            error={!!errors?.born_at}
+            helperText={errors?.born_at?.message}
             slotProps={{
               inputLabel: { shrink: true },
             }}
@@ -133,8 +148,8 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
                 slotProps={{
                   inputLabel: { shrink: true },
                 }}
-                // error={!!errors?.born_on}
-                // helperText={errors?.born_on?.message}
+                error={!!errors?.born_on}
+                helperText={errors?.born_on?.message}
               />
             )}
           />
@@ -150,8 +165,8 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
                 placeholder="123456-123456-0000"
                 value={value}
                 onChange={({ value }) => onChange(value)}
-                // error={!!errors?.identity_number}
-                // helperText={errors?.identity_number?.message}
+                error={!!errors?.identity_number}
+                helperText={errors?.identity_number?.message}
                 slotProps={{
                   inputLabel: { shrink: true },
                 }}
@@ -170,8 +185,8 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
                 format="####-####-#####"
                 value={value}
                 onChange={({ value }) => onChange(value)}
-                // error={!!errors?.phone}
-                // helperText={errors?.phone?.message}
+                error={!!errors?.phone}
+                helperText={errors?.phone?.message}
                 slotProps={{
                   inputLabel: { shrink: true },
                 }}
@@ -190,8 +205,8 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
                 label="Jenis Kelamin"
                 value={value}
                 onChange={({ target: { value } }) => onChange(value)}
-                // error={!!errors?.phone}
-                // helperText={errors?.phone?.message}
+                error={!!errors?.gender}
+                helperText={errors?.gender?.message}
                 slotProps={{
                   inputLabel: { shrink: true },
                 }}
@@ -209,10 +224,9 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             variant="outlined"
             label="Tentang anda"
             placeholder="Tentang anda"
-            // inputRef={register}
-            name="about"
-            // error={!!errors?.about}
-            // helperText={errors?.about?.message}
+            {...register("about")}
+            error={!!errors?.about}
+            helperText={errors?.about?.message}
             slotProps={{
               inputLabel: { shrink: true },
             }}

@@ -42,45 +42,49 @@ interface paymentData {
   data:Record <string,unknown>
 }
 
-function customStyles(theme: Theme): styleData {
+function customStyles(theme: Theme | null): styleData {
   const result = {
-  navbarMobile: {
-    backgroundColor: "#fff",
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.12)",
-  },
-  search: {
-    borderRadius: theme.shape.borderRadius,
-    border: "1px solid #efefef",
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    navbarMobile: {
+      backgroundColor: "#fff",
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.12)",
     },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-  },
-  Search: {
-    padding: theme.spacing(0.3, 1, 0),
-  },
-  inputRoot: {
-    color: theme.palette.textColor.primary,
-  },
-  inputRootField: {
-    color: theme.palette.textColor.primary,
-    width: "100%",
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
-    transition: theme.transitions.create("width"),
-    width: "100%",
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  }
-  return result
+    search: {
+      borderRadius: theme ? theme.shape.borderRadius : undefined,
+      border: "1px solid #efefef",
+      backgroundColor: theme
+        ? alpha(theme.palette.common.white, 0.15)
+        : undefined,
+      "&:hover": {
+        backgroundColor: theme
+          ? alpha(theme.palette.common.white, 0.25)
+          : undefined,
+      },
+      marginRight: theme ? theme.spacing(2) : undefined,
+      marginLeft: 0,
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+    },
+    Search: {
+      padding: theme ? theme.spacing(0.3, 1, 0) : undefined,
+    },
+    inputRoot: {
+      color: theme ? theme.palette.textColor.primary : undefined,
+    },
+    inputRootField: {
+      color: theme ? theme.palette.textColor.primary : undefined,
+      width: "100%",
+    },
+    inputInput: {
+      padding: theme ? theme.spacing(1, 1, 1, 0) : undefined,
+      transition: theme ? theme.transitions.create("width") : undefined,
+      width: "100%",
+    },
+    grow: {
+      flexGrow: 1,
+    },
+  };
+  return result;
 }
 
 const HiddenOnScroll = ({ children, window }) => {
@@ -107,9 +111,10 @@ export default function AppBarMobile({
   setOpenDrawer:(a: boolean) => void,
 }) {
 
-  const theme = useTheme()
-  console.log(theme)
-  const style = customStyles(theme)
+  const theme = useTheme();
+  const [isClient, setIsClient] = useState(false);
+  const parameter = isClient ? theme : null;
+  const style = customStyles(parameter);
   // const classes = useStyles();
   // const history = useHistory();
   const { handleSubmit } = useForm();
@@ -123,6 +128,7 @@ export default function AppBarMobile({
   };
 
   useEffect(() => {
+    setIsClient(true);
     // getAllPaymentForClub();
     // getProfileBasic();
   }, []);

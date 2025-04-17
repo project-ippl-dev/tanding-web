@@ -1,29 +1,40 @@
-import React from "react";
-// Updated Material-UI imports
+"use client";
+import React, { useState, useEffect } from "react";
 import { Grid, Box, Typography } from "@mui/material";
 import { styleData } from "@/types/global";
+import { useTheme } from "@mui/material/styles";
+import { Theme } from "@mui/material/styles";
 
-function customStyle(): styleData {
-  const result = {
+function customStyle(theme: Theme | null): styleData {
+  return {
     title: {
       color: "#fff",
       fontWeight: "bold",
-      marginBottom: "20px",
+      marginBottom: theme ? theme.spacing(2.5) : "20px",
     },
-  }
-
-  return result
+  };
 }
 
-export default function BoxGrid ({ 
-  xs, padding, children, title 
-}:{
-  xs: number,
-  padding: number,
-  children: React.ReactNode,
-  title: string
+export default function BoxGrid({
+  xs,
+  padding,
+  children,
+  title,
+}: {
+  xs: number;
+  padding: number;
+  children: React.ReactNode;
+  title: string;
 }) {
-  const style = customStyle()
+  const theme = useTheme();
+  const [isClient, setIsClient] = useState(false);
+  const parameter = isClient ? theme : null;
+  const style = customStyle(parameter);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <Grid size={{ xs }}>
       <Box padding={padding}>
@@ -36,5 +47,5 @@ export default function BoxGrid ({
       </Box>
     </Grid>
   );
-};
+}
 

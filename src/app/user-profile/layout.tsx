@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import SideDrawer from "../components/Drawer";
-import Test from "../components/Drawer";
 
 
 export default function MainLayout({
@@ -26,7 +25,7 @@ export default function MainLayout({
                 />} */}
             </header>
             <main>
-                {<SideDrawer
+                 {<SideDrawer
                     open={openDrawer}
                     closeDrawer={closeDrawer}
                 ></SideDrawer>}

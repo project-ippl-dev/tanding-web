@@ -1,47 +1,57 @@
 "use client";
 /* eslint-disable jsx-a11y/alt-text */
-import React from "react";
+import React, { useState, useEffect } from "react";
 // Updated Material-UI imports
 import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
-import { Theme, useTheme} from "@mui/material/styles";
+import { Theme, useTheme } from "@mui/material/styles";
 
 import BoxGrid from "../parts/Footer/BoxGrid";
 import { styleData } from "@/types/global";
 
-
-function customStyle(theme: Theme): styleData  {
+function customStyle(theme: Theme | null): styleData {
   const result = {
-  root: {
-    color: "#fff",
-    [theme.breakpoints.down("md")]: {
-      marginBottom: theme.spacing(7),
+    root: {
+      color: "#fff",
+      ...(theme && {
+        [theme.breakpoints.down("md")]: {
+          paddingBottom: theme.spacing(7),
+        },
+      }),
     },
-  },
-  img: {
-    width: "30%",
-    height: "auto",
-  },
-  textBold: {
-    fontWeight: "600",
-    color: "inherit",
-  },
-  containCopyright: {
-    padding: theme.spacing(3),
-  },
-  copyright: {
-    fontSize: "14px",
-  },
+    img: {
+      width: "30%",
+      height: "auto",
+    },
+    textBold: {
+      fontWeight: "600",
+      color: "inherit",
+    },
+    containCopyright: {
+      ...(theme && {
+        padding: theme.spacing(3),
+      }),
+    },
+    copyright: {
+      fontSize: "14px",
+    },
+  };
+  return result;
 }
-return result
-};
 
 const Footer = () => {
-  const theme = useTheme()
-  const style = customStyle(theme);
+  const [isClient, setIsClient] = useState(false);
+
+  const theme = useTheme();
+  const parameter = isClient ? theme : null;
+  const style = customStyle(parameter);
   const isMdUp = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
-    <Grid container sx={{...style.root,background: "#2f3640"}}>
+    <Grid container sx={{ ...style.root, background: "#2f3640" }}>
       <Grid size={{ md: 4, xs: 12 }}>
         <Box
           display="flex"
@@ -57,7 +67,7 @@ const Footer = () => {
           </Typography>
         </Box>
       </Grid>
-      {isMdUp && (
+      {isMdUp && isClient && (
         <>
           <BoxGrid size={{ xs: 4 }} padding={4} title="Links">
             <Typography color="inherit">FAQ User</Typography>

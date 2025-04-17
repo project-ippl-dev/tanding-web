@@ -11,16 +11,13 @@ import MenuProfile from "../parts/NavBar/MenuProfile";
 import MenuNotifikasi from "../parts/NavBar/MenuNotifikasi";
 import MenuTicket from "../parts/NavBar/MenuTicket";
 import { styleData } from "@/types/global";
+import { ProfileData } from "@/types/profile";
 
 interface authData {
     data: {[key: string]: unknown}
 }
 
-interface profileData {
-    data: {[key: string]: unknown}
-}
-
-function customStyling(theme: Theme): styleData {
+function customStyling(theme: Theme | null): styleData {
     const result = {
         logo: {
         },
@@ -34,10 +31,10 @@ function customStyling(theme: Theme): styleData {
             color: "#2f3640"
         },
         menuButton: {
-            marginRight: theme.spacing(2),
+            marginRight: theme ? theme.spacing(2) : undefined,
         },
         btnNavbar: {
-            padding: theme.spacing(0, 5),
+            padding: theme ? theme.spacing(0, 5) : undefined,
             "&:hover": {
             backgroundColor: "#fff",
             },
@@ -47,7 +44,7 @@ function customStyling(theme: Theme): styleData {
             cursor: "pointer",
         },
         btnNavbar2: {
-            padding: theme.spacing(0, 3),
+            padding: theme ? theme.spacing(0, 3) : undefined,
             "&:hover": {
             backgroundColor: "#fff",
             },
@@ -86,12 +83,19 @@ export default function NavBar({
     setDrawer = () => {}
 }: {
     auth: authData,
-    profile: profileData
+    profile: ProfileData
     setDrawer?: (open: boolean) => void
 }) {
     const theme: Theme = useTheme();
+    const [isClient, setIsClient] = useState(false);
+    const parameter = isClient ? theme : null;
+    const style: styleData = customStyling(parameter);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     const isMdUp = useMediaQuery(theme.breakpoints.up("md"))
-    const style: styleData = customStyling(theme);
     const authButtonInterFace: React.ReactNode = auth?.data?.access_token ? (
         <BoxAvatar/>
     ) : (
@@ -103,9 +107,9 @@ export default function NavBar({
         height: "40px",
         cursor: "pointer",
         marginRight:'10px',
-        [theme.breakpoints.up('md')]:{
+        ...(parameter &&{[theme.breakpoints.up('md')]:{
             margin: theme.spacing(0, 3, 0, 5),
-        }
+        }})
     })) 
 
     // --------------------------------------------
@@ -133,7 +137,7 @@ export default function NavBar({
         </>
     )
 
-    const mdInterface = isMdUp ? (
+    const mdInterface = isMdUp && isClient ? (
         <>
             <Box marginRight={"10px"}>
                 <IconButton>
@@ -187,9 +191,9 @@ export default function NavBar({
             </AppBar>
         </div>
         <div>
-            <MenuKategori/>
+           {/* { <MenuKategori/>
             <MenuProfile/>
-            <MenuNotifikasi/>
+            <MenuNotifikasi/>} */}
         </div>
         </>
     )
