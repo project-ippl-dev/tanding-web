@@ -7,7 +7,7 @@ import AvatarBox from "./AvatarBoxButton";
 import ProfileMenuList from "./menus/ProfileMenuList";
 import KategoriMenuList from "./menus/KategoriMenuList";
 
-const AppDesktopNavbarButton = styled(Button)(() => ({
+const DesktopAppNavbarButton = styled(Button)(() => ({
   paddingLeft: 12,
   paddingRight: 12,
   textTransform: "capitalize",
@@ -17,7 +17,7 @@ const AppDesktopNavbarButton = styled(Button)(() => ({
   },
 }));
 
-export default function AppDesktopNavbar() {
+export default function DesktopAppNavbar() {
   const isLoggedIn = true; // TODO: Dummy state, replace with actual login state
   const [anchorElProfile, setAnchorElProfile] = useState(null);
   const [anchorElKategori, setAnchorElKategori] = useState(null);
@@ -73,18 +73,18 @@ export default function AppDesktopNavbar() {
             >
               <Grid container spacing={0.25}>
                 {/* TODO: Navigation */}
-                <AppDesktopNavbarButton
+                <DesktopAppNavbarButton
                   variant="text"
                   onClick={handleMenuKategoriOpen}
                 >
                   Kategori
-                </AppDesktopNavbarButton>
-                <AppDesktopNavbarButton variant="text">
+                </DesktopAppNavbarButton>
+                <DesktopAppNavbarButton variant="text">
                   Ranking
-                </AppDesktopNavbarButton>
-                <AppDesktopNavbarButton variant="text">
+                </DesktopAppNavbarButton>
+                <DesktopAppNavbarButton variant="text">
                   Turnamenku!
-                </AppDesktopNavbarButton>
+                </DesktopAppNavbarButton>
               </Grid>
               <Grid container spacing={0.25}>
                 {/**TODO: Check login state. If logged in, show Avatar. Else, show loginButton */}

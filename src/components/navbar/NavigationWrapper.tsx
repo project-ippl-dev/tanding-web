@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import AppDesktopNavbar from "./AppDesktopNavbar";
-import AppMobileNavbar from "./AppMobileNavbar";
+import DesktopAppNavbar from "./DesktopAppNavbar";
+import MobileAppNavbar from "./MobileAppNavbar";
 import MobileBottomNavbar from "./MobileBottomNavbar";
 import MobileDrawer from "./MobileDrawer";
 
@@ -17,10 +17,10 @@ export default function Navbar({
     <>
       <header>
         <div className="hidden md:block">
-          <AppDesktopNavbar />
+          <DesktopAppNavbar />
         </div>
         <div className="block md:hidden">
-          <AppMobileNavbar setOpenDrawer={setOpenDrawer} />
+          <MobileAppNavbar setOpenDrawer={setOpenDrawer} />
         </div>
       </header>
 
