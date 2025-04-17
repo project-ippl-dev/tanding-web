@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import StyledMenu from "./StyledMenu";
+import { ExitToApp } from "@mui/icons-material";
 
 const BoldText = styled(Typography)(() => ({
   fontWeight: 600,
@@ -198,7 +199,7 @@ export default function ProfileMenuList({
               </Box>
               <Box>
                 <ProfileMenuListButton
-                  // startIcon=ExitToAppIcon TODO: Import icon
+                  startIcon={<ExitToApp />}
                   // TODO: Connect to actual logout
                   onClick={logout}
                 >

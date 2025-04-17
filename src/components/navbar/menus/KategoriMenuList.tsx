@@ -10,6 +10,7 @@ import {
   ListSubheader,
 } from "@mui/material";
 import StyledMenu from "./StyledMenu";
+import { ArrowForwardIos } from "@mui/icons-material";
 
 // TODO: DUMMY DATA
 const SPORTS_DUMMY = [
@@ -93,7 +94,7 @@ export default function KategoriMenuList({
               >
                 <ListItemText primary="Sport" />
                 {sportState.open && sportState.type === "sport" ? (
-                  <div>ArrowForwardIosIcon</div>
+                  <ArrowForwardIos />
                 ) : null}
               </ListItem>
               <ListItem
@@ -104,7 +105,7 @@ export default function KategoriMenuList({
               >
                 <ListItemText primary="E-Sport" />
                 {sportState.open && sportState.type === "e-sport" ? (
-                  <div>ArrowForwardIosIcon</div>
+                  <ArrowForwardIos />
                 ) : null}
               </ListItem>
             </List>
