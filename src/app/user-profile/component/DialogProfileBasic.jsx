@@ -11,50 +11,60 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import TextFieldNumeric from "@/app/components/TextFieldNumeric";
 import DatePickerCustom from "@/app/components/DatePickerCustom";
 
-// Validation schema
-const validationSchema = yup.object().shape({
-  name: yup.string().required("Nama lengkap harus diisi"),
-  born_at: yup.string().required("Tempat lahir harus diisi"),
-  born_on: yup.date().required("Tanggal lahir harus diisi").typeError("Tanggal lahir tidak valid"),
-  identity_number: yup
-    .string()
-    .matches(/^\d{16}$/, "Nomor KTP harus terdiri dari 16 digit")
-    .required("Nomor KTP harus diisi"),
-  phone: yup
-    .string()
-    .matches(/^\d{10,15}$/, "Nomor telepon harus terdiri dari 10-15 digit")
-    .required("Nomor telepon harus diisi"),
-  gender: yup.string().oneOf(["male", "female"], "Jenis kelamin tidak valid").required("Jenis kelamin harus diisi"),
-  about: yup.string().required("Tentang anda harus diisi"),
-});
-
 const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
-  const [image, setImage] = useState([]);
-  const { register, errors, handleSubmit, control, setValue } = useForm({
-    resolver: yupResolver(validationSchema),
-    shouldUnregister: false,
+  const [formData, setFormData] = useState({
+    name: "",
+    born_at: "",
+    born_on: null,
+    identity_number: "",
+    phone: "",
+    gender: "",
+    about: "",
   });
 
-  const submitProfile = async (data) => {
+  const [errors, setErrors] = useState({});
+
+  const [image, setImage] = useState([]);
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name) newErrors.name = "Nama lengkap harus diisi";
+    if (!formData.born_at) newErrors.born_at = "Tempat lahir harus diisi";
+    if (!formData.born_on) newErrors.born_on = "Tanggal lahir harus diisi";
+    if (!/^\d{16}$/.test(formData.identity_number))
+      newErrors.identity_number = "Nomor KTP harus terdiri dari 16 digit";
+    if (!/^\d{10,15}$/.test(formData.phone))
+      newErrors.phone = "Nomor telepon harus terdiri dari 10-15 digit";
+    if (!["male", "female"].includes(formData.gender))
+      newErrors.gender = "Jenis kelamin tidak valid";
+    if (!formData.about) newErrors.about = "Tentang anda harus diisi";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
     setLoading(true);
     try {
       const payload = {
-        ...data,
+        ...formData,
         photo: !!image[0] ? image[0] : profile.data.photo,
       };
 
-      // Send data to the server using fetch
       const response = await fetch("/api/profile/update", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer your-token-here", // Optional header
+          Authorization: "Bearer your-token-here",
         },
         body: JSON.stringify(payload),
       });
@@ -63,7 +73,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
         throw new Error("Failed to update profile");
       }
 
-      action(data, !!image[0] ? image[0] : false, profile.data.id, setLoading, profile.data.photo);
+      action(formData, !!image[0] ? image[0] : false, profile.data.id, setLoading, profile.data.photo);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -74,20 +84,22 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
 
   useEffect(() => {
     if (profile?.data !== null && open) {
-      setValue("name", profile?.data.name);
-      setValue("born_at", profile?.data.born_at);
-      setValue("born_on", profile?.data.born_on.Time);
-      setValue("identity_number", profile?.data.identity_number);
-      setValue("phone", profile?.data.phone);
-      setValue("gender", profile?.data.gender);
-      setValue("about", profile?.data.about);
+      setFormData({
+        name: profile?.data.name || "",
+        born_at: profile?.data.born_at || "",
+        born_on: profile?.data.born_on?.Time || null,
+        identity_number: profile?.data.identity_number || "",
+        phone: profile?.data.phone || "",
+        gender: profile?.data.gender || "",
+        about: profile?.data.about || "",
+      });
     }
   }, [open]);
 
   return (
     <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose}>
       <DialogTitle style={{ padding: "16px 24px 0" }}>Data Diri</DialogTitle>
-      <form onSubmit={handleSubmit(submitProfile)}>
+      <form onSubmit={handleSubmit}>
         <DialogContent style={{ padding: "0 24px" }}>
           <Box marginTop={3} paddingX={1}>
             <Typography>Photo Profile</Typography>
@@ -113,9 +125,10 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             margin="normal"
             label="Nama Lengkap"
             placeholder="Tulis nama lengkap anda"
-            {...register("name")}
-            error={!!errors?.name}
-            helperText={errors?.name?.message}
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+            error={!!errors.name}
+            helperText={errors.name}
             slotProps={{
               inputLabel: { shrink: true },
             }}
@@ -125,97 +138,70 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             margin="normal"
             label="Tempat Lahir"
             placeholder="Tempat lahir anda"
-            {...register("born_at")}
-            error={!!errors?.born_at}
-            helperText={errors?.born_at?.message}
+            value={formData.born_at}
+            onChange={(e) => handleChange("born_at", e.target.value)}
+            error={!!errors.born_at}
+            helperText={errors.born_at}
             slotProps={{
               inputLabel: { shrink: true },
             }}
           />
-          <Controller
-            control={control}
-            name="born_on"
-            defaultValue={null}
-            render={({ onChange, value }) => (
-              <DatePickerCustom
-                size="small"
-                label="Tanggal Lahir"
-                placeholder="Pilih Tanggal"
-                format="dd MMMM yyyy"
-                value={value}
-                onChange={onChange}
-                margin="normal"
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-                error={!!errors?.born_on}
-                helperText={errors?.born_on?.message}
-              />
-            )}
+          <DatePickerCustom
+            size="small"
+            label="Tanggal Lahir"
+            placeholder="Pilih Tanggal"
+            format="dd MMMM yyyy"
+            value={formData.born_on}
+            onChange={(value) => handleChange("born_on", value)}
+            margin="normal"
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+            error={!!errors.born_on}
+            helperText={errors.born_on}
           />
-          <Controller
-            control={control}
-            name="identity_number"
-            defaultValue=""
-            render={({ onChange, value }) => (
-              <TextFieldNumeric
-                margin="normal"
-                label="Nomor KTP"
-                format="######-######-####"
-                placeholder="123456-123456-0000"
-                value={value}
-                onChange={({ value }) => onChange(value)}
-                error={!!errors?.identity_number}
-                helperText={errors?.identity_number?.message}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-              />
-            )}
+          <TextFieldNumeric
+            margin="normal"
+            label="Nomor KTP"
+            format="######-######-####"
+            placeholder="123456-123456-0000"
+            value={formData.identity_number}
+            onChange={({ value }) => handleChange("identity_number", value)}
+            error={!!errors.identity_number}
+            helperText={errors.identity_number}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
           />
-          <Controller
-            control={control}
-            name="phone"
-            defaultValue=""
-            render={({ onChange, value }) => (
-              <TextFieldNumeric
-                margin="normal"
-                label="Nomor Telepon"
-                placeholder="1234-5678-00000"
-                format="####-####-#####"
-                value={value}
-                onChange={({ value }) => onChange(value)}
-                error={!!errors?.phone}
-                helperText={errors?.phone?.message}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-              />
-            )}
+          <TextFieldNumeric
+            margin="normal"
+            label="Nomor Telepon"
+            placeholder="1234-5678-00000"
+            format="####-####-#####"
+            value={formData.phone}
+            onChange={({ value }) => handleChange("phone", value)}
+            error={!!errors.phone}
+            helperText={errors.phone}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
           />
-          <Controller
-            control={control}
-            name="gender"
-            defaultValue=""
-            render={({ onChange, value }) => (
-              <TextField
-                select
-                fullWidth
-                margin="normal"
-                label="Jenis Kelamin"
-                value={value}
-                onChange={({ target: { value } }) => onChange(value)}
-                error={!!errors?.gender}
-                helperText={errors?.gender?.message}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                }}
-              >
-                <MenuItem value="male">Laki-laki</MenuItem>
-                <MenuItem value="female">Perempuan</MenuItem>
-              </TextField>
-            )}
-          />
+          <TextField
+            select
+            fullWidth
+            margin="normal"
+            label="Jenis Kelamin"
+            value={formData.gender}
+            onChange={(e) => handleChange("gender", e.target.value)}
+            error={!!errors.gender}
+            helperText={errors.gender}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+          >
+            <MenuItem value="male">Laki-laki</MenuItem>
+            <MenuItem value="female">Perempuan</MenuItem>
+          </TextField>
           <TextField
             multiline
             minRows={5}
@@ -224,9 +210,10 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             variant="outlined"
             label="Tentang anda"
             placeholder="Tentang anda"
-            {...register("about")}
-            error={!!errors?.about}
-            helperText={errors?.about?.message}
+            value={formData.about}
+            onChange={(e) => handleChange("about", e.target.value)}
+            error={!!errors.about}
+            helperText={errors.about}
             slotProps={{
               inputLabel: { shrink: true },
             }}
