@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
 import { Theme, useTheme } from "@mui/material/styles";
 
-import BoxGrid from "../parts/Footer/BoxGrid";
+import BoxGrid from "./parts/BoxGrid";
 import { styleData } from "@/types/global";
 
 function customStyle(theme: Theme | null): styleData {
@@ -61,7 +61,7 @@ const Footer = () => {
           flexDirection="column"
           paddingY={3}
         >
-          <img src="/img/logoWithText.png" style={style.img} />
+          <img src="/images/logoWithText.png" style={style.img} />
           <Typography sx={style.copyright} align="center">
             Copyright 2025 - Tanding!
           </Typography>

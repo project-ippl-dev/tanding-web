@@ -2,11 +2,17 @@
 import { ThemeProvider } from "@mui/material/styles";
 import React from "react";
 import themePack from "../theme/theme";
+import { AuthProvider } from "@/context/auth.context";
 
-export default function Wrapper({ children }: {children: React.ReactNode}) {
+
+
+
+export default function WrapperContext({ children }: {children: React.ReactNode}) {
   return (
+    <AuthProvider>
       <ThemeProvider theme={themePack}>
         {children}
       </ThemeProvider>
+    </AuthProvider>
   );
 }

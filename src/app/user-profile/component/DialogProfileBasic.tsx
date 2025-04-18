@@ -10,9 +10,30 @@ import {
   TextField,
   MenuItem,
   Button,
+  IconButton,
 } from "@mui/material";
-import TextFieldNumeric from "@/app/components/TextFieldNumeric";
-import DatePickerCustom from "@/app/components/DatePickerCustom";
+import { styled } from '@mui/material/styles';
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import DatePickerCustom from "../parts/DialogProfileBasic/DatePickerCustom";
+import TextFieldNumeric from "../parts/DialogProfileBasic/TextFieldNumeric";
+import { CloudUpload } from "@mui/icons-material";
+import { AUTH_DATA } from "@/store/auth";
+import { useAuth } from "@/context/auth.context";
+import { AuthData } from "@/types/auth.type";
+import { getExternalApiUrl } from "@/utils/api";
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+})
+
 
 const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
   const [formData, setFormData] = useState({
@@ -25,9 +46,20 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
     about: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const auth : AuthData = useAuth()
 
-  const [image, setImage] = useState([]);
+
+  const [errors, setErrors] = useState({});
+  const [image, setImage] = useState(null); // Untuk menyimpan file gambar
+  const [preview, setPreview] = useState(""); // Untuk menyimpan URL pratinjau gambar
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImage(file); // Simpan file gambar
+      setPreview(URL.createObjectURL(file)); // Buat URL pratinjau
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -57,14 +89,15 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
     try {
       const payload = {
         ...formData,
-        photo: !!image[0] ? image[0] : profile.data.photo,
+        photo: image || profile.data.photo, // Gunakan gambar baru jika ada
       };
 
-      const response = await fetch("/api/profile/update", {
-        method: "POST",
+      const url = getExternalApiUrl(`/profile/${auth.data.user_id}/basic`)
+      const response = await fetch(url, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer your-token-here",
+          Authorization: "Bearer "+ auth.data.token.access_token,
         },
         body: JSON.stringify(payload),
       });
@@ -73,7 +106,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
         throw new Error("Failed to update profile");
       }
 
-      action(formData, !!image[0] ? image[0] : false, profile.data.id, setLoading, profile.data.photo);
+      action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -93,6 +126,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
         gender: profile?.data.gender || "",
         about: profile?.data.about || "",
       });
+      setPreview(profile?.data.photo || ""); // Set pratinjau gambar dari profil
     }
   }, [open]);
 
@@ -103,22 +137,40 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
         <DialogContent style={{ padding: "0 24px" }}>
           <Box marginTop={3} paddingX={1}>
             <Typography>Photo Profile</Typography>
-            {
-              /**
-                  <ImageUploader
-                    withIcon={true}
-                    buttonText="Upload Photo Profile"
-                    onChange={(value) => setImage(value)}
-                    imgExtension={[".jpg", ".jpeg", ".png"]}
-                    maxFileSize={2242880}
-                    withPreview={true}
-                    label="Max file size : 2 mb, Format : jpeg, png, jpg"
-                    accept="image/jpg,image/jpeg,image/png"
-                    singleImage={true}
-                    name="banner"
-                  />
-               */
-            }
+            {preview && (
+              <Box marginBottom={2} display="flex" justifyContent="center">
+                <img
+                  src={preview}
+                  alt="Preview"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                    border: "2px solid #ccc",
+                  }}
+                />
+              </Box>
+            )}
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <Button
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUpload />}
+              >
+                Upload files
+                <VisuallyHiddenInput
+                  multiple
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="upload-photo"
+                  type="file"
+                  onChange={handleImageChange}
+                />
+              </Button>
+            </Box>
           </Box>
           <TextField
             fullWidth
@@ -129,9 +181,6 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             onChange={(e) => handleChange("name", e.target.value)}
             error={!!errors.name}
             helperText={errors.name}
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
           />
           <TextField
             fullWidth
@@ -142,21 +191,15 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             onChange={(e) => handleChange("born_at", e.target.value)}
             error={!!errors.born_at}
             helperText={errors.born_at}
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
           />
           <DatePickerCustom
             size="small"
             label="Tanggal Lahir"
             placeholder="Pilih Tanggal"
-            format="dd MMMM yyyy"
+            format="DD MMMM YYYY"
             value={formData.born_on}
             onChange={(value) => handleChange("born_on", value)}
             margin="normal"
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
             error={!!errors.born_on}
             helperText={errors.born_on}
           />
@@ -169,9 +212,6 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             onChange={({ value }) => handleChange("identity_number", value)}
             error={!!errors.identity_number}
             helperText={errors.identity_number}
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
           />
           <TextFieldNumeric
             margin="normal"
@@ -182,9 +222,6 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             onChange={({ value }) => handleChange("phone", value)}
             error={!!errors.phone}
             helperText={errors.phone}
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
           />
           <TextField
             select
@@ -195,9 +232,6 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             onChange={(e) => handleChange("gender", e.target.value)}
             error={!!errors.gender}
             helperText={errors.gender}
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
           >
             <MenuItem value="male">Laki-laki</MenuItem>
             <MenuItem value="female">Perempuan</MenuItem>
@@ -214,9 +248,6 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             onChange={(e) => handleChange("about", e.target.value)}
             error={!!errors.about}
             helperText={errors.about}
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
           />
         </DialogContent>
         <DialogActions>
