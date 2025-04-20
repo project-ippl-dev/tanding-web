@@ -9,7 +9,8 @@ import {
   Typography, 
   Box, 
   Backdrop, 
-  CircularProgress 
+  CircularProgress, 
+  Skeleton 
 } from "@mui/material";
 import { Theme, useTheme } from "@mui/material/styles";
 import { styleData } from "@/types/global";
@@ -120,6 +121,14 @@ function customStyles(theme: Theme | null): styleData {
   return result;
 }
 
+async function fetchProfileData(): Promise<profileData> {
+  const response = await fetch("/api/profile"); // Replace with your API endpoint
+  if (!response.ok) {
+    throw new Error("Failed to fetch profile data");
+  }
+  return response.json();
+}
+
 export default function UserProfile({
   profile,
   updateProfileBasic,
@@ -138,6 +147,18 @@ export default function UserProfile({
 
   const [loading, setLoading] = useState(false);
   const [dialogProfile, setDialogProfile] = useState(false);
+  const [profileData, setProfileData] = useState<profileData | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    setLoadingProfile(true);
+    fetchProfileData()
+      .then((data) => {
+        setProfileData(data);
+        setLoadingProfile(false);
+      })
+      .catch(() => setLoadingProfile(false));
+  }, []);
 
   const useImageBackground: boolean = false;
   const backgroundProfile = React.useMemo(() => (
@@ -166,13 +187,22 @@ export default function UserProfile({
             <Paper sx={style.containerProfile}>
               <div style={style.backgroundProfile}>
                 {backgroundProfile}
-                <Avatar
-                  sx={style.avatarImage}
-                  src={profile?.data?.photo || ""}
-                  alt="User Avatar"
-                >
-                  <Person sx={{ color: "black", height: "100%", width: "100%" }} />
-                </Avatar>
+                {loadingProfile ? (
+                  <Skeleton
+                    variant="circular"
+                    width={180}
+                    height={180}
+                    sx={style.avatarImage}
+                  />
+                ) : (
+                  <Avatar
+                    sx={style.avatarImage}
+                    src={profileData?.data?.photo || ""}
+                    alt="User Avatar"
+                  >
+                    <Person sx={{ color: "black", height: "100%", width: "100%" }} />
+                  </Avatar>
+                )}
                 <IconButton
                   sx={style.iconEdit}
                   onClick={() => setDialogProfile(true)}
@@ -182,25 +212,35 @@ export default function UserProfile({
               </div>
               <Grid container sx={style.containerInformation}>
                 <Grid size={{ md: 9, xs: 12 }}>
-                  <Typography sx={style.name}>
-                    {profile?.data?.name || "Unknown Name"}
-                  </Typography>
-                  <Typography sx={style.address}>
-                    {!profile?.data?.can_participate ? (
-                      <span
-                        style={style.textLink}
-                        onClick={() => setDialogProfile(true)}
-                      >
-                        Update Profile Sekarang
-                      </span>
-                    ) : (
-                      <span>{profile?.data?.born_at || "Unknown Date"}</span>
-                    )}
-                  </Typography>
+                  {loadingProfile ? (
+                    <Skeleton width="60%" height={30} />
+                  ) : (
+                    <Typography sx={style.name}>
+                      {profileData?.data?.name || "Unknown Name"}
+                    </Typography>
+                  )}
+                  {loadingProfile ? (
+                    <Skeleton width="40%" height={20} />
+                  ) : (
+                    <Typography sx={style.address}>
+                      {!profileData?.data?.can_participate ? (
+                        <span
+                          style={style.textLink}
+                          onClick={() => setDialogProfile(true)}
+                        >
+                          Update Profile Sekarang
+                        </span>
+                      ) : (
+                        <span>{profileData?.data?.born_at || "Unknown Date"}</span>
+                      )}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid size={{ md: 3, xs: 12 }} sx={style.boxClub}>
-                  {profile?.club?.length > 0 ? (
-                    profile.club.map((value) => (
+                  {loadingProfile ? (
+                    <Skeleton width="100%" height={50} />
+                  ) : profileData?.club?.length > 0 ? (
+                    profileData.club.map((value) => (
                       <div sx={style.containGroup} key={value.id}>
                         <Avatar sx={style.imgGroup} src={value.image || ""} />
                         <Typography sx={style.textBold}>
@@ -221,7 +261,7 @@ export default function UserProfile({
       </Container>
 
       <DialogProfileBasic
-        profile={profile}
+        profile={profileData || profile}
         open={dialogProfile}
         onClose={() => setDialogProfile(false)}
         action={updateProfileBasic}
