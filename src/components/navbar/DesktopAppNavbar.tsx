@@ -46,9 +46,9 @@ export default function DesktopAppNavbar() {
   };
 
   return (
-    <div className="grow h-64">
+    <div>
       <AppBar
-        position="fixed"
+        position="static"
         sx={{
           backgroundColor: "#fff",
           boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.12)",
