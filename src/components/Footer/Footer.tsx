@@ -1,9 +1,8 @@
 "use client";
-/* eslint-disable jsx-a11y/alt-text */
 import React, { useState, useEffect } from "react";
-// Updated Material-UI imports
 import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
 import { Theme, useTheme } from "@mui/material/styles";
+import Image from "next/image";
 
 import BoxGrid from "./parts/BoxGrid";
 import { styleData } from "@/types/global";
@@ -61,7 +60,13 @@ const Footer = () => {
           flexDirection="column"
           paddingY={3}
         >
-          <img src="/images/logoWithText.png" style={style.img} />
+          <Image
+            src="/images/logoWithText.png"
+            alt="Logo"
+            width={300}
+            height={100}
+            style={style.img}
+          />
           <Typography sx={style.copyright} align="center">
             Copyright 2025 - Tanding!
           </Typography>

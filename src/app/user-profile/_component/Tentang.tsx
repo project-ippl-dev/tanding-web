@@ -1,5 +1,5 @@
 import React from "react";
-import CardProfile from "../parts/Tentang/CardProfile";
+import CardProfile from "./parts/Tentang/CardProfile";
 
 type aboutData = {
   data: Record<string,unknown>

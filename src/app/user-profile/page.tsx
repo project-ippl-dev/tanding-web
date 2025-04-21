@@ -16,8 +16,9 @@ import { Theme, useTheme } from "@mui/material/styles";
 import { styleData } from "@/types/global";
 import Edit from "@mui/icons-material/Edit";
 import Person from '@mui/icons-material/Person';
-import Tentang from "./component/Tentang";
-import DialogProfileBasic from "./component/DialogProfileBasic";
+import Tentang from "./_component/Tentang";
+import DialogProfileBasic from "./_component/DialogProfileBasic";
+import Image from "next/image";
 
 interface profileData {
     data: {[key: string]: string}
@@ -163,10 +164,12 @@ export default function UserProfile({
   const useImageBackground: boolean = false;
   const backgroundProfile = React.useMemo(() => (
     useImageBackground ? (
-      <img
-        sx={style.backgroundImage}
+      <Image
+        style={style.backgroundImage}
         alt="backgroundProfile"
         src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png"
+        layout="fill"
+        objectFit="cover"
       />
     ) : (
       <div
@@ -177,7 +180,7 @@ export default function UserProfile({
         }}
       />
     )
-  ), [useImageBackground]);
+  ), [useImageBackground, style]);
 
   return (
     <div style={{ backgroundColor: "#fff" }}>

@@ -10,17 +10,15 @@ import {
   TextField,
   MenuItem,
   Button,
-  IconButton,
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import DatePickerCustom from "../parts/DialogProfileBasic/DatePickerCustom";
-import TextFieldNumeric from "../parts/DialogProfileBasic/TextFieldNumeric";
+import DatePickerCustom from "./parts/DialogProfileBasic/DatePickerCustom";
+import TextFieldNumeric from "./parts/DialogProfileBasic/TextFieldNumeric";
 import { CloudUpload } from "@mui/icons-material";
-import { AUTH_DATA } from "@/store/auth";
 import { useAuth } from "@/context/auth.context";
 import { AuthData } from "@/types/auth.type";
 import { getExternalApiUrl } from "@/utils/api";
+import Image from "next/image";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -139,12 +137,12 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             <Typography>Photo Profile</Typography>
             {preview && (
               <Box marginBottom={2} display="flex" justifyContent="center">
-                <img
+                <Image
                   src={preview}
                   alt="Preview"
+                  width={100}
+                  height={100}
                   style={{
-                    width: "100px",
-                    height: "100px",
                     objectFit: "cover",
                     borderRadius: "50%",
                     border: "2px solid #ccc",
