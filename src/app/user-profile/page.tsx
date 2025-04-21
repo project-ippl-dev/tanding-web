@@ -18,6 +18,7 @@ import Edit from "@mui/icons-material/Edit";
 import Person from '@mui/icons-material/Person';
 import Tentang from "./component/Tentang";
 import DialogProfileBasic from "./component/DialogProfileBasic";
+import { getExternalApiUrl } from "@/utils/api";
 
 interface profileData {
     data: {[key: string]: string}
@@ -122,7 +123,7 @@ function customStyles(theme: Theme | null): styleData {
 }
 
 async function fetchProfileData(): Promise<profileData> {
-  const response = await fetch("/api/profile"); // Replace with your API endpoint
+  const response = await fetch(getExternalApiUrl("/profile/:uuid/basic")); // Replace with your API endpoint
   if (!response.ok) {
     throw new Error("Failed to fetch profile data");
   }
@@ -164,7 +165,7 @@ export default function UserProfile({
   const backgroundProfile = React.useMemo(() => (
     useImageBackground ? (
       <img
-        sx={style.backgroundImage}
+        style={style.backgroundImage}
         alt="backgroundProfile"
         src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png"
       />
@@ -240,7 +241,7 @@ export default function UserProfile({
                   {loadingProfile ? (
                     <Skeleton width="100%" height={50} />
                   ) : profileData?.club?.length > 0 ? (
-                    profileData.club.map((value) => (
+                    profileData?.club.map((value) => (
                       <div sx={style.containGroup} key={value.id}>
                         <Avatar sx={style.imgGroup} src={value.image || ""} />
                         <Typography sx={style.textBold}>
