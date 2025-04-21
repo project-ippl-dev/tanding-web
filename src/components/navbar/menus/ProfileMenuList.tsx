@@ -1,5 +1,5 @@
 "use client";
-// import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import {
   Avatar,
   Box,
@@ -38,7 +38,7 @@ export default function ProfileMenuList({
   open: boolean;
   onClose: () => void;
 }) {
-  // const router = useRouter();
+  const router = useRouter();
 
   const redirectToProfile = () => {
     // TODO: Connect to Profile
@@ -107,7 +107,6 @@ export default function ProfileMenuList({
           container
           sx={{
             minHeight: "130px",
-
           }}
         >
           <Grid
@@ -152,7 +151,7 @@ export default function ProfileMenuList({
           </Grid>
           <Grid
             size={{
-              xs: 'auto',
+              xs: "auto",
             }}
             sx={{
               px: 2,
@@ -164,7 +163,13 @@ export default function ProfileMenuList({
               justifyContent="space-between"
               height="100%"
             >
-              <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                }}
+              >
                 <ProfileMenuListButton
                 // TODO:
                 // onClick={() => {
@@ -175,13 +180,12 @@ export default function ProfileMenuList({
                   Buat Club
                 </ProfileMenuListButton>
                 <ProfileMenuListButton
-                // TODO:
-                // onClick={() => {
-                //   router.push("/club");
-                //   onClose();
-                // }}
+                  onClick={() => {
+                    router.push("/club");
+                    onClose();
+                  }}
                 >
-                  Join Club
+                  Gabung Club
                 </ProfileMenuListButton>
               </Box>
               <Box>
