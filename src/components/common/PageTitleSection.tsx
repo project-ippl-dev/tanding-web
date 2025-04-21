@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 
-export default async function PageTitleSection({
+export default function PageTitleSection({
   title,
   children,
 }: {
@@ -8,7 +8,7 @@ export default async function PageTitleSection({
   children?: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="py-10 px-50 text-white bg-[#1C1D1F]">
       <Typography
         sx={{
           fontSize: "24px",
