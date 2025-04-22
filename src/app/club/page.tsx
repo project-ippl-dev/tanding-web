@@ -1,5 +1,5 @@
 "use client";
-import { CLUB_DUMMY, CLUB_INVITE_DUMMY } from "@/store/club";
+import { CLUB_ALL_DATA, CLUB_INVITE_DUMMY } from "@/store/club";
 import { Cancel, CheckCircle } from "@mui/icons-material";
 import {
   Avatar,
@@ -19,8 +19,10 @@ import {
 } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 import TabPanel from "./_components/TabPanel";
+import { useRouter } from "next/navigation";
 
 export default function ClubPage() {
+  const router = useRouter();
   const [page, setPage] = useState<number>(1);
   const [tabValue, setTabValue] = useState<number>(0);
   const handleTab = (e: SyntheticEvent, newValue: number) => {
@@ -33,14 +35,14 @@ export default function ClubPage() {
   // };
 
   // useEffect(() => {
-  //   getAllClub(page, page_size); //Need user context later
+  //   getAllClub(page, page_size); //Need the actual fetching logic
   // }, [getAllClub, page]);
 
   // useEffect(() => {
-  //   getInviteRequest(); //Need user context later
+  //   getInviteRequest(); //Need the actual fetching logic
   // }, [getInviteRequest]);
 
-  const club = CLUB_DUMMY;
+  const club = CLUB_ALL_DATA;
   const club_invite = CLUB_INVITE_DUMMY;
 
   return (
@@ -70,14 +72,13 @@ export default function ClubPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {club.map((value, index) => (
+                {club.data?.map((value, index) => (
                   <TableRow
                     key={value.id}
                     sx={{
                       cursor: "pointer",
                     }}
-                    // TODO: Connect to club detail
-                    // onClick={() => router.push(`/club/${value.id}`)}
+                    onClick={() => router.push(`/club/${value.id}`)}
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>
@@ -94,7 +95,7 @@ export default function ClubPage() {
                     <TableCell>{value.owner}</TableCell>
                   </TableRow>
                 ))}
-                {club.length === 0 && (
+                {club.data?.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={3} align="center">
                       Tidak ada data club
@@ -158,8 +159,7 @@ export default function ClubPage() {
         <Box marginBottom={2}>
           <Pagination
             page={page}
-            // count={club.all.last_page}
-            count={10}
+            count={club.last_page}
             color="primary"
             onChange={(e, newValue) => setPage(newValue)}
           />
