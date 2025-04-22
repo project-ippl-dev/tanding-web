@@ -1,13 +1,14 @@
 "use client";
+import { ClubBaseType } from "@/types/club.type";
 import { Autocomplete, Button, Grid, MenuItem, TextField } from "@mui/material";
 import { useState } from "react";
 
 export default function SearchUser({
-  clubId,
+  // clubId,
   club,
 }: {
-  clubId: number;
-  club: any; // TODO: Make Club type
+  // clubId: string;
+  club?: ClubBaseType; // TODO: Make Club type
 }) {
   const [keyword, setKeyword] = useState<string>("");
   const [userSelected, setUserSelected] = useState(null);
@@ -44,10 +45,11 @@ export default function SearchUser({
           value={sportSelected}
           onChange={({ target: { value } }) => setSportSelected(value)}
         >
-          {/* TODO */}
-          {/* {club.sports.map((value) => (
-            <MenuItem value={value.sport_id}>{value.sport_name}</MenuItem>
-          ))} */}
+          {club?.sports.map((value, index) => (
+            <MenuItem key={`club-sport-${index}`} value={value.sport_id}>
+              {value.sport_name}
+            </MenuItem>
+          ))}
         </TextField>
       </Grid>
       <Grid size={{ md: 1, xs: 12 }}>

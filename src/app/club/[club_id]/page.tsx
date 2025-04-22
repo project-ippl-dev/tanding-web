@@ -1,5 +1,5 @@
 "use client";
-import { CLUB_DUMMY } from "@/store/club";
+import { CLUB_JOIN_DATA, CLUB_MEMBER_DATA, CLUB_ONE_DATA } from "@/store/club";
 import {
   Avatar,
   Box,
@@ -17,21 +17,26 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import { SyntheticEvent, useState } from "react";
 import TabPanel from "../_components/TabPanel";
 import { Cancel, CheckCircle } from "@mui/icons-material";
+import SearchUser from "../_components/SearchUser";
+import DialogJoinClub from "../_components/DialogJoinClub";
 
 export default function ClubDetailPage() {
-  const params = useParams<{ club_id: string }>();
-  const club = CLUB_DUMMY[parseInt(params.club_id)];
+  // const params = useParams<{ club_id: string }>();
+  // TODO: Connect to BE
+  const club = CLUB_ONE_DATA;
+  const club_member = CLUB_MEMBER_DATA;
+  const club_join = CLUB_JOIN_DATA;
 
   const [tabValue, setTabValue] = useState<number>(0);
-  // const [dialogJoin, setDialogJoin] = useState<boolean>(false);
+  const [dialogJoin, setDialogJoin] = useState<boolean>(false);
 
   const handleTab = (e: SyntheticEvent, newValue: number) => {
-      setTabValue(newValue);
-    };
+    setTabValue(newValue);
+  };
 
   if (!club) {
     notFound();
@@ -63,7 +68,7 @@ export default function ClubDetailPage() {
               {club ? (
                 <>
                   <Avatar
-                    src={club?.logo}
+                    src={club?.data.logo}
                     sx={{
                       width: "130px",
                       height: "130px",
@@ -71,7 +76,7 @@ export default function ClubDetailPage() {
                   />
                   <Box marginTop={2}>
                     <Typography variant="h6" align="center">
-                      {club?.short_name}
+                      {club?.data.short_name}
                     </Typography>
                     <Typography
                       sx={{
@@ -80,10 +85,10 @@ export default function ClubDetailPage() {
                         textAlign: "center",
                       }}
                     >
-                      {club?.name}
+                      {club?.data.name}
                     </Typography>
                   </Box>
-                  {!club?.joined && (
+                  {!club?.data.joined && (
                     <Box marginTop={2}>
                       <Button
                         variant="contained"
@@ -118,12 +123,10 @@ export default function ClubDetailPage() {
             >
               <Tabs value={tabValue} onChange={handleTab}>
                 <Tab label="Member" />
-                {club?.privilege && <Tab label="Join Request" />}
+                {club?.data.privilege ? <Tab label="Join Request" /> : null}
               </Tabs>
               <TabPanel value={tabValue} index={0}>
-                {/* {club?.privilege && (
-                  <SearchUser clubId={params.club_id} />
-                )} */}
+                {club.data?.privilege ? <SearchUser club={club.data} /> : null}
                 <Table>
                   <TableHead>
                     <TableRow>
@@ -133,7 +136,7 @@ export default function ClubDetailPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {club.member?.map((value, index) => (
+                    {club_member.data?.participants.map((value, index) => (
                       <TableRow key={value.id}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{value.name}</TableCell>
@@ -154,14 +157,14 @@ export default function ClubDetailPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {club.join?.map((value, index) => (
+                    {club_join.data?.map((value, index) => (
                       <TableRow key={value.id}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{value.name}</TableCell>
                         <TableCell>
                           <IconButton
                           // TODO: Connect to BE
-                            // onClick={() => handleJoinApprove(value.id, true)}
+                          // onClick={() => handleJoinApprove(value.id, true)}
                           >
                             <CheckCircle style={{ color: "green" }} />
                           </IconButton>
@@ -169,20 +172,20 @@ export default function ClubDetailPage() {
                         <TableCell>
                           <IconButton
                           // TODO: Connect to BE
-                            // onClick={() => handleJoinApprove(value.id, false)}
+                          // onClick={() => handleJoinApprove(value.id, false)}
                           >
                             <Cancel style={{ color: "red" }} />
                           </IconButton>
                         </TableCell>
                       </TableRow>
                     ))}
-                    {club.join?.length === 0 && (
+                    {club_join.data?.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={3} align="center">
                           Tidak ada request join
                         </TableCell>
                       </TableRow>
-                    )}
+                    ) : null}
                   </TableBody>
                 </Table>
               </TabPanel>
@@ -192,6 +195,11 @@ export default function ClubDetailPage() {
       </Grid>
 
       {/* Dialog JOIN */}
+      <DialogJoinClub
+        open={dialogJoin}
+        onClose={() => setDialogJoin(false)}
+        data={club.data}
+      />
     </Container>
   );
 }
