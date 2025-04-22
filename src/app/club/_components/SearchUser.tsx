@@ -1,0 +1,67 @@
+"use client";
+import { Autocomplete, Button, Grid, MenuItem, TextField } from "@mui/material";
+import { useState } from "react";
+
+export default function SearchUser({
+  clubId,
+  club,
+}: {
+  clubId: number;
+  club: any; // TODO: Make Club type
+}) {
+  const [keyword, setKeyword] = useState<string>("");
+  const [userSelected, setUserSelected] = useState(null);
+  const [sportSelected, setSportSelected] = useState("");
+
+  return (
+    <Grid container alignItems="center">
+      <Grid size={{ md: 6, xs: 12 }}>
+        <Autocomplete
+          fullWidth
+          // getOptionLabel={(option) => option.name}
+          options={[]} //TODO: User List for autocomplete
+          inputValue={keyword}
+          onInputChange={(_, newInputValue) => {
+            setKeyword(newInputValue);
+          }}
+          value={userSelected}
+          onChange={(e, newValue) => setUserSelected(newValue)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Invite new member"
+              variant="outlined"
+            />
+          )}
+        />
+      </Grid>
+      <Grid size={{ md: 5, xs: 12 }}>
+        <TextField
+          select
+          fullWidth
+          variant="outlined"
+          label="olahraga"
+          value={sportSelected}
+          onChange={({ target: { value } }) => setSportSelected(value)}
+        >
+          {/* TODO */}
+          {/* {club.sports.map((value) => (
+            <MenuItem value={value.sport_id}>{value.sport_name}</MenuItem>
+          ))} */}
+        </TextField>
+      </Grid>
+      <Grid size={{ md: 1, xs: 12 }}>
+        <Button
+          style={{ height: "100%" }}
+          fullWidth
+          variant="contained"
+          color="primary"
+          // onClick={onSubmit}
+          disabled={userSelected === null || sportSelected === ""}
+        >
+          Invite
+        </Button>
+      </Grid>
+    </Grid>
+  );
+}
