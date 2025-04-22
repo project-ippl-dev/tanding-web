@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import StyledMenu from "./StyledMenu";
 import { ExitToApp } from "@mui/icons-material";
-import { CLUB_DUMMY } from "@/store/club"; //TODO: This is Dummy Data. Connect to actual club data
+import { CLUB_ALL_DATA } from "@/store/club"; //TODO: This is Dummy Data. Connect to actual club data
 
 const BoldText = styled(Typography)(() => ({
   fontWeight: 600,
@@ -39,16 +39,16 @@ export default function ProfileMenuList({
   onClose: () => void;
 }) {
   const router = useRouter();
+  //TODO: connect to BE
+  const club = CLUB_ALL_DATA;
 
   const redirectToProfile = () => {
-    // TODO: Connect to Profile
-    // router.push("/profile");
+    router.push("/profile");
     onClose();
   };
 
-  const redirectToClub = () => {
-    // TODO: Connect to actual club
-    // router.push(`/club/${id}`);
+  const redirectToClub = (id: string) => {
+    router.push(`/club/${id}`);
     onClose();
   };
 
@@ -123,7 +123,7 @@ export default function ProfileMenuList({
             </Box>
             <Divider />
             <Divider />
-            {CLUB_DUMMY.map((value) => (
+            {club.data?.map((value) => (
               <Box
                 key={value.id}
                 sx={{
@@ -132,8 +132,7 @@ export default function ProfileMenuList({
                   marginTop: 1,
                   cursor: "pointer",
                 }}
-                // onClick={() => redirectClub(value.id)}
-                onClick={() => redirectToClub()}
+                onClick={() => redirectToClub(value.id)}
               >
                 <Avatar
                   src={value.logo}
@@ -171,11 +170,10 @@ export default function ProfileMenuList({
                 }}
               >
                 <ProfileMenuListButton
-                // TODO:
-                // onClick={() => {
-                //   router.push("/create-club");
-                //   onClose();
-                // }}
+                onClick={() => {
+                  router.push("/create-club");
+                  onClose();
+                }}
                 >
                   Buat Club
                 </ProfileMenuListButton>
