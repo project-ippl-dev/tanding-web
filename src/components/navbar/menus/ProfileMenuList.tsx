@@ -43,7 +43,7 @@ export default function ProfileMenuList({
   const club = CLUB_ALL_DATA;
 
   const redirectToProfile = () => {
-    router.push("/profile");
+    router.push("/user-profile");
     onClose();
   };
 
