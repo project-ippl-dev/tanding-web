@@ -1,7 +1,8 @@
 import { AUTH_DATA } from "@/store/auth"
+import { AuthData } from "@/types/auth.type";
 import React, { createContext, useContext } from "react"
 
-const AuthContext = createContext({})
+const AuthContext = createContext<AuthData>(AUTH_DATA)
 
 export function AuthProvider({
   children,
@@ -15,4 +16,4 @@ export function AuthProvider({
   );
 }
 
-export const useAuth = () => (useContext(AuthContext))
+export const useAuth = (): AuthData => (useContext(AuthContext))

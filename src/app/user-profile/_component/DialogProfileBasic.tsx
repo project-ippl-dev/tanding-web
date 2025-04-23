@@ -19,6 +19,7 @@ import { useAuth } from "@/context/auth.context";
 import { AuthData } from "@/types/auth.type";
 import { getExternalApiUrl } from "@/utils/api";
 import Image from "next/image";
+import moment from "moment";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -34,7 +35,15 @@ const VisuallyHiddenInput = styled('input')({
 
 
 const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    born_at: string;
+    born_on: Date | null;
+    identity_number: string;
+    phone: string;
+    gender: string;
+    about: string;
+  }>({
     name: "",
     born_at: "",
     born_on: null,
@@ -46,13 +55,12 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
 
   const auth : AuthData = useAuth()
 
-
-  const [errors, setErrors] = useState({});
-  const [image, setImage] = useState(null); // Untuk menyimpan file gambar
+  const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
+  const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
   const [preview, setPreview] = useState(""); // Untuk menyimpan URL pratinjau gambar
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
     if (file) {
       setImage(file); // Simpan file gambar
       setPreview(URL.createObjectURL(file)); // Buat URL pratinjau
@@ -60,7 +68,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: Record<string, string> = {}; // Annotate newErrors as a record of string keys and string values
     if (!formData.name) newErrors.name = "Nama lengkap harus diisi";
     if (!formData.born_at) newErrors.born_at = "Tempat lahir harus diisi";
     if (!formData.born_on) newErrors.born_on = "Tanggal lahir harus diisi";
@@ -75,11 +83,11 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: keyof typeof formData, value: string | Date | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -196,7 +204,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             placeholder="Pilih Tanggal"
             format="DD MMMM YYYY"
             value={formData.born_on}
-            onChange={(value) => handleChange("born_on", value)}
+            onChange={(value: moment.Moment | null) => handleChange("born_on", value ? value.toDate() : null)}
             margin="normal"
             error={!!errors.born_on}
             helperText={errors.born_on}
@@ -207,7 +215,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             format="######-######-####"
             placeholder="123456-123456-0000"
             value={formData.identity_number}
-            onChange={({ value }) => handleChange("identity_number", value)}
+            onChange={({ value }: { value: string }) => handleChange("identity_number", value)} // Annotate onChange prop
             error={!!errors.identity_number}
             helperText={errors.identity_number}
           />
@@ -217,7 +225,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             placeholder="1234-5678-00000"
             format="####-####-#####"
             value={formData.phone}
-            onChange={({ value }) => handleChange("phone", value)}
+            onChange={({ value }: { value: string }) => handleChange("phone", value)} // Annotate onChange prop
             error={!!errors.phone}
             helperText={errors.phone}
           />
@@ -227,7 +235,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             margin="normal"
             label="Jenis Kelamin"
             value={formData.gender}
-            onChange={(e) => handleChange("gender", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("gender", e.target.value)} // Annotate onChange prop
             error={!!errors.gender}
             helperText={errors.gender}
           >
