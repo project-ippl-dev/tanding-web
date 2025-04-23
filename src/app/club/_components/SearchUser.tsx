@@ -15,8 +15,12 @@ export default function SearchUser({
   const [sportSelected, setSportSelected] = useState("");
 
   return (
-    <Grid container alignItems="center">
-      <Grid size={{ md: 6, xs: 12 }}>
+    <Grid
+      container
+      alignItems="center"
+      sx={(theme) => ({ gap: theme.spacing(2) })}
+    >
+      <Grid size={{ md: 5, xs: 12 }}>
         <Autocomplete
           fullWidth
           // getOptionLabel={(option) => option.name}

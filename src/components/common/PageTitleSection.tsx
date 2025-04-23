@@ -8,7 +8,7 @@ export default function PageTitleSection({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="py-10 px-50 text-white bg-[#1C1D1F]">
+    <div className="py-10 md:px-50 px-20 text-white bg-[#1C1D1F]">
       <Typography
         sx={{
           fontSize: "24px",
