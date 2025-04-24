@@ -148,12 +148,14 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
                 <Image
                   src={preview}
                   alt="Preview"
-                  width={100}
-                  height={100}
+                  width={100} // Ukuran tetap untuk lebar
+                  height={100} // Ukuran tetap untuk tinggi
                   style={{
-                    objectFit: "cover",
-                    borderRadius: "50%",
-                    border: "2px solid #ccc",
+                    objectFit: 'cover', // Memastikan gambar tetap proporsional
+                    borderRadius: "50%", // Membuat gambar berbentuk lingkaran
+                    width: '100px', // Ukuran tetap untuk lebar
+                    height: '100px', // Ukuran tetap untuk tinggi
+                    border: "2px solid #ccc", // Menambahkan border
                   }}
                 />
               </Box>

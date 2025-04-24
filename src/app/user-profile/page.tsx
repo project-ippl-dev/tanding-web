@@ -12,140 +12,35 @@ import {
   CircularProgress, 
   Skeleton 
 } from "@mui/material";
-import { Theme, useTheme } from "@mui/material/styles";
-import { styleData } from "@/types/global";
+import { useTheme, styled } from "@mui/material/styles";
 import Edit from "@mui/icons-material/Edit";
 import Person from '@mui/icons-material/Person';
 import Tentang from "./_component/Tentang";
 import DialogProfileBasic from "./_component/DialogProfileBasic";
 import Image from "next/image";
 import { getExternalApiUrl } from "@/utils/api";
+import { ProfileData } from "@/types/profile";
 
 interface profileData {
-    data: {[key: string]: string}
-    club: Array<Record<string,unknown>>
+    message: string
+    data: ProfileData
 }
 
-function customStyles(theme: Theme | null): styleData {
-  const result = {
-    root: {
-      paddingTop: theme ? theme.spacing(3) : undefined,
-      ...(theme && {
-        [theme.breakpoints.down("md")]: {
-          paddingTop: theme.spacing(9),
-        },
-      }),
-    },
-    containerProfile: {
-      borderRadius: "10px",
-    },
-    backgroundProfile: {
-      width: "100%",
-      height: "300px",
-      position: "relative",
-    },
-    iconCamera: {
-      backgroundColor: "#fff",
-      color: "#0B66C2",
-      position: "absolute",
-      top: "15px",
-      right: "15px",
-    },
-    backgroundImage: {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      borderRadius: "10px 10px 0 0",
-    },
-    avatarImage: {
-      width: "180px",
-      height: "180px",
-      position: "absolute",
-      top: "160px",
-      left: "40px",
-      border: "5px solid #fff",
-      backgroundColor: "#fff",
-      "& img": {
-        marginTop: "3px",
-      },
-    },
-    iconEdit: {
-      position: "absolute",
-      top: "310px",
-      right: "15px",
-    },
-    containerInformation: {
-      padding: theme ? theme.spacing(7, 4, 3, 4) : undefined,
-    },
-    name: {
-      fontSize: "27px",
-      fontWeight: "bold",
-    },
-    title: {
-      fontWeight: "400",
-      fontSize: "17px",
-    },
-    address: {
-      color: "#929292",
-    },
-    containGroup: {
-      display: "flex",
-      alignItems: "center",
-      marginBottom: theme ? theme.spacing(1.3) : undefined,
-    },
-    imgGroup: {
-      marginRight: theme ? theme.spacing(1) : undefined,
-    },
-    textBold: {
-      fontWeight: "bold",
-    },
-    boxClub: {
-      ...(theme && {
-        [theme.breakpoints.down("md")]: {
-          marginTop: theme.spacing(3),
-        },
-      }),
-    },
-    textLink: {
-      fontWeight: 700,
-      color: "blue",
-      cursor: "pointer",
-      "&:hover": {
-        textDecoration: "underline",
-      },
-    },
-    backdrop: {
-      zIndex: theme ? theme.zIndex.drawer + 1 : undefined,
-      color: "#fff",
-    },
-  };
-
-  return result;
-}
-
-async function fetchProfileData(): Promise<profileData> {
-  const response = await fetch(getExternalApiUrl("/profile/:uuid/basic")); // Replace with your API endpoint
-  if (!response.ok) {
-    throw new Error("Failed to fetch profile data");
-  }
-  return response.json();
-}
+const HoverableSpan = styled("span")(() => ({
+  fontWeight: 700,
+  color: "blue",
+  cursor: "pointer",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+}));
 
 export default function UserProfile({
-  profile,
   updateProfileBasic,
 }: {
-  profile: profileData;
   updateProfileBasic: () => void;
 }) {
   const theme = useTheme();
-  const [isClient, setIsClient] = useState(false);
-  const parameter = isClient ? theme : null;
-  const style: styleData = customStyles(parameter);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const [loading, setLoading] = useState(false);
   const [dialogProfile, setDialogProfile] = useState(false);
@@ -153,20 +48,42 @@ export default function UserProfile({
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
-    setLoadingProfile(true);
-    fetchProfileData()
-      .then((data) => {
+    const fetchProfileData = async () => {
+      try {
+        setLoadingProfile(true);
+        const token = ""; // Replace with actual token retrieval logic
+        const response = await fetch(getExternalApiUrl("/profile/own/basic"), {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const data: profileData = await response.json();
         setProfileData(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
         setLoadingProfile(false);
-      })
-      .catch(() => setLoadingProfile(false));
+      }
+    };
+
+    fetchProfileData();
   }, []);
 
   const useImageBackground: boolean = false;
   const backgroundProfile = React.useMemo(() => (
     useImageBackground ? (
       <Image
-        style={style.backgroundImage}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          borderRadius: "10px 10px 0 0",
+        }}
         alt="backgroundProfile"
         src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png"
         layout="fill"
@@ -181,26 +98,59 @@ export default function UserProfile({
         }}
       />
     )
-  ), [useImageBackground, style]);
+  ), [useImageBackground]);
 
   return (
     <div style={{ backgroundColor: "#fff" }}>
-      <Container maxWidth="lg" sx={style.root}>
+      <Container
+        maxWidth="lg"
+        sx={{
+          paddingTop: theme.spacing(3),
+          [theme.breakpoints.down("md")]: {
+            paddingTop: theme.spacing(9),
+          },
+        }}
+      >
         <Grid container>
           <Grid size={{ xs: 12 }}>
-            <Paper sx={style.containerProfile}>
-              <div style={style.backgroundProfile}>
+            <Paper sx={{ borderRadius: "10px" }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: "300px",
+                  position: "relative",
+                }}
+              >
                 {backgroundProfile}
                 {loadingProfile ? (
                   <Skeleton
                     variant="circular"
                     width={180}
                     height={180}
-                    sx={style.avatarImage}
+                    sx={{
+                      width: "180px",
+                      height: "180px",
+                      position: "absolute",
+                      top: "160px",
+                      left: "40px",
+                      border: "5px solid #fff",
+                      backgroundColor: "#fff",
+                    }}
                   />
                 ) : (
                   <Avatar
-                    sx={style.avatarImage}
+                    sx={{
+                      width: "180px",
+                      height: "180px",
+                      position: "absolute",
+                      top: "160px",
+                      left: "40px",
+                      border: "5px solid #fff",
+                      backgroundColor: "#fff",
+                      "& img": {
+                        marginTop: "3px",
+                      },
+                    }}
                     src={profileData?.data?.photo || ""}
                     alt="User Avatar"
                   >
@@ -208,46 +158,84 @@ export default function UserProfile({
                   </Avatar>
                 )}
                 <IconButton
-                  sx={style.iconEdit}
+                  sx={{
+                    position: "absolute",
+                    top: "310px",
+                    right: "15px",
+                  }}
                   onClick={() => setDialogProfile(true)}
                 >
                   <Edit />
                 </IconButton>
               </div>
-              <Grid container sx={style.containerInformation}>
+              <Grid
+                container
+                sx={{
+                  padding: theme.spacing(7, 4, 3, 4),
+                }}
+              >
                 <Grid size={{ md: 9, xs: 12 }}>
                   {loadingProfile ? (
                     <Skeleton width="60%" height={30} />
                   ) : (
-                    <Typography sx={style.name}>
+                    <Typography
+                      sx={{
+                        fontSize: "27px",
+                        fontWeight: "bold",
+                      }}
+                    >
                       {profileData?.data?.name || "Unknown Name"}
                     </Typography>
                   )}
                   {loadingProfile ? (
                     <Skeleton width="40%" height={20} />
                   ) : (
-                    <Typography sx={style.address}>
+                    <Typography
+                      sx={{
+                        color: "#929292",
+                      }}
+                    >
                       {!profileData?.data?.can_participate ? (
-                        <span
-                          style={style.textLink}
-                          onClick={() => setDialogProfile(true)}
-                        >
+                        <HoverableSpan onClick={() => setDialogProfile(true)}>
                           Update Profile Sekarang
-                        </span>
+                        </HoverableSpan>
                       ) : (
                         <span>{profileData?.data?.born_at || "Unknown Date"}</span>
                       )}
                     </Typography>
                   )}
                 </Grid>
-                <Grid size={{ md: 3, xs: 12 }} sx={style.boxClub}>
+                <Grid
+                  size={{ md: 3, xs: 12 }}
+                  sx={{
+                    [theme.breakpoints.down("md")]: {
+                      marginTop: theme.spacing(3),
+                    },
+                  }}
+                >
                   {loadingProfile ? (
                     <Skeleton width="100%" height={50} />
                   ) : profileData?.club?.length > 0 ? (
                     profileData?.club.map((value) => (
-                      <div sx={style.containGroup} key={value.id}>
-                        <Avatar sx={style.imgGroup} src={value.image || ""} />
-                        <Typography sx={style.textBold}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: theme.spacing(1.3),
+                        }}
+                        key={value.id}
+                      >
+                        <Avatar
+                          sx={{
+                            marginRight: theme.spacing(1),
+                          }}
+                          src={value.image || ""}
+                        />
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                        >
                           {value.name || "Unknown Club"}
                         </Typography>
                       </div>
@@ -265,14 +253,20 @@ export default function UserProfile({
       </Container>
 
       <DialogProfileBasic
-        profile={profileData || profile}
+        profile={profileData}
         open={dialogProfile}
         onClose={() => setDialogProfile(false)}
         action={updateProfileBasic}
         setLoading={setLoading}
       />
 
-      <Backdrop open={loading} sx={style.backdrop}>
+      <Backdrop
+        open={loading}
+        sx={{
+          zIndex: theme.zIndex.drawer + 1,
+          color: "#fff",
+        }}
+      >
         <CircularProgress color="inherit" />
       </Backdrop>
     </div>
