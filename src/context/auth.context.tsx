@@ -16,4 +16,4 @@ export function AuthProvider({
   );
 }
 
-export const useAuth = (): AuthData => (useContext(AuthContext))
+export const useAuth = (): AuthData => useContext(AuthContext);

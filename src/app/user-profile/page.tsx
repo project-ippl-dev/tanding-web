@@ -20,6 +20,7 @@ import DialogProfileBasic from "./_component/DialogProfileBasic";
 import Image from "next/image";
 import { getExternalApiUrl } from "@/utils/api";
 import { ProfileData } from "@/types/profile";
+import { useAuth } from "@/context/auth.context";
 
 interface profileData {
     message: string
@@ -40,7 +41,8 @@ export default function UserProfile({
 }: {
   updateProfileBasic: () => void;
 }) {
-  const theme = useTheme();
+  const theme = useTheme()
+  const authData = useAuth()
 
   const [loading, setLoading] = useState(false);
   const [dialogProfile, setDialogProfile] = useState(false);
@@ -52,9 +54,10 @@ export default function UserProfile({
       try {
         setLoadingProfile(true);
         const token = ""; // Replace with actual token retrieval logic
-        const response = await fetch(getExternalApiUrl("/profile/own/basic"), {
+        const url = process.env.NODE_ENV === 'development'? 'own' : authData?.data?.user_id
+        const response = await fetch("/api/profile/own", {
           method: "GET",
-          headers: {
+          headers: { 
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
@@ -63,6 +66,7 @@ export default function UserProfile({
           throw new Error("Failed to fetch data");
         }
         const data: profileData = await response.json();
+        console.log(data)
         setProfileData(data);
       } catch (error) {
         console.error(error);
@@ -215,8 +219,8 @@ export default function UserProfile({
                 >
                   {loadingProfile ? (
                     <Skeleton width="100%" height={50} />
-                  ) : profileData?.club?.length > 0 ? (
-                    profileData?.club.map((value) => (
+                  ) : authData?.data?.clubs.length > 0 ? (
+                    authData.data.clubs.map((value) => (
                       <div
                         style={{
                           display: "flex",
@@ -246,7 +250,7 @@ export default function UserProfile({
                 </Grid>
               </Grid>
             </Paper>
-            <Tentang />
+            <Tentang wait={loadingProfile} description={profileData?.data?.about || null}/>
           </Grid>
         </Grid>
         <Box height="200px" />
