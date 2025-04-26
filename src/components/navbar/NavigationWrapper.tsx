@@ -4,6 +4,7 @@ import DesktopAppNavbar from "./DesktopAppNavbar";
 import MobileAppNavbar from "./MobileAppNavbar";
 import MobileBottomNavbar from "./MobileBottomNavbar";
 import MobileDrawer from "./MobileDrawer";
+import { Toolbar } from "@mui/material";
 
 export default function Navbar({
   children,
@@ -16,16 +17,16 @@ export default function Navbar({
   return (
     <>
       <header>
-        <div className="hidden md:block">
+        <div className="hidden sm:block">
           <DesktopAppNavbar />
         </div>
-        <div className="block md:hidden">
+        <div className="block sm:hidden">
           <MobileAppNavbar setOpenDrawer={setOpenDrawer} />
+          <Toolbar />
         </div>
       </header>
-
       <>{children}</>
-      <div className="block md:hidden">
+      <div className="block sm:hidden">
         <MobileBottomNavbar />
       </div>
       <MobileDrawer open={openDrawer} onClose={() => setOpenDrawer(false)} />
