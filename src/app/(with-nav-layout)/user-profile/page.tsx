@@ -18,8 +18,7 @@ import Person from '@mui/icons-material/Person';
 import Tentang from "./_component/Tentang";
 import DialogProfileBasic from "./_component/DialogProfileBasic";
 import Image from "next/image";
-import { getExternalApiUrl } from "@/utils/api";
-import { ProfileBasicResponse, ProfileData, ProfileUpdate } from "@/types/profile";
+import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 import { useAuth } from "@/context/auth.context";
 
 const HoverableSpan = styled("span")(() => ({
@@ -71,7 +70,7 @@ export default function UserProfile() {
 
   function updateProfileData(updatedData: ProfileUpdate){
     setProfileData(prevState => {
-      let result = {
+      const result = {
         message:'',
         data:{}
       }

@@ -2,9 +2,6 @@ import React from "react";
 import CardProfile from "./parts/Tentang/CardProfile";
 import { Skeleton } from "@mui/material";
 
-type aboutData = {
-  data: Record<string,unknown>
-}
 
 export default function Tentang ({ 
   description,
