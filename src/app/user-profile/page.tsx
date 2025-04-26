@@ -19,13 +19,8 @@ import Tentang from "./_component/Tentang";
 import DialogProfileBasic from "./_component/DialogProfileBasic";
 import Image from "next/image";
 import { getExternalApiUrl } from "@/utils/api";
-import { ProfileData } from "@/types/profile";
+import { ProfileBasicResponse, ProfileData, ProfileUpdate } from "@/types/profile";
 import { useAuth } from "@/context/auth.context";
-
-interface profileData {
-    message: string
-    data: ProfileData
-}
 
 const HoverableSpan = styled("span")(() => ({
   fontWeight: 700,
@@ -36,17 +31,13 @@ const HoverableSpan = styled("span")(() => ({
   },
 }));
 
-export default function UserProfile({
-  updateProfileBasic,
-}: {
-  updateProfileBasic: () => void;
-}) {
+export default function UserProfile() {
   const theme = useTheme()
   const authData = useAuth()
 
   const [loading, setLoading] = useState(false);
   const [dialogProfile, setDialogProfile] = useState(false);
-  const [profileData, setProfileData] = useState<profileData | null>(null);
+  const [profileData, setProfileData] = useState<ProfileBasicResponse | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
@@ -55,7 +46,7 @@ export default function UserProfile({
         setLoadingProfile(true);
         const token = ""; // Replace with actual token retrieval logic
         const url = process.env.NODE_ENV === 'development'? 'own' : authData?.data?.user_id
-        const response = await fetch("/api/profile/own", {
+        const response = await fetch(`/api/profile/${url}`, {
           method: "GET",
           headers: { 
             "Content-Type": "application/json",
@@ -65,7 +56,7 @@ export default function UserProfile({
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
-        const data: profileData = await response.json();
+        const data: ProfileBasicResponse = await response.json();
         console.log(data)
         setProfileData(data);
       } catch (error) {
@@ -77,6 +68,30 @@ export default function UserProfile({
 
     fetchProfileData();
   }, []);
+
+  function updateProfileData(updatedData: ProfileUpdate){
+    setProfileData(prevState => {
+      let result = {
+        message:'',
+        data:{}
+      }
+
+      if (prevState) result.data = {
+          ...prevState.data,
+          ...updatedData,
+          born_on:{
+            Time: updatedData.born_on,
+            Valid:true
+          }}
+      else {
+        // Kondisi yang sepertinya gak akan terjadi
+        // Data Profil Awalnya udah null
+        result.message = ''
+        result.data = updatedData
+      }
+      return result
+    })
+  }
 
   const useImageBackground: boolean = false;
   const backgroundProfile = React.useMemo(() => (
@@ -260,7 +275,7 @@ export default function UserProfile({
         profile={profileData}
         open={dialogProfile}
         onClose={() => setDialogProfile(false)}
-        action={updateProfileBasic}
+        action={updateProfileData}
         setLoading={setLoading}
       />
 

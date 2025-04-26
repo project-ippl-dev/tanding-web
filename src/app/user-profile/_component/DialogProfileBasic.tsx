@@ -20,6 +20,7 @@ import { AuthData } from "@/types/auth.type";
 import { getExternalApiUrl } from "@/utils/api";
 import Image from "next/image";
 import moment from "moment";
+import { ProfileBasicResponse, ProfileData, ProfileUpdate } from "@/types/profile";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -34,36 +35,48 @@ const VisuallyHiddenInput = styled('input')({
 })
 
 
-const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
-  const [formData, setFormData] = useState<{
-    name: string;
-    born_at: string;
-    born_on: Date | null;
-    identity_number: string;
-    phone: string;
-    gender: string;
-    about: string;
-  }>({
+interface DialogProfileBasicProps {
+  open: boolean;
+  action: (data: ProfileUpdate) => void;
+  onClose: () => void;
+  setLoading: (loading: boolean) => void;
+  profile: ProfileBasicResponse | null;
+}
+
+const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
+  open,
+  action,
+  onClose,
+  setLoading,
+  profile,
+}) => {
+  const [formData, setFormData] = useState<ProfileUpdate>({
     name: "",
     born_at: "",
-    born_on: null,
+    born_on: "",
     identity_number: "",
     phone: "",
     gender: "",
     about: "",
+    photo: ""
   });
 
   const auth : AuthData = useAuth()
-
+  
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
   const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
-  const [preview, setPreview] = useState(""); // Untuk menyimpan URL pratinjau gambar
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
+      if (formData.photo) {
+        URL.revokeObjectURL(formData.photo); // Hapus URL lama
+      }
       setImage(file); // Simpan file gambar
-      setPreview(URL.createObjectURL(file)); // Buat URL pratinjau
+      setFormData(prevState => ({
+        ...prevState,
+        photo: URL.createObjectURL(file), // Simpan URL gambar
+      }))
     }
   };
 
@@ -95,11 +108,11 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
     try {
       const payload = {
         ...formData,
-        photo: image || profile.data.photo, // Gunakan gambar baru jika ada
+        photo: image || profile?.data.photo, // Gunakan gambar baru jika ada
       };
 
-      const url = getExternalApiUrl(`/profile/${auth.data.user_id}/basic`)
-      const response = await fetch(url, {
+      const url = process.env.NODE_ENV === 'development'? 'own' : auth?.data?.user_id
+      const response = await fetch(`/api/profile/${url}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -111,8 +124,13 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
       if (!response.ok) {
         throw new Error("Failed to update profile");
       }
+      const result = await response.json();
+      console.log(result);
 
-      action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
+      console.log("Profile updated successfully");
+      // action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
+      
+      action(formData);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -126,15 +144,25 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
       setFormData({
         name: profile?.data.name || "",
         born_at: profile?.data.born_at || "",
-        born_on: profile?.data.born_on?.Time || null,
+        born_on: profile?.data.born_on?.Time || "",
         identity_number: profile?.data.identity_number || "",
         phone: profile?.data.phone || "",
         gender: profile?.data.gender || "",
         about: profile?.data.about || "",
+        photo: profile?.data.photo || ""
       });
-      setPreview(profile?.data.photo || ""); // Set pratinjau gambar dari profil
     }
   }, [open]);
+
+  /*
+  useEffect(() => {
+    return () => {
+      if (formData.photo) {
+        URL.revokeObjectURL(formData.photo); // Bersihkan URL saat komponen unmount
+      }
+    };
+  }, [formData.photo]);
+  */
 
   return (
     <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose}>
@@ -143,10 +171,10 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
         <DialogContent style={{ padding: "0 24px" }}>
           <Box marginTop={3} paddingX={1}>
             <Typography>Photo Profile</Typography>
-            {preview && (
+            {formData.photo && (
               <Box marginBottom={2} display="flex" justifyContent="center">
                 <Image
-                  src={preview}
+                  src={formData.photo}
                   alt="Preview"
                   width={100} // Ukuran tetap untuk lebar
                   height={100} // Ukuran tetap untuk tinggi
@@ -205,7 +233,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             label="Tanggal Lahir"
             placeholder="Pilih Tanggal"
             format="DD MMMM YYYY"
-            value={formData.born_on}
+            value={moment(formData.born_on)}
             onChange={(value: moment.Moment | null) => handleChange("born_on", value ? value.toDate() : null)}
             margin="normal"
             error={!!errors.born_on}
