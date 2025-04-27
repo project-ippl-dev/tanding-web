@@ -20,6 +20,7 @@ import DialogProfileBasic from "./_component/DialogProfileBasic";
 import Image from "next/image";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 import { useAuth } from "@/context/auth.context";
+import { profile } from "console";
 
 const HoverableSpan = styled("span")(() => ({
   fontWeight: 700,
@@ -119,7 +120,26 @@ export default function UserProfile() {
   ), [useImageBackground]);
 
 
-  const MemoizedAvatar = useMemo(() => (
+  const MemoizedAvatar = useMemo(() => {
+    const templateRender = (
+      <Box
+        sx={{
+            objectFit: 'cover', // Memastikan gambar tetap proporsional
+            borderRadius: "50%", // Membuat gambar berbentuk lingkaran
+            width: "180px",
+            height: "180px",
+            position: "absolute",
+            top: "160px",
+            left: "40px",
+            border: "5px solid #fff",
+            backgroundColor: "#fff",
+        }}
+      >
+        <Person sx={{ color: "black", height: "100%", width: "100%" }} />
+      </Box>
+    )
+
+    const imageRender = (
     <Image
       src={profileData?.data?.photo || ""}
                   alt="Preview"
@@ -139,7 +159,10 @@ export default function UserProfile() {
                    }
                 />
   
-  ), [profileData]);
+    )
+
+    return (profileData?.data?.photo ? imageRender : templateRender)
+}, [profileData]);
 
   return (
     <div style={{ backgroundColor: "#fff" }}>
