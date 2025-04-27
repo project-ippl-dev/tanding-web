@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { 
   Container, 
   Grid, 
@@ -118,6 +118,29 @@ export default function UserProfile() {
     )
   ), [useImageBackground]);
 
+
+  const MemoizedAvatar = useMemo(() => (
+    <Image
+      src={profileData?.data?.photo || ""}
+                  alt="Preview"
+                  width={100} // Ukuran tetap untuk lebar
+                  height={100} // Ukuran tetap untuk tinggi
+                  style={
+                   { 
+                    objectFit: 'cover', // Memastikan gambar tetap proporsional
+                    borderRadius: "50%", // Membuat gambar berbentuk lingkaran
+                    width: "180px",
+                    height: "180px",
+                    position: "absolute",
+                    top: "160px",
+                    left: "40px",
+                    border: "5px solid #fff",
+                    backgroundColor: "#fff",}
+                   }
+                />
+  
+  ), [profileData]);
+
   return (
     <div style={{ backgroundColor: "#fff" }}>
       <Container
@@ -155,26 +178,7 @@ export default function UserProfile() {
                       backgroundColor: "#fff",
                     }}
                   />
-                ) : (
-                  <Avatar
-                    sx={{
-                      width: "180px",
-                      height: "180px",
-                      position: "absolute",
-                      top: "160px",
-                      left: "40px",
-                      border: "5px solid #fff",
-                      backgroundColor: "#fff",
-                      "& img": {
-                        marginTop: "3px",
-                      },
-                    }}
-                    src={profileData?.data?.photo || ""}
-                    alt="User Avatar"
-                  >
-                    <Person sx={{ color: "black", height: "100%", width: "100%" }} />
-                  </Avatar>
-                )}
+                ) : (MemoizedAvatar )}
                 <IconButton
                   sx={{
                     position: "absolute",
