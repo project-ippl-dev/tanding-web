@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   const data = await response.json();
   const transformed = { ...data, source: 'proxied-through-nextjs' };
 
-  // console.log(transformed[0])
-  return NextResponse.json(transformed[0], {
+  // console.log(transformed)
+  return NextResponse.json(data, {
     headers: { 'Content-Type': 'application/json' },
   });
 }
