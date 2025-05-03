@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+// TODO: Remove pattern beberapa diantaranya dummy perlu disesuaikan saat taha production
+
 const nextConfig: NextConfig = {
   /* config options here */
   images:{
@@ -7,6 +9,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        
+        protocol: 'https',
+        hostname: 'google.com',
       }
     ]
   }

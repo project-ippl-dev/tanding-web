@@ -24,7 +24,6 @@ export async function GET(request: NextRequest, {params}: {params: {uuid: string
   const response = await fetch(getExternalApiUrl(`/profile/${uuid}/basic`), {
         method: "GET",
         headers:{
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         }
     });
