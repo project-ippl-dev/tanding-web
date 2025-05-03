@@ -14,8 +14,11 @@ import {
 import TextFieldNumeric from "../../user-profile/_component/parts/DialogProfileBasic/TextFieldNumeric";
 import { Controller, useForm } from "react-hook-form";
 import { CreateClubFormData } from "@/types/club.type";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CloudUpload, MoodBad } from "@mui/icons-material";
+import { SportAllResponse, SportBaseType } from "@/types/sport.type";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { createClubValidationSchema } from "../../../../validation/clubSchema";
 
 const InputFieldGrid = styled(Grid)(({ theme }) => ({
   padding: theme.spacing(0, 1),
@@ -34,12 +37,28 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-export default function CreateClubForm({ sport, getSport, createClub }) {
+export default function CreateClubForm() {
+  const [sportsOption, setSportsOption] = useState<SportBaseType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [errorImage, setErrorImage] = useState<any>(false);
   const [image, setImage] = useState<any>([]);
-  const { handleSubmit, register, errors, control } =
-    useForm<CreateClubFormData>();
+  const {
+    handleSubmit,
+    register,
+    getValues,
+    formState: { errors },
+    control,
+  } = useForm<CreateClubFormData>({
+    resolver: yupResolver(createClubValidationSchema),
+    defaultValues: {
+      clubData: {
+        name: "",
+        short_name: "",
+      },
+      phone: "",
+      sports: [],
+    },
+  });
 
   const onDrop = (picture) => {
     setErrorImage(MoodBad);
@@ -55,46 +74,63 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
   };
 
   const onSubmit = async (data: CreateClubFormData) => {
-    try {
-      if (!image[0]) {
-        setErrorImage(true);
-        throw new Error("No club picture provided");
-      }
-      setLoading(true);
-      const sports = data.sports.map((value) => ({ sport_id: value.id }));
-      const formData = { ...data, sports };
-      // TODO:
-      const response = await fetch(`api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-    } catch (error: any) {
-      console.error("Create Club Error: ", error.message);
-    } finally {
-      setLoading(false);
-    }
+    const sportsIds = data.sports.map((value) => ({ sport_id: value.id }));
+    const formData = { ...data, sport: sportsIds };
+
+    console.log(data);
+    console.log(errors);
+    // try {
+    //   if (!image[0]) {
+    //     setErrorImage(true);
+    //     throw new Error("No club picture provided");
+    //   }
+    //   setLoading(true);
+    //   const sports = data.sports.map((value) => ({ sport_id: value.id }));
+    //   const formData = { ...data, sports };
+    //   // TODO:
+    //   // const response = await fetch(`api/auth/login`, {
+    //   //   method: "POST",
+    //   //   headers: { "Content-Type": "application/json" },
+    //   //   body: JSON.stringify(data),
+    //   // });
+    // } catch (error: any) {
+    //   console.error("Create Club Error: ", error.message);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
+
+  useEffect(() => {
+    const fetchSports = async () => {
+      try {
+        setLoading(true);
+        const token = ""; // Replace with actual token retrieval logic
+        const response = await fetch(`/api/sport`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const res: SportAllResponse = await response.json();
+        console.log(res);
+        setSportsOption(res.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSports();
+  }, []);
+
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Typography
-          sx={{
-            fontSize: "24px",
-            fontWeight: "bold",
-          }}
-        >
-          Buat Club
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: "18px",
-            color: "#666666",
-          }}
-        >
-          Pastikan seluruh form terisi dengan lengkap dan jelas demi keaslian
-          data
-        </Typography>
         <Card
           sx={(theme) => ({
             padding: theme.spacing(2, 3),
@@ -122,42 +158,53 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
               padding: theme.spacing(0, 1),
             })}
           >
-            <TextField
-              fullWidth
-              label="Nama Club"
-              placeholder="Team X"
-              margin="normal"
-              // inputRef={register}
-              name="name"
-              // error={!!errors.name}
-              // helperText={errors?.name?.message}
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
+            <Controller
+              control={control}
+              name="clubData.name"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Nama Club"
+                  placeholder="Team X"
+                  margin="normal"
+                  // inputRef={register}
+                  // name="name"
+                  error={!!errors.clubData?.name}
+                  helperText={errors?.clubData?.name?.message}
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
           <Grid container>
             {/* <Grid size={{ xs: 12 }} className={classes.field}> */}
             <InputFieldGrid>
-              <TextField
-                label="Singkatan Club"
-                placeholder="TMX"
-                fullWidth
-                margin="normal"
-                // inputRef={register}
-                name="short_name"
-                // error={!!errors.short_name}
-                // helperText={errors?.short_name?.message}
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
+              <Controller
+                control={control}
+                name="clubData.short_name"
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Singkatan Club"
+                    placeholder="TMX"
+                    fullWidth
+                    margin="normal"
+                    // inputRef={register}
+                    // name="short_name"
+                    error={!!errors.clubData?.short_name}
+                    helperText={errors?.clubData?.short_name?.message}
+                    slotProps={{
+                      inputLabel: {
+                        shrink: true,
+                      },
+                    }}
+                  />
+                )}
               />
             </InputFieldGrid>
 
@@ -167,17 +214,18 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
               <Controller
                 control={control}
                 name="phone"
-                defaultValue=""
-                render={({ field: { onChange, value } }) => (
+                // defaultValue=""
+                render={({ field: { value, onChange } }) => (
                   <TextFieldNumeric
+                    // {...field}
                     format="#### #### #####"
                     label="Phone"
                     placeholder="0812 3456 78900"
                     margin="normal"
                     value={value}
-                    onChange={({ value }) => onChange(value)}
-                    // error={!!errors.phone}
-                    // helperText={errors?.phone?.message}
+                    onChange={({ value }: { value: string }) => onChange(value)}
+                    error={!!errors.phone}
+                    helperText={errors?.phone?.message}
                     InputLabelProps={{
                       shrink: true,
                     }}
@@ -192,25 +240,29 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
                 control={control}
                 name="sports"
                 defaultValue={undefined}
-                render={({ field: {onChange, value} }) => (
+                render={({ field }) => (
                   <Autocomplete
+                    {...field}
                     multiple
-                    // value={value}
-                    onChange={(event, newValue) => {
-                      onChange(newValue);
-                      console.log(newValue)
+                    onChange={(_, newValue) => {
+                      field.onChange(newValue);
+                      // console.log(field.value)
                     }}
-                    options={[{name: 'Basketball'}, {name: 'Soccer'}]}
+                    value={field.value}
+                    fullWidth
+                    options={sportsOption}
                     getOptionLabel={(option) => option.name}
+                    getOptionKey={(option) => option.id}
                     renderInput={(params) => (
                       <TextField
                         {...params}
+                        // {...field}
                         label="Olahraga"
-                        placeholder="TMX"
+                        placeholder="Pilih Cabang Olahraga untuk Club"
                         fullWidth
                         margin="normal"
-                        // error={!!errors.sports}
-                        // helperText={errors?.sports?.message}
+                        error={!!errors.sports}
+                        helperText={errors?.sports?.message}
                         slotProps={{
                           inputLabel: {
                             shrink: true,
@@ -235,18 +287,6 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
                   *logo club wajib diupload
                 </Typography>
               )}
-              {/* <ImageUploader
-                withIcon={true}
-                buttonText="Upload Thumbnail"
-                onChange={onDrop}
-                imgExtension={[".jpg", ".jpeg", ".png"]}
-                maxFileSize={2242880}
-                withPreview={true}
-                label="Max file size : 2 mb, Format : jpeg, png, jpg"
-                accept="image/jpg,image/jpeg,image/png"
-                singleImage={true}
-                name="thumbnail"
-              /> */}
               <Button
                 component="label"
                 role={undefined}
@@ -254,14 +294,18 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
                 tabIndex={-1}
                 startIcon={<CloudUpload />}
               >
-                Upload files
-                <VisuallyHiddenInput
-                  multiple
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  id="upload-photo"
-                  type="file"
-                  onChange={handleImageChange}
+                Upload Logo Club
+                <Controller
+                  render={({ field }) => (
+                    <VisuallyHiddenInput
+                      multiple
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      id="upload-photo"
+                      type="file"
+                      onChange={handleImageChange}
+                    />
+                  )}
                 />
               </Button>
             </Box>
@@ -280,7 +324,7 @@ export default function CreateClubForm({ sport, getSport, createClub }) {
             fontWeight: "bold",
           }}
         >
-          Simpan
+          Buat Club Baru
         </Button>
       </form>
       <Backdrop

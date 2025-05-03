@@ -6,11 +6,7 @@ export default function CreateClubPage() {
     <Container
       maxWidth="lg"
       sx={{
-        // paddingTop: "50px",
         paddingBottom: "50px",
-        // [theme.breakpoints.down("md")]: {
-        //   paddingTop: theme.spacing(10),
-        // },
         paddingTop: {
           md: "50px",
           xs: "40px",

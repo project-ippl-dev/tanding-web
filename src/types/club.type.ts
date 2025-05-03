@@ -41,7 +41,7 @@ export interface ClubBaseType {
   id: string;
   name: string;
   logo: string;
-  short_name?: string;
+  short_name: string;
   owner: string;
   sports: SportBaseType[];
   privilege?: boolean;
@@ -64,6 +64,7 @@ export interface ClubJoinBaseType {
 }
 
 export interface CreateClubFormData {
-  clubData: Omit<ClubBaseType, 'id' | 'logo' | 'owner' | 'privilege' | 'joined'>
-  sports: SportBaseType[]
+  clubData: Omit<ClubBaseType, 'id' | 'logo' | 'owner' | 'privilege' | 'joined' | 'sports'>
+  sports: SportBaseType[],
+  phone: string;
 }
