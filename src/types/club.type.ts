@@ -63,4 +63,7 @@ export interface ClubJoinBaseType {
   sport_name: string;
 }
 
-export type CreateClubFormData = Omit<ClubBaseType, 'id' | 'logo' | 'owner' | 'privilege' | 'joined'>
+export interface CreateClubFormData {
+  clubData: Omit<ClubBaseType, 'id' | 'logo' | 'owner' | 'privilege' | 'joined'>
+  sports: SportBaseType[]
+}
