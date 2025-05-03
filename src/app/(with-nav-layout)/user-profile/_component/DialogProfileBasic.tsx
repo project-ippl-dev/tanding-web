@@ -17,8 +17,9 @@ import TextFieldNumeric from "./parts/DialogProfileBasic/TextFieldNumeric";
 import { CloudUpload } from "@mui/icons-material";
 import { useAuth } from "@/context/auth.context";
 import { AuthData } from "@/types/auth.type";
-import { getExternalApiUrl } from "@/utils/api";
 import Image from "next/image";
+import moment from "moment";
+import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -33,34 +34,53 @@ const VisuallyHiddenInput = styled('input')({
 })
 
 
-const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
-  const [formData, setFormData] = useState({
+interface DialogProfileBasicProps {
+  open: boolean;
+  action: (data: ProfileUpdate) => void;
+  onClose: () => void;
+  setLoading: (loading: boolean) => void;
+  profile: ProfileBasicResponse | null;
+}
+
+const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
+  open,
+  action,
+  onClose,
+  setLoading,
+  profile,
+}) => {
+  const [formData, setFormData] = useState<ProfileUpdate>({
     name: "",
     born_at: "",
-    born_on: null,
+    born_on: "",
     identity_number: "",
     phone: "",
     gender: "",
     about: "",
+    photo: ""
   });
 
   const auth : AuthData = useAuth()
+  
+  const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
+  const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
 
-
-  const [errors, setErrors] = useState({});
-  const [image, setImage] = useState(null); // Untuk menyimpan file gambar
-  const [preview, setPreview] = useState(""); // Untuk menyimpan URL pratinjau gambar
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
     if (file) {
+      if (formData.photo) {
+        URL.revokeObjectURL(formData.photo); // Hapus URL lama
+      }
       setImage(file); // Simpan file gambar
-      setPreview(URL.createObjectURL(file)); // Buat URL pratinjau
+      setFormData(prevState => ({
+        ...prevState,
+        photo: URL.createObjectURL(file), // Simpan URL gambar
+      }))
     }
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: Record<string, string> = {}; // Annotate newErrors as a record of string keys and string values
     if (!formData.name) newErrors.name = "Nama lengkap harus diisi";
     if (!formData.born_at) newErrors.born_at = "Tempat lahir harus diisi";
     if (!formData.born_on) newErrors.born_on = "Tanggal lahir harus diisi";
@@ -75,11 +95,11 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: keyof typeof formData, value: string | Date | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -87,11 +107,11 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
     try {
       const payload = {
         ...formData,
-        photo: image || profile.data.photo, // Gunakan gambar baru jika ada
+        photo: image || profile?.data.photo, // Gunakan gambar baru jika ada
       };
 
-      const url = getExternalApiUrl(`/profile/${auth.data.user_id}/basic`)
-      const response = await fetch(url, {
+      const url = process.env.NODE_ENV === 'development'? 'own' : auth?.data?.user_id
+      const response = await fetch(`/api/profile/${url}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -103,8 +123,13 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
       if (!response.ok) {
         throw new Error("Failed to update profile");
       }
+      const result = await response.json();
+      console.log(result);
 
-      action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
+      console.log("Profile updated successfully");
+      // action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
+      
+      action(formData);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -118,15 +143,25 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
       setFormData({
         name: profile?.data.name || "",
         born_at: profile?.data.born_at || "",
-        born_on: profile?.data.born_on?.Time || null,
+        born_on: profile?.data.born_on?.Time || "",
         identity_number: profile?.data.identity_number || "",
         phone: profile?.data.phone || "",
         gender: profile?.data.gender || "",
         about: profile?.data.about || "",
+        photo: profile?.data.photo || ""
       });
-      setPreview(profile?.data.photo || ""); // Set pratinjau gambar dari profil
     }
   }, [open]);
+
+  /*
+  useEffect(() => {
+    return () => {
+      if (formData.photo) {
+        URL.revokeObjectURL(formData.photo); // Bersihkan URL saat komponen unmount
+      }
+    };
+  }, [formData.photo]);
+  */
 
   return (
     <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose}>
@@ -135,17 +170,19 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
         <DialogContent style={{ padding: "0 24px" }}>
           <Box marginTop={3} paddingX={1}>
             <Typography>Photo Profile</Typography>
-            {preview && (
+            {formData.photo && (
               <Box marginBottom={2} display="flex" justifyContent="center">
                 <Image
-                  src={preview}
+                  src={formData.photo}
                   alt="Preview"
-                  width={100}
-                  height={100}
+                  width={100} // Ukuran tetap untuk lebar
+                  height={100} // Ukuran tetap untuk tinggi
                   style={{
-                    objectFit: "cover",
-                    borderRadius: "50%",
-                    border: "2px solid #ccc",
+                    objectFit: 'cover', // Memastikan gambar tetap proporsional
+                    borderRadius: "50%", // Membuat gambar berbentuk lingkaran
+                    width: '100px', // Ukuran tetap untuk lebar
+                    height: '100px', // Ukuran tetap untuk tinggi
+                    border: "2px solid #ccc", // Menambahkan border
                   }}
                 />
               </Box>
@@ -195,8 +232,8 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             label="Tanggal Lahir"
             placeholder="Pilih Tanggal"
             format="DD MMMM YYYY"
-            value={formData.born_on}
-            onChange={(value) => handleChange("born_on", value)}
+            value={moment(formData.born_on)}
+            onChange={(value: moment.Moment | null) => handleChange("born_on", value ? value.toDate() : null)}
             margin="normal"
             error={!!errors.born_on}
             helperText={errors.born_on}
@@ -207,7 +244,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             format="######-######-####"
             placeholder="123456-123456-0000"
             value={formData.identity_number}
-            onChange={({ value }) => handleChange("identity_number", value)}
+            onChange={({ value }: { value: string }) => handleChange("identity_number", value)} // Annotate onChange prop
             error={!!errors.identity_number}
             helperText={errors.identity_number}
           />
@@ -217,7 +254,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             placeholder="1234-5678-00000"
             format="####-####-#####"
             value={formData.phone}
-            onChange={({ value }) => handleChange("phone", value)}
+            onChange={({ value }: { value: string }) => handleChange("phone", value)} // Annotate onChange prop
             error={!!errors.phone}
             helperText={errors.phone}
           />
@@ -227,7 +264,7 @@ const DialogProfileBasic = ({ open, action, onClose, setLoading, profile }) => {
             margin="normal"
             label="Jenis Kelamin"
             value={formData.gender}
-            onChange={(e) => handleChange("gender", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("gender", e.target.value)} // Annotate onChange prop
             error={!!errors.gender}
             helperText={errors.gender}
           >
