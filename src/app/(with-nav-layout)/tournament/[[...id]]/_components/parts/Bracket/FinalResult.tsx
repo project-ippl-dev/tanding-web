@@ -121,7 +121,7 @@ const WinnerCard: React.FC<WinnerCardProps> = ({
   </Grid>
 );
 
-export default function FinalResult({ data }:{data:Array<TournamentResultArray> }){
+export default function FinalResult({ data }:{data:TournamentResultArray[] | [] }){
   return (
     <Card sx={{ marginBottom: 2 }}>
       <CardHeader

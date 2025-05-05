@@ -9,6 +9,15 @@ import { useParams } from "next/navigation";
 import { EventData } from "@/types/event.type";
 import { fetchProxyApi } from "@/utils/request";
 import { useAuth } from "@/context/auth.context";
+import { BracketOrderResponse, BracketSingleResponse } from "@/types/bracket.type";
+import { AuthData } from "@/types/auth.type";
+import SingleElimination from "./SingleElimination";
+
+interface BracketResponse{
+  singleBracket: BracketSingleResponse | null;
+  orderBracket: BracketOrderResponse | null;
+  type: string | null;
+}
 
 const StyledContainer = styled("div")(({ theme }) => ({
   padding: "0 80px",
@@ -24,9 +33,13 @@ export default function Bracket({
   data: EventData | null; // Replace with actual type
 }) {
   const params = useParams()
-  const auth = useAuth()
+  const auth: AuthData = useAuth()
   const [selected, setSelected] = useState<string>("");
-  const [bracket, setBracket] = useState<any>([]); // Replace with actual type
+  const [bracket, setBracket] = useState<BracketResponse>({
+    singleBracket: null,
+    orderBracket: null,
+    type: null,
+  }); // Replace with actual type
 
   useEffect(() => {
     async function getBracketDetail() {
@@ -40,7 +53,16 @@ export default function Bracket({
         alert("Gagal mengambil data, dengan error: " + serverResponse.error)
       } else {
         console.log(serverResponse)
-        setBracket(serverResponse.data)
+        setBracket(( prevState )=>{
+          const result = {...prevState}
+          if(serverResponse.data.match_type === "single"){
+            result.singleBracket = serverResponse.data
+          } else if(serverResponse.data.match_type === "order"){
+            result.orderBracket = serverResponse.data
+          }
+          result.type = serverResponse.data.match_type
+          return result
+        })
       }
     }
 
@@ -49,17 +71,37 @@ export default function Bracket({
     }
   }, [selected]);
 
+  const currentBracket = bracket.type === "order" ? bracket?.orderBracket 
+    : bracket.type === "single" ? bracket?.singleBracket : null
+
+  const BracketDetailContent = currentBracket?.generate_status
+    ? bracket.type === "order" ? (
+        <OrderElimination bracketData={bracket.orderBracket?.data || []} tournament={data} />
+      ) : bracket.type === "single" ? (
+        <SingleElimination data={bracket.singleBracket?.data} />
+      ) : null
+    : null;
 
   const BracketDetailElement = (
-        <Box sx={(theme)=>({
-            border: "1px solid #efefef",
-            padding: theme.spacing(2),
-            [theme.breakpoints.down("md")]: {
-              padding: 0,
-            },
-        })}>
+    <Box
+      sx={(theme) => ({
+        border: "1px solid #efefef",
+        padding: theme.spacing(2),
+        [theme.breakpoints.down("md")]: {
+          padding: 0,
+        },
+      })}
+    >
+      {data?.remark === "done" && (
+        <FinalResult data={
+          bracket.type === 'order' ? bracket?.orderBracket?.summary || [] 
+          : bracket.type === 'single' ? bracket?.singleBracket?.summary || [] 
+          : []
+        } />
+      )}
 
-        </Box>
+      {BracketDetailContent}
+    </Box>
   )
 
   return (

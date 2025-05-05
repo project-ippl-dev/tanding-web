@@ -12,36 +12,20 @@ import {
 import FindInPageIcon from "@mui/icons-material/FindInPage";
 
 import DialogDetail from "./parts/OrderElimination/DialogDetail";
+import { BracketOrderData } from "@/types/bracket.type";
+import { EventData } from "@/types/event.type";
 
 // Define types for props
-interface Participant {
-  id: string;
-  club_name: string;
-  club_logo?: string;
-  participants: string[];
-  scores?: {
-    [key: string]: number;
-    total: number;
-  };
-}
-
-interface Tournament {
-  detail: {
-    data: {
-      remark: "ongoing" | "done" | "upcoming";
-    };
-  };
-}
 
 interface OrderEliminationProps {
-  data: Participant[];
-  tournament: Tournament;
+  bracketData: BracketOrderData[] | [];
+  tournament: EventData | null;
 }
 
-const OrderElimination: React.FC<OrderEliminationProps> = ({ data, tournament }) => {
+const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tournament }) => {
   const [dialogDetail, setDialogDetail] = useState<{
     open: boolean;
-    data: Participant | null;
+    data: BracketOrderData | null;
   }>({
     open: false,
     data: null,
@@ -60,7 +44,7 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({ data, tournament })
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((value, index) => (
+          {bracketData.map((value, index) => (
             <TableRow key={value.id}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{value.club_name}</TableCell>
@@ -68,8 +52,8 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({ data, tournament })
               <TableCell>{value.scores?.total || 0}</TableCell>
               <TableCell>
                 {!!value.scores &&
-                  (tournament.detail.data.remark === "ongoing" ||
-                    tournament.detail.data.remark === "done") && (
+                  (tournament?.remark === "ongoing" ||
+                    tournament?.remark === "done") && (
                     <IconButton
                       sx={{ padding: "5px" }}
                       onClick={() =>
