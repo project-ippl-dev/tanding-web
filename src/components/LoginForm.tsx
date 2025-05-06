@@ -1,5 +1,5 @@
-"use client";
-
+'use client';
+import React from 'react';
 import {
   Box,
   Button,
@@ -8,67 +8,33 @@ import {
   Link as MuiLink,
   Paper,
   Stack,
-} from "@mui/material";
-import { useForm } from "react-hook-form";
-import GoogleIcon from "@mui/icons-material/Google";
-import FacebookIcon from "@mui/icons-material/Facebook";
+} from '@mui/material';
+import { useForm } from 'react-hook-form';
+import GoogleIcon from '@mui/icons-material/Google';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import { useAuth } from '@/context/auth.context';
+import { useRouter } from 'next/navigation';
 
-type LoginFormValues = {
-  username: string;
-  password: string;
-};
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_TANDING_API_BASE_URL;
+type LoginFormValues = { username: string; password: string };
 
 export default function LoginForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>();
+  const { login } = useAuth();
+  const router = useRouter();
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.message || "Gagal masuk.");
-      }
-
-      const result = await response.json();
-      console.log("Login success:", result);
-      // TODO: set token, redirect, toast
-
-    } catch (error: any) {
-      console.error("Login failed:", error.message);
-      // TODO: show error message to user
+      await login(data.username, data.password);
+      router.push('/'); // redirect after success
+    } catch (err: any) {
+      console.error('Login failed:', err.message);
+      // TODO: show error toast
     }
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      px={2}
-      bgcolor="#fafafa"
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          width: "100%",
-          maxWidth: 420,
-          p: 4,
-          borderRadius: 3,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-        }}
-      >
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" px={2} bgcolor="#fafafa">
+      <Paper elevation={3} sx={{ width: '100%', maxWidth: 420, p: 4, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <Stack alignItems="center" spacing={2} mb={3}>
             <Box
