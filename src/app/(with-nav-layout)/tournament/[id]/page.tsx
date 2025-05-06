@@ -15,7 +15,7 @@ import { useParams } from "next/navigation";
 
 export default function TournamentDetailPage() {
     const params = useParams();
-    const authData = useAuth();
+    const { authData } = useAuth();
     const tournamentInfinityData = useRef<EventInfinityResponse>(null);
     const theme = useTheme();
     const [loading, setLoading] = useState<boolean>(false);
@@ -23,7 +23,7 @@ export default function TournamentDetailPage() {
     useEffect(() => {
         async function fetchTournamentInfinityData() {
             setLoading(true);
-            const token = authData.data.token.access_token; // Replace with actual token retrieval logic
+            const token = authData?.token.access_token; // Replace with actual token retrieval logic
             const url = `/api/event/infinity?limit=10&type=all&sport_id=1&search=&remark=ongoing`;
             const serverResponse = await fetchProxyApi(url, token);
             if (!serverResponse.success) {

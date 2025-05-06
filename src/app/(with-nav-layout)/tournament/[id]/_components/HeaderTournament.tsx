@@ -101,7 +101,7 @@ const HeaderTournament = ({
   const isMdDown = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [eventData, setEventData] = useState<EventData | null>(null);
 
-  const authData = useAuth();
+  const { authData } = useAuth();
 
   const handleTabs = (event: React.SyntheticEvent, newValue: number) => {
     setTabs(newValue);
@@ -110,7 +110,12 @@ const HeaderTournament = ({
   useEffect(() => {
     const fetchTournamentDetail = async () => {
       try {
-        const token = authData.data.token.access_token;
+        const token = authData?.token.access_token;
+        // console.log(authData)
+        // console.log(token)
+        // if (!token) {
+        //   throw new Error("Failed to fetch data");
+        // }
         const url = `/api/event/detail/${eventID}`;
         const response = await fetch(url, {
           method: "GET",
@@ -134,7 +139,7 @@ const HeaderTournament = ({
       fetchTournamentDetail();
       setTabs(0);
     }
-  }, [authData.data.token.access_token, eventID]);
+  }, [authData?.token.access_token, eventID]);
 
   return (
     <Box
@@ -300,7 +305,7 @@ const HeaderTournament = ({
           <TabPanel value={tabs} index={0}>
             <Register
               data={eventData}
-              canRegister={authData?.data.can_participate}
+              canRegister={authData?.can_participate}
             />
           </TabPanel>
           <TabPanel value={tabs} index={1}>

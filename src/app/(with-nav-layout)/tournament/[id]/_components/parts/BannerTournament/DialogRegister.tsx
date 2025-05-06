@@ -52,7 +52,7 @@ const DialogRegister = ({
 
 }) => {
 
-  const authData = useAuth();
+  const { authData } = useAuth();
   const [kelas, setKelas] = useState("");
   const [selectedClass, setSelectedClass] = useState<number>(0);
   const [inputUser, setInputUser] = useState("");
@@ -74,7 +74,7 @@ const DialogRegister = ({
     };
     console.log(data)
     const url = `/api/event/register/${dataTournament?.id}`;
-    const serverResponse = await postProxyApi(url, authData.data.token.access_token, data)
+    const serverResponse = await postProxyApi(url, authData.token.access_token, data)
     
     if (loadingObj.changeState) loadingObj.changeState(false);
     
@@ -118,7 +118,7 @@ const DialogRegister = ({
       if (loadingObj.changeState) loadingObj.changeState(true);
       const url = `/api/club/member/${idClub}`
       try {
-        const serverResponse = await fetchProxyApi(url, authData.data.token.access_token)
+        const serverResponse = await fetchProxyApi(url, authData.token.access_token)
         console.log(serverResponse)
         setMemberOption(serverResponse.data)
       } catch (error) {
@@ -228,7 +228,7 @@ const DialogRegister = ({
                   value={selectedClub}
                   onChange={({ target: { value } }) => setSelectedClub(value)}
                 >
-                  {authData.data.clubs.map((value) => (
+                  {authData.clubs.map((value) => (
                     <MenuItem key={value.id} value={value.id}>
                       {value.name}
                     </MenuItem>

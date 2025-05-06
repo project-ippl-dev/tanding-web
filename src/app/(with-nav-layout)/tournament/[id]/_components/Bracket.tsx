@@ -34,7 +34,7 @@ export default function Bracket({
   data: EventData | null; // Replace with actual type
 }) {
   const params = useParams()
-  const auth: AuthData = useAuth()
+  const { authData }: AuthData = useAuth()
   const [selected, setSelected] = useState<string>("");
   const [bracket, setBracket] = useState<BracketResponse>({
     singleBracket: null,
@@ -46,7 +46,7 @@ export default function Bracket({
   useEffect(() => {
     async function getBracketDetail() {
       const eventid = params.id
-      const token = auth.data.token.access_token // Replace with actual token retrieval logic
+      const token = authData.token.access_token // Replace with actual token retrieval logic
       const url = `/api/event/bracket/${eventid || ''}/${selected ||''}`
       
       if(loadingObj.changeState) loadingObj.changeState(true)

@@ -33,7 +33,7 @@ const StyledDetail = styled("div")({
 
 export default function Participant ()
 {
-  const auth = useAuth()
+  const {authData} = useAuth()
   const loadingObj = useLoading()
   const {id} = useParams()
 
@@ -42,7 +42,7 @@ export default function Participant ()
 
   useEffect(() => {
     async function getParticipants() {
-      const token = auth.data.token.access_token
+      const token = authData.token.access_token
       const eventid = id
 
       const url = `/api/event/participants/${eventid || ''}`
