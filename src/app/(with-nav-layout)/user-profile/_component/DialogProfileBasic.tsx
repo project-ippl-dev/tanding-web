@@ -16,10 +16,10 @@ import DatePickerCustom from "./parts/DialogProfileBasic/DatePickerCustom";
 import TextFieldNumeric from "./parts/DialogProfileBasic/TextFieldNumeric";
 import { CloudUpload } from "@mui/icons-material";
 import { useAuth } from "@/context/auth.context";
-import { AuthData } from "@/types/auth.type";
 import Image from "next/image";
 import moment from "moment";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
+import { updateProfileData } from "@/store/actions/profile";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -60,7 +60,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
     photo: ""
   });
 
-  const auth : AuthData = useAuth()
+  const { authData } = useAuth()
   
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
   const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
@@ -110,20 +110,28 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         photo: image || profile?.data.photo, // Gunakan gambar baru jika ada
       };
 
-      const url = process.env.NODE_ENV === 'development'? 'own' : auth?.data?.user_id
-      const response = await fetch(`/api/profile/${url}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer "+ auth.data.token.access_token,
-        },
-        body: JSON.stringify(payload),
-      });
+      const url =
+          process.env.NODE_ENV === "development"
+            ? "own"
+            : authData
+            ? authData.user_id
+            : ""; //TODO: Handle if accessed without authData
+      // const response = await fetch(`/api/profile/${url}`, {
+      //   method: "PUT",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: "Bearer "+ authData?.token.access_token,
+      //   },
+      //   body: JSON.stringify(payload),
+      // });
 
-      if (!response.ok) {
-        throw new Error("Failed to update profile");
-      }
-      const result = await response.json();
+      // if (!response.ok) {
+      //   throw new Error("Failed to update profile");
+      // }
+
+      const response = await updateProfileData({ uuid: url, payload: payload})
+      // const result = await response.json();
+      const result = response;
       console.log(result);
 
       console.log("Profile updated successfully");
