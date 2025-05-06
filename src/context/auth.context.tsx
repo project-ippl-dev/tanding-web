@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AuthData } from '@/types/auth.type';
+"use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { AuthData } from "@/types/auth.type";
 
 interface AuthContextType {
   authData: AuthData | null;
@@ -15,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Restore previous session from localStorage, if any
   useEffect(() => {
-    const stored = localStorage.getItem('authData');
+    const stored = localStorage.getItem("authData");
     if (stored) setAuthData(JSON.parse(stored));
   }, []);
 
@@ -23,23 +30,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_TANDING_API_BASE_URL}/auth/login`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       }
     );
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.message || 'Login failed');
+      throw new Error(err.message || "Login failed");
     }
     const result: { message: string; data: AuthData } = await res.json();
     setAuthData(result.data);
-    localStorage.setItem('authData', JSON.stringify(result.data));
+    localStorage.setItem("authData", JSON.stringify(result.data));
   };
 
   const logout = () => {
     setAuthData(null);
-    localStorage.removeItem('authData');
+    localStorage.removeItem("authData");
   };
 
   return (
@@ -56,9 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
