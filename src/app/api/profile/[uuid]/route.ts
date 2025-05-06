@@ -22,12 +22,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 
   const response = await fetch(getExternalApiUrl(`/profile/${uuid}/basic`), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    }
-  });
+        method: "GET",
+        headers:{
+            Authorization: `Bearer ${token}`,
+        }
+    });
   const data = await response.json()
   // console.log(await response.json())
 
