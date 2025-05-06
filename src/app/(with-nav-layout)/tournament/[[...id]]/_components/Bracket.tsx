@@ -12,6 +12,7 @@ import { useAuth } from "@/context/auth.context";
 import { BracketOrderResponse, BracketSingleResponse } from "@/types/bracket.type";
 import { AuthData } from "@/types/auth.type";
 import SingleElimination from "./SingleElimination";
+import { useLoading } from "@/context/loading.context";
 
 interface BracketResponse{
   singleBracket: BracketSingleResponse | null;
@@ -40,12 +41,15 @@ export default function Bracket({
     orderBracket: null,
     type: null,
   }); // Replace with actual type
+  const loadingObj = useLoading()
 
   useEffect(() => {
     async function getBracketDetail() {
       const eventid = params.id
       const token = auth.data.token.access_token // Replace with actual token retrieval logic
       const url = `/api/event/bracket/${eventid || ''}/${selected ||''}`
+      
+      if(loadingObj.changeState) loadingObj.changeState(true)
 
       const serverResponse = await fetchProxyApi(url, token)
 
@@ -64,6 +68,8 @@ export default function Bracket({
           return result
         })
       }
+      
+      if(loadingObj.changeState) loadingObj.changeState(false)
     }
 
     if (selected !== "") {
@@ -78,7 +84,7 @@ export default function Bracket({
     ? bracket.type === "order" ? (
         <OrderElimination bracketData={bracket.orderBracket?.data || []} tournament={data} />
       ) : bracket.type === "single" ? (
-        <SingleElimination data={bracket.singleBracket?.data} />
+        <SingleElimination data={bracket.singleBracket?.data || []} />
       ) : null
     : null;
 

@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Typography, Avatar } from "@mui/material";
 import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from "react-brackets";
 import DialogDetail from "./parts/SingleElimination/DialogDetail";
-import { BracketRound } from "@/types/bracket.type";
-
+import { BracketRound } from "@/types/bracket.type"; 
 
 
 const RenderSeed = ({ breakpoint, seed }) => {
@@ -77,7 +76,9 @@ const RenderSeed = ({ breakpoint, seed }) => {
   );
 };
 
-const SingleElimination = ({ data }:{ data: BracketRound[]}) => {
+
+
+const SingleElimination = ({ data }:{ data: BracketRound[] | []}) => {
   return (
     <Bracket
       mobileBreakpoint={767}
@@ -87,5 +88,7 @@ const SingleElimination = ({ data }:{ data: BracketRound[]}) => {
     />
   );
 };
+
+
 
 export default SingleElimination;
