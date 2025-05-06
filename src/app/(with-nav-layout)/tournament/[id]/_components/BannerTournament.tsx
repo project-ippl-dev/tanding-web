@@ -267,7 +267,7 @@ const BannerTournament = ({
                     marginTop: 1,
                   }}
                   onClick={handleRegister}
-                  disabled={data?.remark !== "o pen"}
+                  disabled={data?.remark !== "open"}
                 >
                   {regisButtonDesc}
                 </Button>
