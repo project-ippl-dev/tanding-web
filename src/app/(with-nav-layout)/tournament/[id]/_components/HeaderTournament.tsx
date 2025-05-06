@@ -24,6 +24,7 @@ import { EventData, EventSingleResponse } from "@/types/event.type";
 import Register from "./Register";
 import Participant from "./Participant";
 import Bracket from "./Bracket";
+import { ParamValue } from "next/dist/server/request/params";
 
 const StyledTabs = (props: TabsProps) => (
   <Tabs
@@ -94,7 +95,7 @@ const a11yProps = (index: number) => {
 const HeaderTournament = ({
   eventID,
 }: {
-  eventID: string | undefined;
+  eventID: ParamValue;
 }) => {
   const [tabs, setTabs] = useState(0);
   const isMdDown = useMediaQuery((theme) => theme.breakpoints.down("md"));

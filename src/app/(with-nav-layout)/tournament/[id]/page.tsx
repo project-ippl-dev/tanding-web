@@ -10,7 +10,6 @@ import { LoadingProvider } from "@/context/loading.context";
 import CardTournaments from "./_components/CardTournaments";
 import { fetchProxyApi } from "@/utils/request";
 import { useParams } from "next/navigation";
-import { EVENT_INFINITY } from "@/store/event";
 
 // TODO: mengatasi rerendering yang sering, gunakan useMemo
 
@@ -70,7 +69,7 @@ export default function TournamentDetailPage() {
                     padding: theme.spacing(0),
                 }}
             >
-                <HeaderTournament eventID={params.id?.[0]} />
+                <HeaderTournament eventID={params.id} />
                 <Box
                     sx={{
                         padding: theme.spacing(7, 10, 5),
