@@ -7,13 +7,11 @@ export async function getProfileData({ uuid }: { uuid: string }) {
   /* 
       Warning :
       Kemungkinan bisa indirect access dengan ganti parameternya;
-      Apakah AuthData aman untuk dijadikan parameter atau sebaiknya ada guard untuk fungsi dengan auth?
   */
   // const { uuid } = await params
   // const headerList = headers()
   // const tokenHeader = (await headerList).get('Authorization')
   // console.log(request.headers.get('Authorization'))
-  // const tokenHeader = authData?.token.access_token
   const tokenHeader = (await cookies()).get('access_token')?.value;
   // console.log(tokenHeader)
   // if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
