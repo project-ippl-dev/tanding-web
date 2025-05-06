@@ -10,16 +10,16 @@ import { LoadingProvider } from "@/context/loading.context";
 import CardTournaments from "./_components/CardTournaments";
 import { fetchProxyApi } from "@/utils/request";
 import { useParams } from "next/navigation";
+import { EVENT_INFINITY } from "@/store/event";
 
 // TODO: mengatasi rerendering yang sering, gunakan useMemo
 
 export default function TournamentDetailPage() {
-    const [eventID, changeID] = useState<string | undefined>(undefined);
+    const params = useParams();
     const authData = useAuth();
     const tournamentInfinityData = useRef<EventInfinityResponse>(null);
     const theme = useTheme();
     const [loading, setLoading] = useState<boolean>(false);
-    const params = useParams();
 
     useEffect(() => {
         async function fetchTournamentInfinityData() {
@@ -27,23 +27,27 @@ export default function TournamentDetailPage() {
             const token = authData.data.token.access_token; // Replace with actual token retrieval logic
             const url = `/api/event/infinity?limit=10&type=all&sport_id=1&search=&remark=ongoing`;
             const serverResponse = await fetchProxyApi(url, token);
-
-            setLoading(false);
             if (!serverResponse.success) {
                 alert("Gagal mengambil data, dengan error: " + serverResponse.error);
             } else {
-                tournamentInfinityData.current = serverResponse.data;
+                if(serverResponse.data.error) {
+                    alert("Gagal mengambil data, dengan error: " + serverResponse.data.error.header);
+                    /*
+                        if(process.env.NODE_ENV === "development") {
+                            tournamentInfinityData.current = EVENT_INFINITY;
+                            changeID(EVENT_INFINITY.data[0].id)
+                        }
+                    */
+                } else {
+                    tournamentInfinityData.current = serverResponse.data;
+                }
             }
+            setLoading(false);
         }
 
         fetchTournamentInfinityData();
     }, [authData?.data?.token?.access_token]);
 
-    useEffect(() => {
-        if (params?.id) {
-            changeID(params.id[0]);
-        }
-    }, [params]);
 
     const loadingElement = (
         <Backdrop
@@ -66,7 +70,7 @@ export default function TournamentDetailPage() {
                     padding: theme.spacing(0),
                 }}
             >
-                <HeaderTournament eventID={eventID} />
+                <HeaderTournament eventID={params.id?.[0]} />
                 <Box
                     sx={{
                         padding: theme.spacing(7, 10, 5),

@@ -1,6 +1,6 @@
 import { FetchResponse } from "@/types/global";
 
-export async function fetchProxyApi<T>(url: string, token: string): Promise<FetchResponse> {
+export async function fetchProxyApi<T extends { error?: unknown }>(url: string, token: string): Promise<FetchResponse> {
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -15,6 +15,7 @@ export async function fetchProxyApi<T>(url: string, token: string): Promise<Fetc
     }
 
     const data: T = await response.json();
+    
     return { success: true, data };
   } catch (error) {
     console.error("Error fetching API data:", error);

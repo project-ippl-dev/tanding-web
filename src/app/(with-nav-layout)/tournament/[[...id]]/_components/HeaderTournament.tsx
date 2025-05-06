@@ -141,158 +141,175 @@ const HeaderTournament = ({
         marginTop: { xs: 7, md: 0 },
       }}
     >
-      {/*TODO: saat loading mobile dia ke render dulu terus ngilang langsung agak ganggu */}
-      {!isMdDown && (
+      {/* Display placeholder if eventData is null */}
+      {!eventData ? (
         <Box
           sx={{
-            width: "100%",
-            height: "250px",
-            position: "relative",
+            textAlign: "center",
+            padding: 5,
+            color: "#fff",
+            backgroundColor: "#001641",
           }}
         >
-          <Image
-            alt="Background Image"
-            src={BannerTanding}
-            fill
-            objectFit="cover"
-          />
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            Data Tournament Tidak Ditemukan
+          </Typography>
         </Box>
-      )}
-
-      <Box
-        sx={{
-          backgroundColor: "#001641",
-          color: "#fff",
-          padding: { xs: 3, md: 10 },
-        }}
-      >
-        <Grid container>
-          <Grid size={{ xs: 12, md: 9 }}> {/* Updated to use size prop */}
-            <Box
-              sx={{
-                display: {sx:"grid", md:"flex"},
-                alignItems: "flex-end",
-                flexDirection: { xs: "column", md: "row" },
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: { xs: "20px", md: "25px" },
-                  fontWeight: "bold",
-                  marginRight: { md: 2 },
-                  textAlign: "center",
-                }}
-              >
-                {eventData?.name}
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: { xs: "column", md: "row" },
-                marginTop: 0.5,
-              }}
-            >
-              <Box sx={{ display: "flex", marginRight: 1.6 }}>
-                <GavelIcon sx={{ marginRight: "0.5rem", fontSize: "14px" }} />
-                <Typography>{eventData?.sport_name}</Typography>
-              </Box>
-              <Box sx={{ display: "flex", marginRight: 1.6 }}>
-                <LocationOnIcon
-                  sx={{ marginRight: "0.5rem", fontSize: "14px" }}
-                />
-                <Typography>
-                  {eventData?.city
-                    ? eventData.city.toLowerCase()
-                    : eventData?.location}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex" }}>
-                <CalendarTodayIcon
-                  sx={{ marginRight: "0.5rem", fontSize: "14px" }}
-                />
-                <Typography>{eventData?.start_date}</Typography>
-              </Box>
-            </Box>
-            <Box sx={{ marginTop: { xs: 0, md: 4 } }}>
-              <StyledTabs
-                value={tabs}
-                onChange={handleTabs}
-                textColor="#fff"
-                indicatorColor="primary"
-              >
-                <StyledTab label="DAFTAR" {...a11yProps(0)} />
-                <StyledTab label="PESERTA" {...a11yProps(1)} />
-                {(eventData?.remark === "closed" ||
-                  eventData?.remark === "ongoing" ||
-                  eventData?.remark === "done") && (
-                  <StyledTab label="BRAKET" {...a11yProps(2)} />
-                )}
-              </StyledTabs>
-            </Box>
-          </Grid>
+      ) : (
+        <>
+          {/*TODO: saat loading mobile dia ke render dulu terus ngilang langsung agak ganggu */}
           {!isMdDown && (
-            <Grid size={{ xs: 12, md: 3 }}> {/* Updated to use size prop */}
-              <Box sx={{ marginTop: 1 }}>
-                <Typography>Organized by</Typography>
+            <Box
+              sx={{
+                width: "100%",
+                height: "250px",
+                position: "relative",
+              }}
+            >
+              <Image
+                alt="Background Image"
+                src={BannerTanding}
+                fill
+                objectFit="cover"
+              />
+            </Box>
+          )}
+
+          <Box
+            sx={{
+              backgroundColor: "#001641",
+              color: "#fff",
+              padding: { xs: 3, md: 10 },
+            }}
+          >
+            <Grid container>
+              <Grid size={{ xs: 12, md: 9 }}> {/* Updated to use size prop */}
+                <Box
+                  sx={{
+                    display: { sx: "grid", md: "flex" },
+                    alignItems: "flex-end",
+                    flexDirection: { xs: "column", md: "row" },
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: { xs: "20px", md: "25px" },
+                      fontWeight: "bold",
+                      marginRight: { md: 2 },
+                      textAlign: "center",
+                    }}
+                  >
+                    {eventData?.name}
+                  </Typography>
+                </Box>
                 <Box
                   sx={{
                     display: "flex",
-                    marginTop: 1,
                     alignItems: "center",
+                    flexDirection: { xs: "column", md: "row" },
+                    marginTop: 0.5,
                   }}
                 >
-                  <Avatar
-                    src={eventData?.user_image}
-                    sx={{
-                      width: "50px",
-                      height: "50px",
-                      marginRight: 1,
-                    }}
-                  />
-                  <Box sx={{ marginRight: 3 }}>
-                    <Typography sx={{ fontWeight: "bold" }}>
-                      {eventData?.user_name}
-                    </Typography>
-                    <Typography sx={{ fontSize: "12px" }}>
-                      - Follower
+                  <Box sx={{ display: "flex", marginRight: 1.6 }}>
+                    <GavelIcon sx={{ marginRight: "0.5rem", fontSize: "14px" }} />
+                    <Typography>{eventData?.sport_name}</Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", marginRight: 1.6 }}>
+                    <LocationOnIcon
+                      sx={{ marginRight: "0.5rem", fontSize: "14px" }}
+                    />
+                    <Typography>
+                      {eventData?.city
+                        ? eventData.city.toLowerCase()
+                        : eventData?.location}
                     </Typography>
                   </Box>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      background:
-                        "linear-gradient(90deg, #CB4492 0%, #384FB9 100%)",
-                      color: "#fff",
-                      fontWeight: "bold",
-                      fontSize: "12px",
-                      padding: "2px 10px",
-                    }}
-                    disabled
-                  >
-                    Follow
-                  </Button>
+                  <Box sx={{ display: "flex" }}>
+                    <CalendarTodayIcon
+                      sx={{ marginRight: "0.5rem", fontSize: "14px" }}
+                    />
+                    <Typography>{eventData?.start_date}</Typography>
+                  </Box>
                 </Box>
-              </Box>
+                <Box sx={{ marginTop: { xs: 0, md: 4 } }}>
+                  <StyledTabs
+                    value={tabs}
+                    onChange={handleTabs}
+                    textColor="#fff"
+                    indicatorColor="primary"
+                  >
+                    <StyledTab label="DAFTAR" {...a11yProps(0)} />
+                    <StyledTab label="PESERTA" {...a11yProps(1)} />
+                    {(eventData?.remark === "closed" ||
+                      eventData?.remark === "ongoing" ||
+                      eventData?.remark === "done") && (
+                      <StyledTab label="BRAKET" {...a11yProps(2)} />
+                    )}
+                  </StyledTabs>
+                </Box>
+              </Grid>
+              {!isMdDown && (
+                <Grid size={{ xs: 12, md: 3 }}> {/* Updated to use size prop */}
+                  <Box sx={{ marginTop: 1 }}>
+                    <Typography>Organized by</Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        marginTop: 1,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Avatar
+                        src={eventData?.user_image}
+                        sx={{
+                          width: "50px",
+                          height: "50px",
+                          marginRight: 1,
+                        }}
+                      />
+                      <Box sx={{ marginRight: 3 }}>
+                        <Typography sx={{ fontWeight: "bold" }}>
+                          {eventData?.user_name}
+                        </Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          - Follower
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          background:
+                            "linear-gradient(90deg, #CB4492 0%, #384FB9 100%)",
+                          color: "#fff",
+                          fontWeight: "bold",
+                          fontSize: "12px",
+                          padding: "2px 10px",
+                        }}
+                        disabled
+                      >
+                        Follow
+                      </Button>
+                    </Box>
+                  </Box>
+                </Grid>
+              )}
             </Grid>
-          )}
-        </Grid>
-      </Box>
-            
-      <TabPanel value={tabs} index={0}>
-        <Register
-          data={eventData}
-          canRegister={authData?.data.can_participate}
-        />
-      </TabPanel>
-      <TabPanel value={tabs} index={1}>
-        <Participant />
-      </TabPanel>
- 
-      <TabPanel value={tabs} index={2}>
-        <Bracket data={eventData} />
-      </TabPanel>
+          </Box>
+
+          <TabPanel value={tabs} index={0}>
+            <Register
+              data={eventData}
+              canRegister={authData?.data.can_participate}
+            />
+          </TabPanel>
+          <TabPanel value={tabs} index={1}>
+            <Participant />
+          </TabPanel>
+          <TabPanel value={tabs} index={2}>
+            <Bracket data={eventData} />
+          </TabPanel>
+        </>
+      )}
     </Box>
   );
 };
