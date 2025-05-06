@@ -102,7 +102,7 @@ export default function SettingDialog({
           pb: 1,
         }}
       >
-        <Typography variant="h6">Setting Pertandingan</Typography>
+        <Typography>Setting Pertandingan</Typography>
         <Typography variant="body2" sx={{ opacity: 0.8 }}>
           Atur sistem pertandingan dan grup tournament
         </Typography>

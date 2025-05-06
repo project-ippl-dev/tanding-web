@@ -84,7 +84,7 @@ export default function PanitiaDialog({ open, onClose, onSave, initialData = [{ 
         color: 'white',
         pb: 1
       }}>
-        <Typography variant="h6">Panitia Pertandingan</Typography>
+        <Typography>Panitia Pertandingan</Typography>
         <Typography variant="body2" sx={{ opacity: 0.8 }}>
           Tambahkan panitia yang akan membantu mengorganisir pertandingan
         </Typography>
