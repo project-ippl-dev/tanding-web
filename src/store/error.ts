@@ -1,0 +1,7 @@
+export const errorServerResponse = {
+    "error": {
+        "name": "serverError",
+        "message": "Try sending it again. If you keep getting this error, contact support.",
+        "header": "Unable to mock request"
+    }
+}
