@@ -1,9 +1,8 @@
 # This is a basic workflow to help you get started with Actions
-name: Create vercel preview URL on pull request
+name: Create preview link to vercel on push request in main
 on:
-  pull_request:
-    branches:
-      - develop
+  push:
+    branches: [ "main" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -12,13 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: amondnet/vercel-action@v20
-        id: vercel-deploy
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-org-id: ${{ secrets.ORG_ID }}
-          vercel-project-id: ${{ secrets.PROJECT_ID }}
+          vercel-args: '--prod'
+          vercel-org-id: ${{ secrets.ORG_ID}}
+          vercel-project-id: ${{ secrets.PROJECT_ID}}
           scope: ${{ secrets.ORG_ID }}
-      - name: preview-url
-        run: |
-          echo ${{ steps.vercel-deploy.outputs.preview-url }}
