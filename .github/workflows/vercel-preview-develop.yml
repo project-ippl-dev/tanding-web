@@ -3,14 +3,13 @@ name: Create vercel preview URL on merge pull request
 on:
   pull_request:
     types:
-      - closed
+      - opened
     branches:
       - develop
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build_and_deploy:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
