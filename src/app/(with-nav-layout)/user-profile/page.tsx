@@ -1,26 +1,26 @@
-"use client"
+"use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  Container, 
-  Grid, 
-  Paper, 
-  Avatar, 
-  IconButton, 
-  Typography, 
-  Box, 
-  Backdrop, 
-  CircularProgress, 
-  Skeleton 
+import {
+  Container,
+  Grid,
+  Paper,
+  Avatar,
+  IconButton,
+  Typography,
+  Box,
+  Backdrop,
+  CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import Edit from "@mui/icons-material/Edit";
-import Person from '@mui/icons-material/Person';
+import Person from "@mui/icons-material/Person";
 import Tentang from "./_component/Tentang";
 import DialogProfileBasic from "./_component/DialogProfileBasic";
 import Image from "next/image";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 import { useAuth } from "@/context/auth.context";
-import { profile } from "console";
+import { getProfileData } from "@/store/actions/profile";
 
 const HoverableSpan = styled("span")(() => ({
   fontWeight: 700,
@@ -32,32 +32,44 @@ const HoverableSpan = styled("span")(() => ({
 }));
 
 export default function UserProfile() {
-  const theme = useTheme()
-  const authData = useAuth()
+  const theme = useTheme();
+  const { authData } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [dialogProfile, setDialogProfile] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileBasicResponse | null>(null);
+  const [profileData, setProfileData] = useState<ProfileBasicResponse | null>(
+    null
+  );
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         setLoadingProfile(true);
-        const token = ""; // Replace with actual token retrieval logic
-        const url = process.env.NODE_ENV === 'development'? 'own' : authData?.data?.user_id
-        const response = await fetch(`/api/profile/${url}`, {
-          method: "GET",
-          headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+        // const token = ""; // Replace with actual token retrieval logic (in store)
+        // 
+        // const url =
+        //   process.env.NODE_ENV === "development"
+        //     ? "own"
+        //     : authData
+        //     ? authData.user_id
+        //     : ""; //TODO: Handle if accessed without authData
+        // const response = await fetch(`/api/profile/${url}`, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+        // if (!response.ok) {
+        //   throw new Error("Failed to fetch data");
+        // }
+        const response = await getProfileData({
+          uuid: 'own', //NOTE: URL now uses own, uuid is accessible by admin only
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const data: ProfileBasicResponse = await response.json();
-        console.log(data)
+        // const data: ProfileBasicResponse = await response.json();
+        const data: ProfileBasicResponse = response;
+        console.log(data);
         setProfileData(data);
       } catch (error) {
         console.error(error);
@@ -69,100 +81,102 @@ export default function UserProfile() {
     fetchProfileData();
   }, []);
 
-  function updateProfileData(updatedData: ProfileUpdate){
-    setProfileData(prevState => {
+  function updateProfileData(updatedData: ProfileUpdate) {
+    setProfileData((prevState) => {
       const result = {
-        message:'',
-        data:{}
-      }
+        message: "",
+        data: {},
+      };
 
-      if (prevState) result.data = {
+      if (prevState)
+        result.data = {
           ...prevState.data,
           ...updatedData,
-          born_on:{
+          born_on: {
             Time: updatedData.born_on,
-            Valid:true
-          }}
+            Valid: true,
+          },
+        };
       else {
         // Kondisi yang sepertinya gak akan terjadi
         // Data Profil Awalnya udah null
-        result.message = ''
-        result.data = updatedData
+        result.message = "";
+        result.data = updatedData;
       }
-      return result
-    })
+      return result;
+    });
   }
 
   const useImageBackground: boolean = false;
-  const backgroundProfile = React.useMemo(() => (
-    useImageBackground ? (
-      <Image
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          borderRadius: "10px 10px 0 0",
-        }}
-        alt="backgroundProfile"
-        src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png"
-        layout="fill"
-        objectFit="cover"
-      />
-    ) : (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          background: "linear-gradient(135deg, #384FB9 0%, #CB4492 50%, #FF69B4 100%)",
-        }}
-      />
-    )
-  ), [useImageBackground]);
-
+  const backgroundProfile = React.useMemo(
+    () =>
+      useImageBackground ? (
+        <Image
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "10px 10px 0 0",
+          }}
+          alt="backgroundProfile"
+          src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png"
+          layout="fill"
+          objectFit="cover"
+        />
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            background:
+              "linear-gradient(135deg, #384FB9 0%, #CB4492 50%, #FF69B4 100%)",
+          }}
+        />
+      ),
+    [useImageBackground]
+  );
 
   const MemoizedAvatar = useMemo(() => {
     const templateRender = (
       <Box
         sx={{
-            objectFit: 'cover', // Memastikan gambar tetap proporsional
-            borderRadius: "50%", // Membuat gambar berbentuk lingkaran
-            width: "180px",
-            height: "180px",
-            position: "absolute",
-            top: "160px",
-            left: "40px",
-            border: "5px solid #fff",
-            backgroundColor: "#fff",
+          objectFit: "cover", // Memastikan gambar tetap proporsional
+          borderRadius: "50%", // Membuat gambar berbentuk lingkaran
+          width: "180px",
+          height: "180px",
+          position: "absolute",
+          top: "160px",
+          left: "40px",
+          border: "5px solid #fff",
+          backgroundColor: "#fff",
         }}
       >
         <Person sx={{ color: "black", height: "100%", width: "100%" }} />
       </Box>
-    )
+    );
 
     const imageRender = (
-    <Image
-      src={profileData?.data?.photo || ""}
-                  alt="Preview"
-                  width={100} // Ukuran tetap untuk lebar
-                  height={100} // Ukuran tetap untuk tinggi
-                  style={
-                   { 
-                    objectFit: 'cover', // Memastikan gambar tetap proporsional
-                    borderRadius: "50%", // Membuat gambar berbentuk lingkaran
-                    width: "180px",
-                    height: "180px",
-                    position: "absolute",
-                    top: "160px",
-                    left: "40px",
-                    border: "5px solid #fff",
-                    backgroundColor: "#fff",}
-                   }
-                />
-  
-    )
+      <Image
+        src={profileData?.data?.photo || ""}
+        alt="Preview"
+        width={100} // Ukuran tetap untuk lebar
+        height={100} // Ukuran tetap untuk tinggi
+        style={{
+          objectFit: "cover", // Memastikan gambar tetap proporsional
+          borderRadius: "50%", // Membuat gambar berbentuk lingkaran
+          width: "180px",
+          height: "180px",
+          position: "absolute",
+          top: "160px",
+          left: "40px",
+          border: "5px solid #fff",
+          backgroundColor: "#fff",
+        }}
+      />
+    );
 
-    return (profileData?.data?.photo ? imageRender : templateRender)
-}, [profileData]);
+    return profileData?.data?.photo ? imageRender : templateRender;
+  }, [profileData]);
 
   return (
     <div style={{ backgroundColor: "#fff" }}>
@@ -201,7 +215,9 @@ export default function UserProfile() {
                       backgroundColor: "#fff",
                     }}
                   />
-                ) : (MemoizedAvatar )}
+                ) : (
+                  MemoizedAvatar
+                )}
                 <IconButton
                   sx={{
                     position: "absolute",
@@ -245,7 +261,9 @@ export default function UserProfile() {
                           Update Profile Sekarang
                         </HoverableSpan>
                       ) : (
-                        <span>{profileData?.data?.born_at || "Unknown Date"}</span>
+                        <span>
+                          {profileData?.data?.born_at || "Unknown Date"}
+                        </span>
                       )}
                     </Typography>
                   )}
@@ -260,8 +278,8 @@ export default function UserProfile() {
                 >
                   {loadingProfile ? (
                     <Skeleton width="100%" height={50} />
-                  ) : authData?.data?.clubs.length > 0 ? (
-                    authData.data.clubs.map((value) => (
+                  ) : authData?.clubs.length > 0 ? (
+                    authData?.clubs.map((value) => (
                       <div
                         style={{
                           display: "flex",
@@ -291,7 +309,10 @@ export default function UserProfile() {
                 </Grid>
               </Grid>
             </Paper>
-            <Tentang wait={loadingProfile} description={profileData?.data?.about || null}/>
+            <Tentang
+              wait={loadingProfile}
+              description={profileData?.data?.about || null}
+            />
           </Grid>
         </Grid>
         <Box height="200px" />

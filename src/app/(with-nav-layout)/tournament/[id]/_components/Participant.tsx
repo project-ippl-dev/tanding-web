@@ -10,11 +10,12 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/system";
 
-import { useAuth } from "@/context/auth.context";
-import { fetchProxyApi } from "@/utils/request";
+// import { useAuth } from "@/context/auth.context";
+// import { fetchProxyApi } from "@/utils/request";
 import { useLoading } from "@/context/loading.context";
 import { useParams } from "next/navigation";
 import { EventParticipantsResponse } from "@/types/event.type";
+import { getTournamentParticipants } from "@/store/actions/event";
 
 const StyledContainer = styled("div")({
   padding: "0 80px",
@@ -31,39 +32,44 @@ const StyledDetail = styled("div")({
   },
 });
 
-export default function Participant ()
-{
-  const {authData} = useAuth()
-  const loadingObj = useLoading()
-  const {id} = useParams()
+export default function Participant() {
+  // const { authData } = useAuth();
+  const loadingObj = useLoading();
+  const { id } = useParams();
 
   const [expanded, setExpanded] = useState<string | false>(false);
-  const [participants, setParticipants] = useState<EventParticipantsResponse | []>([])
+  const [participants, setParticipants] = useState<
+    EventParticipantsResponse | []
+  >([]);
 
   useEffect(() => {
     async function getParticipants() {
-      const token = authData.token.access_token
-      const eventid = id
+      // const token = authData.token.access_token;
+      const eventid = id;
 
-      const url = `/api/event/participants/${eventid || ''}`
+      // const url = `/api/event/participants/${eventid || ""}`;
 
-      if(loadingObj.changeState)loadingObj.changeState(true)
+      if (loadingObj.changeState) loadingObj.changeState(true);
 
-      const serverResponse = await fetchProxyApi(url, token)
+      // const serverResponse = await fetchProxyApi(url, token)
+      const serverResponse = await getTournamentParticipants({
+        eventID: eventid || "",
+      });
 
-      if(!serverResponse.success){
-        alert(`Gagal mengambil data, dengan error: `+serverResponse.message)
-      } else{
-        setParticipants(serverResponse.data)
-        console.log(serverResponse)
+      if (!serverResponse) {
+        // if (!serverResponse.success) {
+        alert(`Gagal mengambil data, dengan error: ` + serverResponse.message);
+      } else {
+        // setParticipants(serverResponse.data);
+        setParticipants(serverResponse);
+        console.log(serverResponse);
       }
 
-      if(loadingObj.changeState)loadingObj.changeState(false)
-
+      if (loadingObj.changeState) loadingObj.changeState(false);
     }
 
-    getParticipants()
-  },[])
+    getParticipants();
+  }, []);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -137,7 +143,7 @@ export default function Participant ()
       <Box height="100px" />
     </StyledContainer>
   );
-};
+}
 
 /*
 const mapStateToProps = (state) => ({

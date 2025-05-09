@@ -13,6 +13,7 @@ import {
 import StyledMenu from "./StyledMenu";
 import { ExitToApp } from "@mui/icons-material";
 import { CLUB_ALL_DATA } from "@/store/club"; //TODO: This is Dummy Data. Connect to actual club data
+import { useAuth } from "@/context/auth.context";
 
 const BoldText = styled(Typography)(() => ({
   fontWeight: 600,
@@ -52,8 +53,11 @@ export default function ProfileMenuList({
     onClose();
   };
 
-  const logout = () => {
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
     // TODO: Connect to actual logout
+    await logout();
     onClose();
     // onLogout();
   };
@@ -189,8 +193,7 @@ export default function ProfileMenuList({
               <Box>
                 <ProfileMenuListButton
                   startIcon={<ExitToApp />}
-                  // TODO: Connect to actual logout
-                  onClick={logout}
+                  onClick={handleLogout}
                 >
                   Keluar
                 </ProfileMenuListButton>
