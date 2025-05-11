@@ -7,11 +7,12 @@ import React, {
   ReactNode,
 } from "react";
 import { AuthData } from "@/types/auth.type";
+import { authLogin, authLogout } from "@/store/actions/auth";
 
 interface AuthContextType {
   authData: AuthData | null;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -27,24 +28,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_TANDING_API_BASE_URL}/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      }
-    );
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || "Login failed");
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_TANDING_API_BASE_URL}/auth/login`,
+    //   {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ username, password }),
+    //   }
+    // );
+    console.log("login Called");
+    try {
+      const res = await authLogin(username, password);
+      // const result: { message: string; data: AuthData } = await res.json();
+      const result: { message: string; data: AuthData } = res;
+      console.log(result);
+      setAuthData(result.data);
+      localStorage.setItem("authData", JSON.stringify(result.data));
+    } catch (e) {
+      throw e;
     }
-    const result: { message: string; data: AuthData } = await res.json();
-    setAuthData(result.data);
-    localStorage.setItem("authData", JSON.stringify(result.data));
+    // if (!res.ok) {
+    //   const err = await res.json();
+    //   throw new Error(err.message || "Login failed");
+    // }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await authLogout();
     setAuthData(null);
     localStorage.removeItem("authData");
   };

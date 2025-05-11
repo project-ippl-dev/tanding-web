@@ -1,19 +1,19 @@
 import { getExternalApiUrl } from '@/utils/api';
 import { NextResponse, NextRequest } from 'next/server';
 
-export async function GET(request: NextRequest, {params}: {params: {uuid: string}}) {
-/* 
-    Warning :
-    Kemungkinan bisa indirect access dengan ganti parameternya
-*/
-  const {uuid} = await params
+export async function GET(request: NextRequest, { params }: { params: Promise<{ uuid: string }> }) {
+  /* 
+      Warning :
+      Kemungkinan bisa indirect access dengan ganti parameternya
+  */
+  const { uuid } = await params
   const tokenHeader = request.headers.get('Authorization')
   // console.log(request.headers.get('Authorization'))
   if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
     return NextResponse.json(
-        { error: 'Unauthorized: Bearer token is missing or invalid' },
-        { status: 401 }
-      );
+      { error: 'Unauthorized: Bearer token is missing or invalid' },
+      { status: 401 }
+    );
   }
 
   // Akses nilai token
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, {params}: {params: {uuid: string
   });
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { uuid: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ uuid: string }> }) {
   const { uuid } = await params;
   const tokenHeader = request.headers.get('Authorization');
 
