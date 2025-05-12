@@ -14,7 +14,6 @@ import HeaderTournament from "./_components/HeaderTournament";
 import { EventInfinityResponse } from "@/types/event.type";
 import { LoadingProvider } from "@/context/loading.context";
 import CardTournaments from "./_components/CardTournaments";
-import { fetchProxyApi } from "@/utils/request";
 import { useParams } from "next/navigation";
 import { getTournamentInfinity } from "@/store/actions/event";
 

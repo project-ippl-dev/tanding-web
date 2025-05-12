@@ -25,6 +25,7 @@ import Register from "./Register";
 import Participant from "./Participant";
 import Bracket from "./Bracket";
 import { ParamValue } from "next/dist/server/request/params";
+import { a11yProps } from "@/utils/a11yProps";
 
 const StyledTabs = (props: TabsProps) => (
   <Tabs
@@ -85,12 +86,6 @@ const TabPanel = ({
   );
 };
 
-const a11yProps = (index: number) => {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-};
 
 const HeaderTournament = ({
   eventID,
