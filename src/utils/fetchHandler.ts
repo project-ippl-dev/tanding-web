@@ -1,3 +1,5 @@
+"use server";
+
 import { getExternalApiUrl } from '@/utils/api';
 import { cookies } from 'next/headers';
 
