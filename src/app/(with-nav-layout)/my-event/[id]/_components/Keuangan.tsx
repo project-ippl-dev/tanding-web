@@ -9,42 +9,67 @@ import {
   getPaymentTotalForOwner,
 } from "../../../../store/actions";
 */
-
-
-async function reqCreateClass(data: CreateClassPayload) {
-  const response = await createClass(data);
-  if (response.status === 200) {
-    alert(response.message);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
-  }
-}
-
-
-async function reqCreateClass(data: CreateClassPayload) {
-  const response = await createClass(data);
-  if (response.status === 200) {
-    alert(response.message);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
-  }
-}
-
-
 import Table from "./Table";
 import { useParams } from "next/navigation";
+import { getPaymentForOwner, getPaymentTotalForOwner } from "@/store/actions/payment";
+import { PaymentOwner, PaymentSummary } from "@/types/payment";
 
-const Keuangan = ({ payment, getPaymentForOwner, getPaymentTotalForOwner }) => {
-  const params = useParams();
+
+async function reqGetPayementForOwner(eventID: string, status: string = "", setData: (data: PaymentOwner)=> void) {
+  const response = await getPaymentForOwner(eventID,status)
+  if (response.status === 200) {
+    setData(response);
+  } else {
+    alert("Gagal membuat data respon, dengan error: " + response.error);
+  }
+}
+
+
+async function reqGetPaymentTotalForOwner(eventID: string, setData: (data: PaymentSummary)=> void) {
+  const response = await getPaymentTotalForOwner(eventID);
+  if (response.status === 200) {
+    setData(response);
+  } else {
+    alert("Gagal membuat data respon, dengan error: " + response.error);
+  }
+}
+
+
+interface PaymentOwnerResponse {
+  payment:PaymentOwner | null
+  summary:PaymentSummary | null
+}
+
+
+
+const Keuangan = () => {
+  const params = useParams<{id: string}>();
+
+  const [payment, setPaymentData] = useState<PaymentOwnerResponse>({
+    payment: null,
+    summary: null,
+  });
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    getPaymentForOwner(params.id, status);
+    const setPaymentOwnerData = (data: PaymentOwner) => {
+      setPaymentData(prevState => ({
+        ...prevState,
+        payment: data,
+      })
+    )}
+    reqGetPayementForOwner(params.id, status, setPaymentOwnerData);
   }, [params.id, status]);
 
   useEffect(() => {
-    getPaymentTotalForOwner(params.id);
+    const setPaymentSummaryData = (data: PaymentSummary) => {
+      setPaymentData(prevState => ({
+        ...prevState,
+        summary: data,
+      })
+    )}
+    reqGetPaymentTotalForOwner(params.id, setPaymentSummaryData);
   }, [params.id]);
 
   return (
@@ -73,7 +98,7 @@ const Keuangan = ({ payment, getPaymentForOwner, getPaymentTotalForOwner }) => {
                     <Typography sx={{ fontWeight: 700, fontSize: "35px" }}>
                       <NumericFormat
                         displayType="text"
-                        value={payment.owner.approved}
+                        value={payment.summary?.data.approved}
                         suffix=",00"
                         thousandSeparator="."
                         decimalSeparator=","
@@ -107,7 +132,7 @@ const Keuangan = ({ payment, getPaymentForOwner, getPaymentTotalForOwner }) => {
                     >
                       <NumericFormat
                         displayType="text"
-                        value={payment.owner.waiting}
+                        value={payment.summary?.data.waiting}
                         prefix="Rp"
                         thousandSeparator="."
                         decimalSeparator=","
@@ -137,7 +162,7 @@ const Keuangan = ({ payment, getPaymentForOwner, getPaymentTotalForOwner }) => {
                     >
                       <NumericFormat
                         displayType="text"
-                        value={payment.owner.refund}
+                        value={payment.summary?.data.refund}
                         prefix="Rp"
                         thousandSeparator="."
                         decimalSeparator=","
@@ -152,7 +177,7 @@ const Keuangan = ({ payment, getPaymentForOwner, getPaymentTotalForOwner }) => {
       </Box>
       <Box marginTop={3}>
         <Table
-          data={payment.owner}
+          payment={payment}
           page={page}
           setPage={setPage}
           status={status}
@@ -162,6 +187,8 @@ const Keuangan = ({ payment, getPaymentForOwner, getPaymentTotalForOwner }) => {
     </Box>
   );
 };
+
+export default Keuangan;
 
 /*
 const mapStateToProps = (state) => ({
