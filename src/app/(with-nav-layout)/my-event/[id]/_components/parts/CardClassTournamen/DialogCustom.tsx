@@ -9,13 +9,20 @@ import {
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
+import { Class, CreateClassPayload } from "@/types/class.types";
 
 interface DialogCustomProps {
   open: boolean;
   onClose: () => void;
-  rules: { data: { id: string; name: string }[] };
+  rules: Class[] 
   sportId: string;
   action: (formData: unknown) => void;
+}
+
+interface FormCreateClass{
+  name: string;
+  class_rule_id: string;
+  match_type: string;
 }
 
 const DialogCustom: React.FC<DialogCustomProps> = ({
@@ -27,8 +34,8 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
 }) => {
   const { handleSubmit, errors, control, register } = useForm();
 
-  const onSubmit = (data) => {
-    const formData = { ...data, sport_id: sportId, class_type: "custom" };
+  const onSubmit = (data: FormCreateClass) => {
+    const formData: CreateClassPayload = { ...data, sport_id: sportId, class_type: "custom" };
     action(formData);
     onClose();
   };
@@ -45,10 +52,7 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
             size="small"
             label="Nama Kelas Tournament"
             margin="normal"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputRef={register}
+            inputRef={register("name").ref}
             name="name"
             error={!!errors.class_id}
           />
@@ -63,14 +67,11 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
                 size="small"
                 label="Peraturan Kelas"
                 margin="normal"
-                InputLabelProps={{
-                  shrink: true,
-                }}
                 value={value}
                 onChange={({ target: { value } }) => onChange(value)}
                 error={!!errors.class_rule_id}
               >
-                {rules.data.map((value) => (
+                {rules.map((value) => (
                   <MenuItem key={value.id} value={value.id}>
                     {value.name}
                   </MenuItem>
@@ -89,9 +90,6 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
                 size="small"
                 label="Metode eliminasi"
                 margin="normal"
-                InputLabelProps={{
-                  shrink: true,
-                }}
                 value={value}
                 onChange={({ target: { value } }) => onChange(value)}
                 error={!!errors.match_type}

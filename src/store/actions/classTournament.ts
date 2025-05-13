@@ -1,32 +1,5 @@
 import { handleFetch } from "@/utils/fetchHandler";
-
-// --- Interface Definitions ---
-
-// Payload for creating a new class (POST /class)
-export interface CreateClassPayload {
-  sport_id: string;
-  name: string; // Assuming name is also required, common for class creation
-  type?: string; // Example: 'single_elimination'
-  team_type?: string; // Example: 'individual', 'team'
-  // Add other properties as defined by your API for creating a class
-}
-
-// Item structure for assigning a class in storeClassTournament
-export interface ClassAssignmentItem {
-  class_id: string;
-  price: number;
-  // Add other properties if needed for each item in the assignment array
-}
-
-// Payload for assigning classes to an event (POST /event/{id}/class/assign)
-export interface StoreClassTournamentPayload {
-  data: ClassAssignmentItem[];
-}
-
-// Payload for updating class price in an event (PUT /event/{id}/class/{class_id})
-export interface UpdatePriceClassTournamentPayload {
-  price: number;
-}
+import { CreateClassPayload, StoreClassTournamentPayload, UpdatePriceClassTournamentPayload } from "@/types/class.types";
 
 // --- API Functions ---
 

@@ -1,7 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router";
-import { connect } from "react-redux";
 import {
   Card,
   CardHeader,
@@ -24,11 +21,25 @@ import { useForm, Controller } from "react-hook-form";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
 import TextFieldFormat from "@/components/TextFieldFormat/TextFieldFormat";
 import DialogCustom from "./parts/CardClassTournamen/DialogCustom";
-import { createClass, deleteClassTournament, getClass, getClassRules, storeClassTournament, updatePriceClassTournament } from "@/store/actions/classTournament";
+import {
+  createClass,
+  deleteClassTournament,
+  getClass,
+  getClassRules,
+  storeClassTournament,
+  updatePriceClassTournament,
+} from "@/store/actions/classTournament";
+import { useParams } from "next/navigation";
+import {
+  ClassMultiple,
+  ClassRulesMultiple,
+  CreateClassPayload,
+  StoreClassTournamentPayload,
+  UpdatePriceClassTournamentPayload,
+} from "@/types/class.types";
+import { EventData } from "@/types/event.type";
 
-
-
-async function reqCreateClass(data: unknown) {
+async function reqCreateClass(data: CreateClassPayload) {
   const response = await createClass(data);
   if (response.status === 200) {
     alert(response.message);
@@ -37,8 +48,8 @@ async function reqCreateClass(data: unknown) {
   }
 }
 
-async function reqDeleteClassTournament(data: unknown) {
-  const response = await deleteClassTournament(data);
+async function reqDeleteClassTournament(eventID: string, classID: string) {
+  const response = await deleteClassTournament(eventID, classID);
   if (response.status === 200) {
     alert(response.message);
   } else {
@@ -46,8 +57,8 @@ async function reqDeleteClassTournament(data: unknown) {
   }
 }
 
-async function reqUpdatePriceClassTournament(data: unknown) {
-  const response = await updatePriceClassTournament(data);
+async function reqUpdatePriceClassTournament(eventID: string, classID: string, data: UpdatePriceClassTournamentPayload) {
+  const response = await updatePriceClassTournament(eventID, classID, data);
   if (response.status === 200) {
     alert(response.message);
   } else {
@@ -55,8 +66,27 @@ async function reqUpdatePriceClassTournament(data: unknown) {
   }
 }
 
-async function reqGetClass(data: unknown) {
-  const response = await getClass(data)
+async function reqGetClass(sportID: string, setData: (data: ClassMultiple) => void) {
+  const response = await getClass(sportID);
+  if (response.status === 200) {
+    setData(response);
+  } else {
+    alert("Gagal membuat data respon, dengan error: " + response.error);
+  }
+}
+
+async function reqGetClassRules(page: string, pageSize: string, setData: (data: ClassRulesMultiple) => void) {
+  const response = await getClassRules(page, pageSize);
+  if (response.status === 200) {
+   setData(response); 
+
+  } else {
+    alert("Gagal membuat data respon, dengan error: " + response.error);
+  }
+}
+
+async function reqStoreClassTournament(eventID: string, data: StoreClassTournamentPayload) {
+  const response = await storeClassTournament(eventID, data);
   if (response.status === 200) {
     alert(response.message);
   } else {
@@ -64,54 +94,33 @@ async function reqGetClass(data: unknown) {
   }
 }
 
-async function reqGetClassRules(data: unknown) {
-  const response = await getClassRules(data);
-  if (response.status === 200) {
-    alert(response.message);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
-  }
+interface CardClassTournamentProps {
+  tournament: EventData | null
 }
 
-async function reqStoreClassTournament(data: unknown) {
-  const response = await storeClassTournament(data);
-  if (response.status === 200) {
-    alert(response.message);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
-  }
-}
-
-async function reqStoreClassTournament(data: unknown) {
-  const response = await storeClassTournament(data);  
-  if (response.status === 200) {
-    alert(response.message);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
-  }
-}
-
-const CardClassTournament = ({
-  data,
-  classTournament,
-  // getClass,
-  // getClassRules,
-  // storeClassTournament,
-  // updatePriceClassTournament,
-  // deleteClassTournament,
-  // createClass,
-}) => {
-  const params = useParams();
-  const { handleSubmit, errors, control, setValue } = useForm({
+const CardClassTournament: React.FC<CardClassTournamentProps> = ({ tournament }) => {
+  const params = useParams<{ id: string }>();
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<{ class_id: string; price: number }>({
     shouldUnregister: false,
   });
 
-  const [id, setId] = useState("");
+  const [id, setId] = useState<string>("");
+  const [classRule, setClassRule] = useState<ClassRulesMultiple | null>(null)
+  const [classTournament, setClassTournament] = useState<ClassMultiple | null>()
   const [dialogCustom, setDialogCustom] = useState(false);
   const [dialogClass, setDialogClass] = useState({
     open: false,
     edit: false,
-    data: null,
+    data: null as null | {
+      id: string;
+      class_id: string;
+      price: number;
+    },
   });
 
   const closeDialogClass = () => {
@@ -122,11 +131,11 @@ const CardClassTournament = ({
     });
   };
 
-  const openDialogClass = (edit, data) => {
+  const openDialogClass = (edit: boolean, data: typeof dialogClass.data) => {
     setDialogClass({
       open: true,
-      edit: edit,
-      data: data,
+      edit,
+      data,
     });
   };
 
@@ -135,29 +144,33 @@ const CardClassTournament = ({
     setDialogCustom(true);
   };
 
-  const handleDeleteClass = (class_id) => {
+  const handleDeleteClass = (class_id: string) => {
     closeDialogClass();
-    deleteClassTournament(params.id, class_id);
+    reqDeleteClassTournament(params.id!, class_id);
   };
 
-  const onSubmit = (data) => {
-    if (dialogClass.edit) {
-      updatePriceClassTournament(params.id, dialogClass.data.id, {
-        price: data.price,
+  const onSubmit = (formData: { class_id: string; price: number }) => {
+    if (dialogClass.edit && dialogClass.data) {
+      reqUpdatePriceClassTournament(params.id!, dialogClass.data.id, {
+        price: formData.price,
       });
     } else {
-      storeClassTournament(params.id, { data: [data] });
+      reqStoreClassTournament(params.id!, { data: [formData] });
     }
     closeDialogClass();
   };
 
   useEffect(() => {
-    getClass(data.data.sport_id);
-    getClassRules("", "");
-  }, []);
+    if (tournament) {
+      const setData = (data: ClassMultiple) => {setClassTournament(data)}
+      const setRule = (data: ClassRulesMultiple) => {setClassRule(data)}
+      reqGetClass(tournament.sport_id, setData);
+      reqGetClassRules("", "",setRule);
+    }
+  }, [tournament]);
 
   useEffect(() => {
-    if (dialogClass.edit) {
+    if (dialogClass.edit && dialogClass.data) {
       setValue("class_id", dialogClass.data.class_id);
       setValue("price", dialogClass.data.price);
     }
@@ -188,8 +201,8 @@ const CardClassTournament = ({
         <CardContent>
           <Box>
             <Grid container alignItems="center">
-              <Grid xs={12}>
-                {data.data.class_events.map((value) => (
+              <Grid size={12}>
+                {tournament?.class_events.map((value) => (
                   <Box
                     sx={{
                       display: "flex",
@@ -203,18 +216,14 @@ const CardClassTournament = ({
                   >
                     <div>
                       <Typography sx={{ fontWeight: "bold", fontSize: "16px" }}>
-                        {value.class_name}{" "}
-                        <span
-                          style={{ fontWeight: 400, fontSize: "14px" }}
-                        >{`- ${value.match_type} elimination`}</span>
+                        {value.class_name} <span style={{ fontWeight: 400, fontSize: "14px" }}>{`- ${value.match_type} elimination`}</span>
                       </Typography>
                       <NumericFormat
                         displayType="text"
                         prefix="Biaya daftar Rp "
                         value={value.price}
                         thousandSeparator="."
-                        decimalSeparator=","
-                      />
+                        decimalSeparator="," />
                     </div>
                     {id === value.id && (
                       <div>
@@ -223,7 +232,7 @@ const CardClassTournament = ({
                             setDialogClass({
                               open: true,
                               edit: true,
-                              data: value,
+                              data: { ...value, class_id: value.id },
                             })
                           }
                         >
@@ -233,7 +242,7 @@ const CardClassTournament = ({
                     )}
                   </Box>
                 ))}
-                {data.data.class_events.length === 0 && (
+                {tournament?.class_events.length === 0 && (
                   <Box>
                     <Typography>Kelas Tournament Belum Diset</Typography>
                   </Box>
@@ -245,48 +254,35 @@ const CardClassTournament = ({
       </Card>
 
       {/* DIALOG FOR ADD OR EDIT */}
-      <Dialog
-        open={dialogClass.open}
-        onClose={closeDialogClass}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={dialogClass.open} onClose={closeDialogClass} maxWidth="sm" fullWidth>
         <form onSubmit={handleSubmit(onSubmit)}>
           <StyledDialogTitle onClose={closeDialogClass}>
-            {dialogClass.edit ? "Edit Biaya Kelas" : "Tambah Kelas"} Tournament
+            {dialogClass.edit ? "Edit Biaya Kelas" : "Tambah Kelas Tournament"}
           </StyledDialogTitle>
           <DialogContent>
             <Controller
               control={control}
               name="class_id"
               defaultValue=""
-              render={({ onChange, value }) => (
+              render={({ field }) => (
                 <TextField
                   select
                   fullWidth
                   size="small"
                   label="Kelas Pertandingan"
                   margin="normal"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={value}
-                  onChange={({ target: { value } }) => onChange(value)}
+                  {...field}
                   disabled={dialogClass.edit}
                   error={!!errors.class_id}
                   helperText={
                     !dialogClass.edit && (
                       <Typography sx={{ fontSize: "12px" }}>
-                        Jika kelas tidak tersedia, anda bisa membuat custom
-                        kelas{" "}
+                        Jika kelas tidak tersedia, anda bisa membuat custom kelas {" "}
                         <span
                           style={{
                             cursor: "pointer",
                             color: "blue",
                             fontWeight: 600,
-                            "&:hover": {
-                              textDecoration: "underline",
-                            },
                           }}
                           onClick={openDialogCustom}
                         >
@@ -296,7 +292,7 @@ const CardClassTournament = ({
                     )
                   }
                 >
-                  {classTournament.class.data.map((value) => (
+                  {classTournament?.data.map((value) => (
                     <MenuItem key={value.id} value={value.id}>
                       {`${value.name} - ${value.match_type} elimination`}
                     </MenuItem>
@@ -307,20 +303,16 @@ const CardClassTournament = ({
             <Controller
               control={control}
               name="price"
-              defaultValue=""
-              render={({ onChange, value }) => (
+              defaultValue={0}
+              render={({ field }) => (
                 <TextFieldFormat
                   thousandSeparator="."
-                  decimalSeparator=","
+                  decimalSeparator="," 
                   prefix="Rp "
-                  value={value}
-                  onChange={({ floatValue }) => onChange(floatValue)}
+                  {...field}
                   label="Biaya Daftar"
                   placeholder="Rp 50.000"
                   margin="normal"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
                   error={!!errors.price}
                   helperText={errors?.price?.message}
                 />
@@ -331,7 +323,7 @@ const CardClassTournament = ({
             {dialogClass.edit && (
               <Button
                 variant="contained"
-                onClick={() => handleDeleteClass(dialogClass.data.id)}
+                onClick={() => handleDeleteClass(dialogClass.data!.id)}
               >
                 Delete
               </Button>
@@ -345,23 +337,12 @@ const CardClassTournament = ({
       <DialogCustom
         open={dialogCustom}
         onClose={() => setDialogCustom(false)}
-        rules={classTournament.rules}
-        sportId={data.data.sport_id}
-        action={createClass}
+        rules={classTournament?.data || []}
+        sportId={tournament?.sport_id || ""}
+        action={(formData) => reqCreateClass(formData as CreateClassPayload)}
       />
     </>
   );
 };
 
-const mapStateToProps = (state) => ({
-  classTournament: state.classTournament,
-});
-
-export default connect(mapStateToProps, {
-  getClass,
-  getClassRules,
-  storeClassTournament,
-  createClass,
-  deleteClassTournament,
-  updatePriceClassTournament,
-})(CardClassTournament);
+export default CardClassTournament;

@@ -1,4 +1,5 @@
 'use server'
+import { handleFetch } from "@/utils/fetchHandler";
 import { cookies } from "next/headers";
 
 
@@ -32,3 +33,11 @@ export async function getProvince() {
   // });
   return data;
 }
+
+
+export const getCities = async (id_province: string) => {
+  return handleFetch({
+    url: `https://api.general.eoatech.com/regencies/search?kata_kunci=&id_province=${id_province}`,
+    method: "GET",
+  });
+};

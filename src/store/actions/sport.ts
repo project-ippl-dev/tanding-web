@@ -3,14 +3,8 @@
 import { getExternalApiUrl } from '@/utils/api';
 import { cookies } from 'next/headers';
 
-interface GetSportParams {
-  keyword?: string;
-  category?: string;
-  page?: string | number;
-  page_size?: string | number;
-}
 
-export async function getSport(params: GetSportParams) {
+export async function getSport(page='', page_size='', keyword='', category='') {
   const tokenHeader = (await cookies()).get('access_token')?.value;
 
   if (!tokenHeader && !(process.env.BYPASS_REQ_AUTH === 'true')) {
@@ -19,13 +13,6 @@ export async function getSport(params: GetSportParams) {
       status: 401,
     };
   }
-
-  const {
-    keyword = '',
-    category = '',
-    page = '', // Default to empty string as per original sport.js
-    page_size = '', // Default to empty string as per original sport.js
-  } = params;
 
   // Construct query parameters to match the original behavior (sending empty strings)
   const queryParams = new URLSearchParams({

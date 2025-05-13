@@ -72,7 +72,10 @@ export async function handleFetch({
 
   try {
     const responseData = await response.json();
-    return { ...responseData, status: response.status };
+    
+    if (Array.isArray(responseData)) return { data:responseData, status: response.status }
+    else return { ...responseData, status: response.status };
+    
   } catch (e) {
     // Handle cases where response.ok is true, but body is not valid JSON
     // This might indicate an issue with the API returning non-JSON success responses

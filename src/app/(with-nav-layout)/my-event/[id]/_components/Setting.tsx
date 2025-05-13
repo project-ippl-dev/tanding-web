@@ -5,6 +5,8 @@ import { EventSingleResponse } from "@/types/event.type";
 import { sendFinishTournament } from "@/store/actions/event";
 import FinishTournament from "./parts/Settings/FinishTournament";
 import CardAssignRole from "./parts/Settings/CardAssignRole";
+import CardClassTournament from "./CardClassTournament";
+import CardEditTournament from "./parts/Settings/CardEditTournament";
 
 
 async function reqFinishTournament(eventID: string) {
@@ -34,7 +36,7 @@ const Setting = ({ tournament }:{
             </Box>
           )}
           <Box marginTop={3}>
-            <CardClassTournament data={tournament} />
+            <CardClassTournament tournament={tournament?.data || null} />
           </Box>
           {tournament?.data?.user_privilege.role === "owner" && (
             <Box marginTop={3}>
@@ -42,7 +44,7 @@ const Setting = ({ tournament }:{
             </Box>
           )}
           <Box marginTop={3} paddingBottom={5}>
-            <CardEditTournament data={tournament} />
+            <CardEditTournament tournament={tournament?.data || null} />
           </Box>
         </Box>
       </Container>
