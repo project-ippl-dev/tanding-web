@@ -1,70 +1,73 @@
 import { SportBaseType } from "./sport.type";
 
-export interface ClubAllData {
-  message: string;
-  data: ClubBaseType[];
-  current_page: number;
-  has_previous_page: boolean;
-  has_next_page: boolean;
-  previous_page: number;
-  next_page: number;
-  last_page: number;
-  total_item: number;
+export interface CreateClubFormData {
+  clubData: Omit<ClubFetchOneData, 'id' | 'owner' | 'privilege' | 'joined' | 'sports'> 
+  sports: SportBaseType[],
+  phone: string;
 }
 
-export interface ClubOneData {
-  message: string;
-  data: ClubBaseType;
+export interface CreateClubRequestBody {
+  name: string;
+  logo?: string; //TODO: Match logo type
+  phone: string;
+  short_name: string;
+  sports:
+  {
+    sport_id: string
+  }[]
 }
 
-export interface ClubMemberData {
-  message: string;
-  data: {
-    total_point: number;
-    participants: ClubMemberBaseType[];
-  };
-  current_page: number;
-  has_previous_page: boolean;
-  has_next_page: boolean;
-  previous_page: number;
-  next_page: number;
-  last_page: number;
-  total_item: number;
-}
-
-export interface ClubJoinData {
-  message: string;
-  data: ClubJoinBaseType[];
-}
-
-export interface ClubBaseType {
+export interface ClubFetchOneData {
   id: string;
   name: string;
   logo: string;
   short_name: string;
   owner: string;
-  sports: SportBaseType[];
-  privilege?: boolean;
-  joined?: boolean;
+  sports: {
+    id: number;
+    sport_id: string;
+    sport_name: string;
+  }[];
+  privilege: boolean;
+  joined: boolean;
 }
 
-export interface ClubMemberBaseType {
+export interface ClubFetchAllData {
+  id: string;
+  name: string;
+  logo: string;
+  owner: string;
+  sports: {
+    id: number;
+    sport_id: string;
+    sport_name: string;
+  }[];
+}
+
+export interface ClubFetchInviteRequestData {
+  id: number;
+  club_id: string;
+  sport_id: string;
+  sport_name: string;
+  name: string;
+}
+
+export interface ClubFetchJoinRequestData {
+  id: number;
+  sport_id: string;
+  sport_name: string;
+  name: string;
+}
+
+export interface ClubFetchMemberData {
+  total_point: number;
+  participants: ClubMember[]
+}
+
+export interface ClubMember {
   id: number;
   user_id: string;
   name: string;
   can_participate: boolean;
   point: number;
-}
-
-export interface ClubJoinBaseType {
-  id: number;
-  sport_id: string;
-  name: string;
-  sport_name: string;
-}
-
-export interface CreateClubFormData {
-  clubData: Omit<ClubBaseType, 'id' | 'logo' | 'owner' | 'privilege' | 'joined' | 'sports'>
-  sports: SportBaseType[],
-  phone: string;
 }

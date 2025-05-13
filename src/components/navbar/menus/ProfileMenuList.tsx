@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import StyledMenu from "./StyledMenu";
 import { ExitToApp } from "@mui/icons-material";
-import { CLUB_ALL_DATA } from "@/store/club"; //TODO: This is Dummy Data. Connect to actual club data
 import { useAuth } from "@/context/auth.context";
 
 const BoldText = styled(Typography)(() => ({
@@ -30,8 +29,7 @@ export default function ProfileMenuList({
   id,
   open,
   onClose,
-}: // TODO: Connect to actual logout and profile
-// onLogout,
+}: // onLogout,
 // profile,
 {
   anchorEl: null | HTMLElement;
@@ -41,7 +39,6 @@ export default function ProfileMenuList({
 }) {
   const router = useRouter();
   //TODO: connect to BE
-  const club = CLUB_ALL_DATA;
 
   const redirectToProfile = () => {
     router.push("/user-profile");
@@ -53,13 +50,12 @@ export default function ProfileMenuList({
     onClose();
   };
 
-  const { logout } = useAuth();
+  const { logout, authData } = useAuth();
+  const club: { id: string; name: string }[] = authData ? authData.clubs : [];
 
   const handleLogout = async () => {
-    // TODO: Connect to actual logout
     await logout();
     onClose();
-    // onLogout();
   };
 
   return (
@@ -88,8 +84,7 @@ export default function ProfileMenuList({
           }}
         >
           <Avatar
-            // TODO: Connect to actual profile image
-            // src={profile.data?.photo}
+            src={authData?.profile.photo}
             sx={{
               width: "45px",
               height: "45px",
@@ -100,9 +95,7 @@ export default function ProfileMenuList({
           />
           <div>
             <BoldText>
-              {/* TODO: Show actual name here */}
-              {/* {profile.data?.name} */}
-              User Name Here
+              {authData ? authData.profile.name : "User Name Here"}
             </BoldText>
             <Typography>Setting Profile</Typography>
           </div>
@@ -127,7 +120,7 @@ export default function ProfileMenuList({
             </Box>
             <Divider />
             <Divider />
-            {club.data?.map((value) => (
+            {club.map((value) => (
               <Box
                 key={value.id}
                 sx={{
@@ -135,17 +128,19 @@ export default function ProfileMenuList({
                   alignItems: "center",
                   marginTop: 1,
                   cursor: "pointer",
+                  borderRadius: 1,
+                  "&:hover": { bgcolor: "#0066CC20" },
                 }}
                 onClick={() => redirectToClub(value.id)}
               >
-                <Avatar
+                {/* <Avatar
                   src={value.logo}
                   sx={{
                     width: 30,
                     height: 30,
                     marginRight: "5px",
                   }}
-                />
+                /> */}
                 <Typography style={{ fontWeight: "bold" }}>
                   {value.name}
                 </Typography>
@@ -174,10 +169,10 @@ export default function ProfileMenuList({
                 }}
               >
                 <ProfileMenuListButton
-                onClick={() => {
-                  router.push("/create-club");
-                  onClose();
-                }}
+                  onClick={() => {
+                    router.push("/create-club");
+                    onClose();
+                  }}
                 >
                   Buat Club
                 </ProfileMenuListButton>

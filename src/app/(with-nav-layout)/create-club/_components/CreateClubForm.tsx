@@ -11,14 +11,16 @@ import {
   styled,
   Autocomplete,
 } from "@mui/material";
-import TextFieldNumeric from "../../user-profile/_component/parts/DialogProfileBasic/TextFieldNumeric";
+import TextFieldNumeric from "../../../../components/input/TextFieldNumeric";
 import { Controller, useForm } from "react-hook-form";
-import { CreateClubFormData } from "@/types/club.type";
+import { CreateClubFormData, CreateClubRequestBody } from "@/types/club.type";
 import { useEffect, useState } from "react";
-import { CloudUpload, MoodBad } from "@mui/icons-material";
-import { SportAllResponse, SportBaseType } from "@/types/sport.type";
+import { CloudUpload } from "@mui/icons-material";
+import { SportBaseType } from "@/types/sport.type";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { createClubValidationSchema } from "../../../../validation/clubSchema";
+import { getAllSports } from "@/store/actions/sport";
+import { createClub } from "@/store/actions/club";
 
 const InputFieldGrid = styled(Grid)(({ theme }) => ({
   padding: theme.spacing(0, 1),
@@ -40,12 +42,8 @@ const VisuallyHiddenInput = styled("input")({
 export default function CreateClubForm() {
   const [sportsOption, setSportsOption] = useState<SportBaseType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [errorImage, setErrorImage] = useState<any>(false);
-  const [image, setImage] = useState<any>([]);
   const {
     handleSubmit,
-    register,
-    getValues,
     formState: { errors },
     control,
   } = useForm<CreateClubFormData>({
@@ -54,70 +52,54 @@ export default function CreateClubForm() {
       clubData: {
         name: "",
         short_name: "",
+        logo: "",
       },
       phone: "",
       sports: [],
     },
   });
 
-  const onDrop = (picture) => {
-    setErrorImage(MoodBad);
-    setImage(picture);
-  };
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImage(file); // Simpan file gambar
-      // setPreview(URL.createObjectURL(file)); // Buat URL pratinjau
-    }
-  };
-
   const onSubmit = async (data: CreateClubFormData) => {
-    const sportsIds = data.sports.map((value) => ({ sport_id: value.id }));
-    const formData = { ...data, sport: sportsIds };
+    // TODO: Actual implementation below (commented out for now)
+    // const sportsIds = data.sports.map((value) => ({ sport_id: value.id }));
+    // const formData: CreateClubRequestBody = {
+    //   name: data.clubData.name,
+    //   logo: 'http://google.com', //TODO: upload image
+    //   short_name: data.clubData.short_name,
+    //   phone: data.phone,
+    //   sports: sportsIds,
+    // };
+
+    // MOCK DATA
+    const formData: CreateClubRequestBody = {
+      name: "Black Jaguar Taekwondo Club",
+      logo: "http://google.com",
+      phone: "081218437074",
+      short_name: "BJTC",
+      sports: [
+        {
+          sport_id: "07302ca3-0350-46ad-861e-f9bcb99668df",
+        },
+      ],
+    };
 
     console.log(data);
-    console.log(errors);
-    // try {
-    //   if (!image[0]) {
-    //     setErrorImage(true);
-    //     throw new Error("No club picture provided");
-    //   }
-    //   setLoading(true);
-    //   const sports = data.sports.map((value) => ({ sport_id: value.id }));
-    //   const formData = { ...data, sports };
-    //   // TODO:
-    //   // const response = await fetch(`api/auth/login`, {
-    //   //   method: "POST",
-    //   //   headers: { "Content-Type": "application/json" },
-    //   //   body: JSON.stringify(data),
-    //   // });
-    // } catch (error: any) {
-    //   console.error("Create Club Error: ", error.message);
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      await createClub(formData);
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     const fetchSports = async () => {
       try {
         setLoading(true);
-        const token = ""; // Replace with actual token retrieval logic
-        const response = await fetch(`/api/sport`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const res: SportAllResponse = await response.json();
-        console.log(res);
-        setSportsOption(res.data);
+        const response = await getAllSports({});
+        setSportsOption(response.data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -129,7 +111,7 @@ export default function CreateClubForm() {
   }, []);
 
   return (
-    <div>
+    <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card
           sx={(theme) => ({
@@ -229,6 +211,7 @@ export default function CreateClubForm() {
                     InputLabelProps={{
                       shrink: true,
                     }}
+                    allowLeadingZeros
                   />
                 )}
               />
@@ -277,7 +260,7 @@ export default function CreateClubForm() {
             {/* </Grid> */}
             <Box marginTop={2} width="100%">
               <Typography>Logo</Typography>
-              {errorImage && (
+              {errors.clubData?.logo ? (
                 <Typography
                   sx={{
                     textAlign: "center",
@@ -286,7 +269,7 @@ export default function CreateClubForm() {
                 >
                   *logo club wajib diupload
                 </Typography>
-              )}
+              ) : null}
               <Button
                 component="label"
                 role={undefined}
@@ -296,14 +279,16 @@ export default function CreateClubForm() {
               >
                 Upload Logo Club
                 <Controller
+                  control={control}
+                  name="clubData.logo"
                   render={({ field }) => (
                     <VisuallyHiddenInput
-                      multiple
+                      // multiple
                       accept="image/*"
                       style={{ display: "none" }}
-                      id="upload-photo"
+                      id="upload-club-logo"
                       type="file"
-                      onChange={handleImageChange}
+                      onChange={(e) => field.onChange(e.target.files)}
                     />
                   )}
                 />
@@ -336,6 +321,6 @@ export default function CreateClubForm() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-    </div>
+    </>
   );
 }

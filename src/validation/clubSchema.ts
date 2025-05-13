@@ -4,6 +4,7 @@ export const createClubValidationSchema = yup.object().shape({
   clubData: yup.object({
     name: yup.string().required("Data harus diisi"),
     short_name: yup.string().required("Data harus diisi"),
+    logo: yup.mixed().required("Data harus diisi"),
   }).required("Data Club belum lengkap"),
   phone: yup.string().required("Data harus diisi"),
   sports: yup

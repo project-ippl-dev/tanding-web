@@ -7,3 +7,14 @@ export interface FetchResponse{
     message?: string;
 }
 
+export interface FetchResponseBody<T> {
+    message: string;
+    data?: T;
+    current_page?: number;
+    has_previous_page?: boolean;
+    has_next_page?: boolean;
+    previous_page?: number;
+    next_page?: number;
+    last_page?: number;
+    total_item?: number;
+}
