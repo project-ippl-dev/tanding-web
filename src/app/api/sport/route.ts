@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   const queryString = queryParams.toString()
   const basePath = '/sport'
-  const finalFetchUrl = queryString ? `{basePath}?${queryString}` : basePath
+  const finalFetchUrl = queryString ? `${basePath}?${queryString}` : basePath
 
   const response = await fetch(getExternalApiUrl(finalFetchUrl), {
     method: "GET",
