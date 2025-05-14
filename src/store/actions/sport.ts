@@ -10,7 +10,7 @@ interface GetAllSportParams {
 }
 
 export async function getAllSports(query: GetAllSportParams) {
-  const accessToken = getAccessToken();
+  const accessToken = await getAccessToken();
   const queryParams = new URLSearchParams();
   ['page', 'page_size', 'keyword', 'category'].forEach((param) => {
     const value = query[param as keyof GetAllSportParams];
