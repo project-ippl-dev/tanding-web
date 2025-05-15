@@ -85,22 +85,6 @@ const OwnTournamentDetail = () => {
     }
   }, [params.id]);
 
-  useEffect(() => {
-    async function fetchSportAndProvince() {
-      const sportResponse = await getSport({});
-      const provinceResponse = await getProvince();
-
-      if (sportResponse.error) {
-        alert("Gagal mengambil data sport: " + sportResponse.error);
-      }
-
-      if (provinceResponse.error) {
-        alert("Gagal mengambil data province: " + provinceResponse.error);
-      }
-    }
-
-    // fetchSportAndProvince();
-  }, []);
 
   const MemoizeParticipant = useMemo(() => {
       return <Participant />;

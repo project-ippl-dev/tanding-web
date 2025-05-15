@@ -13,7 +13,7 @@ import { EventData } from "@/types/event.type";
 
 const InformationTournament = ({ data }: { data: EventData | null }) => {
   return (
-    <div>
+    <div style={{marginBottom: "100px"}}>
       <Grid container>
         <Grid
           sx={{

@@ -11,6 +11,8 @@ import {
   MenuItem,
   Card,
   Box,
+  TableContainer,
+  Tab,
 } from "@mui/material";
 import { orange, yellow, green, red, grey } from "@mui/material/colors";
 import { NumericFormat } from "react-number-format";
@@ -118,48 +120,50 @@ const Table: React.FC<TableProps> = ({ payment, page, setPage, status, setStatus
           </Box>
         </Grid>
       </Grid>
-      <TableMui>
-        <TableHead>
-          <TableRow>
-            <TableCell>No.</TableCell>
-            <TableCell>Club</TableCell>
-            <TableCell>Amount</TableCell>
-            <TableCell>Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {payment?.data?.map((value, index) => (
-            <TableRow key={value.id}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{value.club_name}</TableCell>
-              <TableCell>
-                <NumericFormat
-                  displayType="text"
-                  prefix="Rp "
-                  value={value.total}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                />
-              </TableCell>
-              <TableCell align="right">
-                <BoxStatus status={value.status}>
-                  <Dot status={value.status} />
-                  <Typography sx={{ fontWeight: 700 }}>
-                    {value.status}
-                  </Typography>
-                </BoxStatus>
-              </TableCell>
-            </TableRow>
-          ))}
-          {payment?.data.length === 0 && (
+      <TableContainer>
+        <TableMui>
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={4} align="center">
-                Tidak ada data
-              </TableCell>
+              <TableCell>No.</TableCell>
+              <TableCell>Club</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell>Status</TableCell>
             </TableRow>
-          )}
-        </TableBody>
-      </TableMui>
+          </TableHead>
+          <TableBody>
+            {payment?.data?.map((value, index) => (
+              <TableRow key={value.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{value.club_name}</TableCell>
+                <TableCell>
+                  <NumericFormat
+                    displayType="text"
+                    prefix="Rp "
+                    value={value.total}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <BoxStatus status={value.status}>
+                    <Dot status={value.status} />
+                    <Typography sx={{ fontWeight: 700 }}>
+                      {value.status}
+                    </Typography>
+                  </BoxStatus>
+                </TableCell>
+              </TableRow>
+            ))}
+            {payment?.data.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  Tidak ada data
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </TableMui>
+      </TableContainer>
       <Box marginTop={2}>
         <CustomPagination
           color="primary"
