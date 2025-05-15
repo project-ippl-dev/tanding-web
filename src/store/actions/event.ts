@@ -1,6 +1,7 @@
 'use server';
 import { EventUpdatePayload } from '@/types/event.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
+import { EVENT_PARTICIPANTS } from '../event';
 
 interface InfinityQueryParams {
   limit: number;
@@ -36,6 +37,7 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
 
 export async function getTournamentParticipants({ eventID }: { eventID: string | string[] }) {
 
+  if(process.env.BYPASS_REQ_AUTH === 'true') return EVENT_PARTICIPANTS
   const url = `/event/${eventID}/participant`;
   const result = await handleFetch({ url, method: 'GET' });
 

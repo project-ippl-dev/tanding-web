@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardHeader,
@@ -14,10 +14,11 @@ import {
   MenuItem,
   Button,
   Grid,
+  Skeleton, // Added Skeleton for loading state
 } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler} from "react-hook-form";
 import {
   Add as AddIcon,
   HighlightOff as HighlightOffIcon,
@@ -27,10 +28,33 @@ import { useParams } from "next/navigation";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
 import { CommitteeMember, CreateCommitteeRoleData,  } from "@/types/comittee";
 import { createCommittee, deleteCommittee, getCommittee } from "@/store/actions/committee";
-import { searchUser } from "@/store/actions/user";
+
 import { UserData } from "@/types/user";
+import { searchUser } from "@/store/actions/user";
+import { useLoading } from "@/context/loading.context";
 
 
+async function reqGetUser(userInput: string, setData:(data: UserData[])=>void, limit: number = 5) {
+  // Get user data
+  const response = await searchUser(userInput, limit);
+  console.log("response user", response);
+  if (response.status === 200) {
+    setData(response.data);
+  } else {
+    alert("Gagal mendapatkan data respon, dengan error: " + response.error);
+  }
+}
+
+async function reqGetComittee(eventID: string, setData:(data: CommitteeMember[])=>void) {
+  // Get committee members
+  const response = await getCommittee(eventID);
+  console.log("response comittee", response);
+  if (response.status === 200) {
+    setData(response.data);
+  } else {
+    alert("Gagal mendapatkan data respon, dengan error: " + response.error);
+  }
+}
 
 
 async function reqCreateComittee(eventID: string, data: CreateCommitteeRoleData) {
@@ -57,47 +81,96 @@ async function reqDeleteComittee(eventID: string, committeeID: string) {
 
 const CardAssignRole = ({
 }) => {
-  const params = useParams();
-  const { handleSubmit, errors, control } = useForm({
+  const params = useParams<{id:string}>();
+  const { handleSubmit, control, formState: { errors } } = useForm<{ user: UserData; role: string }>({
     shouldUnregister: false,
   });
-  const [user, setUser] = useState<UserData[]>([]);
+  const loading = useLoading();
+  const [userData, setUser] = useState<UserData[]>([]);
   const [committee, setCommitte] = useState<CommitteeMember[]>([]);
   const [userInput, setUserInput] = useState("");
   const [dialog, setDialog] = useState(false);
-  const [selectedId, setSelectedId] = useState();
+  const [selectedId, setSelectedId] = useState<number | undefined>(); // Type selectedId
   const [dialogDelete, setDialogDelete] = useState({ open: false, id: "" });
 
-  const handleDeleteUser = () => {
-    reqDeleteComittee(params.id, dialogDelete.id);
-    setDialogDelete({ open: false, id: "" });
-  };
+  // Loading states
+  const [isUserLoading, setIsUserLoading] = useState(false);
+  const [isCommitteeLoading, setIsCommitteeLoading] = useState(true); // Start true for initial load
+  const alreadyFetch = useRef({
+    user: false,
+    committee: false,
+  });
 
-  const onSubmit = (data) => {
-    const formData = { data: [{ user_id: data.user.id, role: data.role }] };
-    reqCreateComittee(params.id, formData);
-    setDialog(false);
-  };
+  function setLoading(value: boolean) {
+    if(loading?.changeState){
+      loading.changeState(value);
+    }
+  }
 
   useEffect(() => {
-    async function fetchUserData() {
-      const response = await searchUser(userInput, 5);
-      // Handle the response as needed
-      const userData: UserData[] = response.data;
-      setUser(userData);
+    async function fetchUserData(){
+      setIsUserLoading(true);
+      await reqGetUser(userInput, setUser);
+      setIsUserLoading(false);
     }
-    fetchUserData();
-  }, [userInput]);
+    if (!alreadyFetch.current.user) {
+      alreadyFetch.current.user = true;
+      fetchUserData();
+    }
+
+  }, []);
 
   useEffect(() => {
     async function fetchCommittee() {
-      const response = await getCommittee(params.id);
-      // Handle the response as needed
-      const committeeData: CommitteeMember[] = response.data;
-      setCommitte(committeeData);
+      setIsCommitteeLoading(true);
+      await reqGetComittee(params.id,setCommitte);
+      setIsCommitteeLoading(false);
     }
-    fetchCommittee();
-  }, []);
+
+    if (!alreadyFetch.current.committee) {
+      alreadyFetch.current.committee = true;
+      fetchCommittee();
+    }
+
+  }, []); // Add params.id as dependency
+
+  // Function to refetch committee after create/delete
+  const refetchCommittee = async () => {
+    setIsCommitteeLoading(true);
+    try {
+      const response = await getCommittee(params.id);
+      const committeeData: CommitteeMember[] = response.data || [];
+      setCommitte(committeeData);
+    } catch (error) {
+      console.error("Failed to refetch committee data:", error);
+      setCommitte([]);
+    } finally {
+      setIsCommitteeLoading(false);
+    }
+  };
+
+  const onSubmit: SubmitHandler<{ user: UserData; role: string }> = async (data) => { // Explicitly type onSubmit
+    const formData = { 
+        data: [{ 
+            user_id: data.user.id, 
+            role: data.role as "reviewer" | "contributor" | "admin" // Explicitly cast role
+        }] 
+    };
+    setLoading(true);
+    await reqCreateComittee(params.id, formData);
+    await refetchCommittee(); // Refetch committee list
+    setLoading(false);
+    setDialog(false);
+  };
+
+  const handleDeleteUserAndRefetch = async () => {
+    setLoading(true);
+    await reqDeleteComittee(params.id, dialogDelete.id);
+    await refetchCommittee(); // Refetch committee list
+    setLoading(false);
+    setDialogDelete({ open: false, id: "" });
+  };
+
 
   return (
     <>
@@ -137,35 +210,59 @@ const CardAssignRole = ({
         />
         <CardContent>
           <Grid container>
-            {committee.map((value) => (
-              <Grid
-                size={{ md: 6, xs: 12 }}
-                key={value.id}
-                onMouseEnter={() => setSelectedId(value.id)}
-                onMouseLeave={() => setSelectedId("")}
-              >
-                <Box marginBottom={2} display="flex" alignItems="center">
-                  <div>
-                    <Typography
-                      sx={{ fontWeight: "bold", fontSize: "16px" }}
-                    >
-                      {value.name}
-                    </Typography>
-                    <Typography>{value.role}</Typography>
-                  </div>
-                  {selectedId === value.id && value.role !== "owner" && (
-                    <IconButton
-                      sx={{ padding: 0, marginLeft: "3px" }}
-                      onClick={() =>
-                        setDialogDelete({ open: true, id: value.user_id })
-                      }
-                    >
-                      <HighlightOffIcon sx={{ color: "red" }} />
-                    </IconButton>
-                  )}
-                </Box>
+            {isCommitteeLoading ? (
+              // Skeleton loading for committee members
+              Array.from(new Array(3)).map((_, index) => (
+                <Grid size={{ md: 6, xs: 12 }} key={`skeleton-${index}`}>
+                  <Box marginBottom={2} display="flex" alignItems="center">
+                    <div>
+                      <Typography sx={{ fontWeight: "bold", fontSize: "16px" }}>
+                        <Skeleton width={150} />
+                      </Typography>
+                      <Typography>
+                        <Skeleton width={100} />
+                      </Typography>
+                    </div>
+                  </Box>
+                </Grid>
+              ))
+            ) : committee.length === 0 ? (
+              <Grid size={{ xs: 12 }}>
+                <Typography sx={{ textAlign: 'center', color: 'text.secondary', padding: 2}}>
+                  Belum ada panitia yang ditugaskan.
+                </Typography>
               </Grid>
-            ))}
+            ) : (
+              committee.map((value,index) => (
+                <Grid
+                  size={{ md: 6, xs: 12 }}
+                  key={`value.id-${index}`}
+                  onMouseEnter={() => setSelectedId(value.id)}
+                  onMouseLeave={() => setSelectedId(undefined)} // Set to undefined
+                >
+                  <Box marginBottom={2} display="flex" alignItems="center">
+                    <div>
+                      <Typography
+                        sx={{ fontWeight: "bold", fontSize: "16px" }}
+                      >
+                        {value.name}
+                      </Typography>
+                      <Typography>{value.role}</Typography>
+                    </div>
+                    {selectedId === value.id && value.role !== "owner" && (
+                      <IconButton
+                        sx={{ padding: 0, marginLeft: "3px" }}
+                        onClick={() =>
+                          setDialogDelete({ open: true, id: value.user_id })
+                        }
+                      >
+                        <HighlightOffIcon sx={{ color: "red" }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                </Grid>
+              ))
+            )}
           </Grid>
         </CardContent>
       </Card>
@@ -185,19 +282,19 @@ const CardAssignRole = ({
             <Controller
               control={control}
               name="user"
-              defaultValue=""
-              render={({ onChange, value }) => (
+              defaultValue={undefined}
+              render={({ field: { onChange, value } }) => ( // Destructure field correctly
                 <Autocomplete
-                  value={value}
-                  onChange={(event, newValue) => {
-                    onChange(newValue);
-                  }}
+                  value={value || null} // Ensure value is null if empty for Autocomplete
+                  onChange={onChange}
                   inputValue={userInput}
                   onInputChange={(event, newInputValue) => {
                     setUserInput(newInputValue);
                   }}
-                  options={user}
-                  getOptionLabel={(option) => option.name}
+                  options={userData}
+                  getOptionLabel={(option) => option.name || ""} // Handle potential undefined option.name
+                  isOptionEqualToValue={(option, val) => option.id === val.id} // Important for object options
+                  loading={isUserLoading} // Use loading state for Autocomplete
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -214,7 +311,7 @@ const CardAssignRole = ({
               control={control}
               name="role"
               defaultValue=""
-              render={({ onChange, value }) => (
+              render={({ field:{onChange, value} }) => (
                 <TextField
                   select
                   fullWidth
@@ -222,7 +319,7 @@ const CardAssignRole = ({
                   label="Role Panitia"
                   margin="normal"
                   value={value}
-                  onChange={({ target: { value } }) => onChange(value)}
+                  onChange={onChange}
                   error={!!errors.role}
                 >
                   <MenuItem value="admin">Admin</MenuItem>
@@ -264,7 +361,7 @@ const CardAssignRole = ({
           <Button
             variant="outlined"
             color="secondary"
-            onClick={handleDeleteUser}
+            onClick={handleDeleteUserAndRefetch} // Use the new handler
           >
             Delete
           </Button>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, Container, Typography } from "@mui/material";
 
 import { EventSingleResponse } from "@/types/event.type";
@@ -20,9 +20,19 @@ async function reqFinishTournament(eventID: string) {
 }
 
 
+
 const Setting = ({ tournament }:{
   tournament: EventSingleResponse | null;
 }) => {
+  
+  const MemoizedFinishTournament = useMemo(() => (
+    <FinishTournament finishTournament={reqFinishTournament} />
+  ), []);
+
+  const MemoizedCardAssignRole = useMemo(() => (
+    <CardAssignRole />
+  ),[])
+
   return (
     <div style={{ backgroundColor: "#f5f5f5" }}>
       <Container maxWidth="lg">
@@ -32,7 +42,7 @@ const Setting = ({ tournament }:{
           </Typography>
           {tournament?.data?.remark === "ongoing" && (
             <Box marginTop={3}>
-              <FinishTournament finishTournament={reqFinishTournament} />
+              {MemoizedFinishTournament}
             </Box>
           )}
           <Box marginTop={3}>
@@ -40,7 +50,7 @@ const Setting = ({ tournament }:{
           </Box>
           {tournament?.data?.user_privilege.role === "owner" && (
             <Box marginTop={3}>
-              <CardAssignRole />
+              {MemoizedCardAssignRole}
             </Box>
           )}
           <Box marginTop={3} paddingBottom={5}>

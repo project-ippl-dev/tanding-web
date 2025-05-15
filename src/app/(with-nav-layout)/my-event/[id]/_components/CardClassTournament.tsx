@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardHeader,
@@ -38,10 +38,11 @@ import {
   UpdatePriceClassTournamentPayload,
 } from "@/types/class.types";
 import { EventData } from "@/types/event.type";
+import { useLoading } from "@/context/loading.context";
 
 async function reqCreateClass(data: CreateClassPayload) {
   const response = await createClass(data);
-  if (response.status === 200) {
+  if ([200,201].includes(response.status) ) {
     alert(response.message);
   } else {
     alert("Gagal membuat data respon, dengan error: " + response.error);
@@ -50,7 +51,8 @@ async function reqCreateClass(data: CreateClassPayload) {
 
 async function reqDeleteClassTournament(eventID: string, classID: string) {
   const response = await deleteClassTournament(eventID, classID);
-  if (response.status === 200) {
+  console.log("response", response);
+  if ([200, 201].includes(response.status)) {
     alert(response.message);
   } else {
     alert("Gagal membuat data respon, dengan error: " + response.error);
@@ -68,6 +70,7 @@ async function reqUpdatePriceClassTournament(eventID: string, classID: string, d
 
 async function reqGetClass(sportID: string, setData: (data: ClassMultiple) => void) {
   const response = await getClass(sportID);
+  console.log("response", response);
   if (response.status === 200) {
     setData(response);
   } else {
@@ -77,6 +80,7 @@ async function reqGetClass(sportID: string, setData: (data: ClassMultiple) => vo
 
 async function reqGetClassRules(page: string, pageSize: string, setData: (data: ClassRulesMultiple) => void) {
   const response = await getClassRules(page, pageSize);
+  console.log("response", response);
   if (response.status === 200) {
    setData(response); 
 
@@ -87,7 +91,7 @@ async function reqGetClassRules(page: string, pageSize: string, setData: (data: 
 
 async function reqStoreClassTournament(eventID: string, data: StoreClassTournamentPayload) {
   const response = await storeClassTournament(eventID, data);
-  if (response.status === 200) {
+  if ([200,201].includes(response.status)) {
     alert(response.message);
   } else {
     alert("Gagal membuat data respon, dengan error: " + response.error);
@@ -99,15 +103,19 @@ interface CardClassTournamentProps {
 }
 
 const CardClassTournament: React.FC<CardClassTournamentProps> = ({ tournament }) => {
+  const loading = useLoading();
   const params = useParams<{ id: string }>();
   const {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<{ class_id: string; price: number }>({
     shouldUnregister: false,
   });
+
+  const alreadyFetch = useRef(false)
 
   const [id, setId] = useState<string>("");
   const [classRule, setClassRule] = useState<ClassRulesMultiple | null>(null)
@@ -122,6 +130,12 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({ tournament })
       price: number;
     },
   });
+
+  function setLoading(state: boolean) {
+    if (loading?.changeState) {
+      loading.changeState(state);
+    }
+  }
 
   const closeDialogClass = () => {
     setDialogClass({
@@ -144,30 +158,41 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({ tournament })
     setDialogCustom(true);
   };
 
-  const handleDeleteClass = (class_id: string) => {
+  const handleDeleteClass = async (class_id: string) => {
+    setLoading(true);
+    await reqDeleteClassTournament(params.id!, class_id);
+    setLoading(false)
     closeDialogClass();
-    reqDeleteClassTournament(params.id!, class_id);
   };
 
-  const onSubmit = (formData: { class_id: string; price: number }) => {
+  const onSubmit = async (formData: { class_id: string; price: number }) => {
+    setLoading(true)
+
     if (dialogClass.edit && dialogClass.data) {
-      reqUpdatePriceClassTournament(params.id!, dialogClass.data.id, {
-        price: formData.price,
-      });
-    } else {
-      reqStoreClassTournament(params.id!, { data: [formData] });
+        await reqUpdatePriceClassTournament(params.id!, dialogClass.data.id, {
+          price: formData.price,
+        });
+      } else {
+        await reqStoreClassTournament(params.id!, { data: [formData] });
     }
     closeDialogClass();
-  };
+    setLoading(false)
+  }
+
+  console.log("classTournament", dialogClass);
 
   useEffect(() => {
-    if (tournament) {
+    if (!alreadyFetch.current) {
+      alreadyFetch.current = true;
+      setLoading(true)
       const setData = (data: ClassMultiple) => {setClassTournament(data)}
       const setRule = (data: ClassRulesMultiple) => {setClassRule(data)}
-      reqGetClass(tournament.sport_id, setData);
+      reqGetClass(tournament?.sport_id || "", setData);
       reqGetClassRules("", "",setRule);
+
+      setLoading(false);
     }
-  }, [tournament]);
+  }, [tournament?.sport_id, setLoading]);
 
   useEffect(() => {
     if (dialogClass.edit && dialogClass.data) {
@@ -303,13 +328,14 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({ tournament })
             <Controller
               control={control}
               name="price"
-              defaultValue={0}
-              render={({ field }) => (
+              render={({ field: {onChange} }) => (
                 <TextFieldFormat
                   thousandSeparator="."
                   decimalSeparator="," 
                   prefix="Rp "
-                  {...field}
+                  onChange={onChange}
+                  defaultValue={getValues("price")}
+                  // {...field}
                   label="Biaya Daftar"
                   placeholder="Rp 50.000"
                   margin="normal"
@@ -337,12 +363,12 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({ tournament })
       <DialogCustom
         open={dialogCustom}
         onClose={() => setDialogCustom(false)}
-        rules={classTournament?.data || []}
+        rules={classRule?.data || []}
         sportId={tournament?.sport_id || ""}
-        action={(formData) => reqCreateClass(formData as CreateClassPayload)}
+        action={(formData) =>  reqCreateClass(formData as CreateClassPayload)}
       />
     </>
   );
 };
 
-export default CardClassTournament;
+export default CardClassTournament

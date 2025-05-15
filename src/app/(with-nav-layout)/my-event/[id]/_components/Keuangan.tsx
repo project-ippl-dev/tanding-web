@@ -9,13 +9,16 @@ import {
   getPaymentTotalForOwner,
 } from "../../../../store/actions";
 */
-import Table from "./Table";
 import { useParams } from "next/navigation";
 import { getPaymentForOwner, getPaymentTotalForOwner } from "@/store/actions/payment";
 import { PaymentOwner, PaymentSummary } from "@/types/payment";
+import Table from "./parts/Keuangan/Table";
+import { PAYMENT_OWNER, PAYMENT_SUMMARY } from "@/store/payment";
 
 
 async function reqGetPayementForOwner(eventID: string, status: string = "", setData: (data: PaymentOwner)=> void) {
+  // const response = PAYMENT_OWNER
+  // response.status = 200
   const response = await getPaymentForOwner(eventID,status)
   if (response.status === 200) {
     setData(response);
@@ -26,6 +29,8 @@ async function reqGetPayementForOwner(eventID: string, status: string = "", setD
 
 
 async function reqGetPaymentTotalForOwner(eventID: string, setData: (data: PaymentSummary)=> void) {
+  // const response = PAYMENT_SUMMARY
+  // response.status = 200
   const response = await getPaymentTotalForOwner(eventID);
   if (response.status === 200) {
     setData(response);
@@ -79,11 +84,10 @@ const Keuangan = () => {
       </Typography>
       <Box marginTop={4}>
         <Grid container>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Card sx={{ padding: 2, paddingX: 4 }}>
+          <Grid size={{ xs: 12, sm: 12 , md: 8 }}>
+            <Card sx={{ padding: 2, paddingX: 2 }}>
               <Grid container>
-                <Grid
-                  size={{ xs: 12, sm: 8 }}
+                <Grid size={{ xs: 12, sm: 7 }}
                   sx={{
                     display: "flex",
                     flexDirection: "column",
@@ -95,10 +99,17 @@ const Keuangan = () => {
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                     <Typography>Rp</Typography>
-                    <Typography sx={{ fontWeight: 700, fontSize: "35px" }}>
+                    <Typography sx={(theme) => ({
+                      fontWeight: 700,
+                      fontSize: "2rem", 
+                      [theme.breakpoints.down('md')]: {
+                        fontSize: "1.75rem",
+                      }
+                    })
+                  }>
                       <NumericFormat
                         displayType="text"
-                        value={payment.summary?.data.approved}
+                        value={payment?.summary?.data.approved}
                         suffix=",00"
                         thousandSeparator="."
                         decimalSeparator=","
@@ -106,9 +117,10 @@ const Keuangan = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
+                <Grid size={{ xs: 12, sm: 5 }}
+                >
                   <Box>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Box sx={{ display: "flex",alignItems: "center" }}>
                       <Box
                         sx={{
                           width: "15px",
@@ -177,9 +189,9 @@ const Keuangan = () => {
       </Box>
       <Box marginTop={3}>
         <Table
-          payment={payment}
+          payment={payment.payment}
           page={page}
-          setPage={setPage}
+          setPage={(data: number) => setPage(data)}
           status={status}
           setStatus={setStatus}
         />

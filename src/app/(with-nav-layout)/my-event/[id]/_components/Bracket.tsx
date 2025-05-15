@@ -18,7 +18,6 @@ import { BracketResponse, LockOrderBracketData, LockSingleBracketData } from "@/
 import { FetchResponse } from "@/types/global";
 import { generateBracket, getBracketDetails, getBracketRandom, lockBracketOrder, lockBracketSingle, lockTurnBracketSingle } from "@/store/actions/bracket";
 import CardSettingBracket from "./parts/Bracket/CardSettingBracket";
-import { BracketOrder, BracketSingle } from "@/store/bracket";
 
 async function reqLockBracketOrder(classID: string, eventID: string, data: LockOrderBracketData) {
   // Lock the bracket order
@@ -79,7 +78,7 @@ const Bracket = ({
 }: {
   data: EventData | null;
 }) => {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const [selected, setSelected] = useState("");
   const [bracket, setBracket] = useState<BracketResponse | null>();
 
@@ -98,8 +97,6 @@ const Bracket = ({
       reqLockBracketSingle(selected, params.id, data);
     }
   };
-
-
 
   useEffect(() => {
     async function fetchBracketDetail() {
@@ -124,15 +121,9 @@ const Bracket = ({
           const result : BracketResponse= { ...prevState
             , singleBracket: null, orderBracket: null, type: null };
           if (serverResponse.match_type === "single") {
-            if (process.env.NEXT_PUBLIC_OFFLINE_PAYLOAD === "true") {
-              result.singleBracket = BracketSingle;
-            }
-            else result.singleBracket = serverResponse;
+            result.singleBracket = serverResponse;
           } else if (serverResponse.match_type === "order") {
-            if (process.env.NEXT_PUBLIC_OFFLINE_PAYLOAD === "true") {
-              result.orderBracket = BracketOrder;
-            }
-            else result.orderBracket = serverResponse;
+            result.orderBracket = serverResponse;
           }
           result.type = serverResponse.match_type;
           return result;
@@ -156,7 +147,8 @@ const Bracket = ({
       ? bracket?.singleBracket
       : null;
 
-  console.log('currentBrack:',  data?.remark);
+  console.log(selected);
+  console.log('currentBrack:', bracket?.type );
 
   const BracketDetailContent = currentBracket?.generate_status ? (
     bracket?.type === "order" ? (

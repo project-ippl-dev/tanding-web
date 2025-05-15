@@ -21,9 +21,9 @@ import { PaymentOwner, PaymentStatus } from "@/types/payment";
 import CustomPagination from "@/components/common/CustomPagination";
 
 interface TableProps {
-  payment: PaymentOwner;
+  payment: PaymentOwner | null;
   page: number;
-  setPage: (event: React.ChangeEvent<unknown>, page: number) => void;
+  setPage: ( page: number) => void;
   status: string;
   setStatus: (status: string) => void;
 }
@@ -128,7 +128,7 @@ const Table: React.FC<TableProps> = ({ payment, page, setPage, status, setStatus
           </TableRow>
         </TableHead>
         <TableBody>
-          {payment.data.map((value, index) => (
+          {payment?.data?.map((value, index) => (
             <TableRow key={value.id}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{value.club_name}</TableCell>
@@ -151,7 +151,7 @@ const Table: React.FC<TableProps> = ({ payment, page, setPage, status, setStatus
               </TableCell>
             </TableRow>
           ))}
-          {payment.data.length === 0 && (
+          {payment?.data.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} align="center">
                 Tidak ada data
@@ -164,8 +164,8 @@ const Table: React.FC<TableProps> = ({ payment, page, setPage, status, setStatus
         <CustomPagination
           color="primary"
           page={page}
-          onChange={setPage}
-          count={payment.last_page}
+          onChange={(_, value) => setPage(value)} // Removed unused 'event' parameter
+          count={payment?.last_page}
         />
       </Box>
     </Card>

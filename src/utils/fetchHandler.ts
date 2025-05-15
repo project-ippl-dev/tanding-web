@@ -49,6 +49,7 @@ export async function handleFetch({
       fetchOptions.body = data; // For FormData or other types
     }
   }
+  
 
   const response = await fetch(getExternalApiUrl(url), fetchOptions);
 

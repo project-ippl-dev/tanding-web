@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
 import Image from "next/image";
 import {
@@ -19,8 +19,6 @@ import {
   TextFieldProps,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 import { useParams } from "next/navigation";
 import { EventData, EventUpdatePayload } from "@/types/event.type";
@@ -36,6 +34,7 @@ import { updateTournamentDetail } from "@/store/actions/event";
 
 async function reqGetProvince(setData: (data: AddressProvince[]) => void) {
   const response = await getProvince();
+  console.log(response);
   if (response.status === 200) {
     setData(response.data);
   } else {
@@ -45,6 +44,7 @@ async function reqGetProvince(setData: (data: AddressProvince[]) => void) {
 
 async function reqSport(setData: (data: SportResponseMultiple) => void) {
   const response = await getSport();
+  console.log(response);
   if (response.status === 200) {
     setData(response);
   } else {
@@ -113,6 +113,7 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [oldBanner, setOldBanner] = useState<string | undefined>(tournament?.thumbnail);
   const [loading, setLoading] = useState(false);
+  const alreadyFetch = useRef(false)
 
   const {
     handleSubmit,
@@ -167,41 +168,53 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
   };
 
   useEffect(() => {
-    if (tournament?.location === "online") {
-      setIsOnline(true);
-      setValue("province", "");
-      setValue("city", "");
-    } else {
-      setIsOnline(false);
-      setValue("province", tournament?.province || "");
-      setValue("city", tournament?.city || "");
-    }
-    setValue("location", tournament?.location || "");
-    setValue("name", tournament?.name || "");
-    setValue("sport_id", tournament?.sport_id || "");
-    setValue("open", tournament?.open ? moment(tournament.open).toDate() : null);
-    setValue("deadline", tournament?.deadline ? moment(tournament.deadline).toDate() : null);
-    setValue("start_date", tournament?.start_date ? moment(tournament.start_date).toDate() : null);
-    setValue("end_date", tournament?.end_date ? moment(tournament.end_date).toDate() : null);
-    setValue("quota", tournament?.quota || 0);
-    setValue("prize_pool", tournament?.prize_pool || "");
-    setValue("description", tournament?.description || "");
-    setValue("rules", tournament?.rules || "");
-    setValue("type", (tournament?.type as "competition" | "training") || "competition");
-    setValue("proposal_link", tournament?.proposal_link || "");
-    setOldBanner(tournament?.thumbnail);
+    async function initialStage(){
+      if (tournament?.location === "online") {
+        setIsOnline(true);
+        setValue("province", "");
+        setValue("city", "");
+      } else {
+        setIsOnline(false);
+        setValue("province", tournament?.province || "");
+        setValue("city", tournament?.city || "");
+      }
+      setValue("location", tournament?.location || "");
+      setValue("name", tournament?.name || "");
+      setValue("sport_id", tournament?.sport_id || "");
+      setValue("open", tournament?.open ? moment(tournament.open).toDate() : null);
+      setValue("deadline", tournament?.deadline ? moment(tournament.deadline).toDate() : null);
+      setValue("start_date", tournament?.start_date ? moment(tournament.start_date).toDate() : null);
+      setValue("end_date", tournament?.end_date ? moment(tournament.end_date).toDate() : null);
+      setValue("quota", tournament?.quota || 0);
+      setValue("prize_pool", tournament?.prize_pool || "");
+      setValue("description", tournament?.description || "");
+      setValue("rules", tournament?.rules || "");
+      setValue("type", (tournament?.type as "competition" | "training") || "competition");
+      setValue("proposal_link", tournament?.proposal_link || "");
+      setOldBanner(tournament?.thumbnail);
 
-    const setSportData = (data: SportResponseMultiple) => {
-      setSport(data)
+      const setSportData = (data: SportResponseMultiple) => {
+        setSport(data)
+      }
+      const setProvinceData = (data: AddressProvince[]) => {
+        setAddress((prevState) => ({
+          ...prevState,
+          province: data,
+        }));
+      };
+
+      if (!alreadyFetch.current) {
+        alreadyFetch.current = true;
+        setLoading(true);
+        await reqGetProvince(setProvinceData);
+        await reqSport(setSportData);
+        setLoading(false);
+
+      }
     }
-    const setProvinceData = (data: AddressProvince[]) => {
-      setAddress((prevState) => ({
-        ...prevState,
-        province: data,
-      }));
-    };
-    reqGetProvince(setProvinceData);
-    reqSport(setSportData) 
+
+    initialStage();
+    
   }, []);
 
   useEffect(() => {
@@ -510,14 +523,22 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
                 <Controller
                   control={control}
                   name="rules"
-                  render={({ field: { onChange, value } }) => (
-                    <CKEditor
-                      editor={ClassicEditor}
-                      data={value || ""}
-                      onChange={(event, editor) => {
-                        const data = editor.getData();
-                        onChange(data);
+                  render={({ field }) => (
+                    <TextField
+                      multiline
+                      rows={8} // You can adjust the number of rows
+                      label="Peraturan Tournament"
+                      placeholder="Masukkan peraturan tournament di sini"
+                      fullWidth
+                      margin="normal"
+                      variant="outlined"
+                      InputLabelProps={{
+                        shrink: true,
                       }}
+                      {...field} // Use field to connect to react-hook-form
+                      error={!!errors.rules}
+                      helperText={errors?.rules?.message as string | undefined}
+                      disabled={formDisabled} // Keep disabled state consistent
                     />
                   )}
                 />

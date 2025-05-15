@@ -14,7 +14,7 @@ import {
 import { useParams } from "next/navigation";
 
 const FinishTournament = ({ finishTournament }: { finishTournament: (id: string) => void }) => {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const [dialog, setDialog] = useState(false);
 
   const onSubmitDialog = () => {

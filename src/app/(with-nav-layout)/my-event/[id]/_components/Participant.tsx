@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Typography,
   Box,
@@ -18,6 +18,7 @@ const Participant = () => {
   const {id} = useParams();
   const [expanded, setExpanded] = useState("");
   const [participants, setParticipants] = useState<EventParticipantsResponse | null>(null);
+  const alreadyFetch = useRef(false);
 
   const handleChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : "");
@@ -26,9 +27,15 @@ const Participant = () => {
   useEffect(() => {
     async function fetchParticipants() {
       const serverResponse: EventParticipantsResponse = await getTournamentParticipants({eventID: id || "" });
+      console.log(serverResponse);
       setParticipants(serverResponse)
     }
-    fetchParticipants();
+    
+    if(!alreadyFetch.current) {
+      alreadyFetch.current = true;
+      fetchParticipants();
+    }
+    
   }, []);
 
   return (

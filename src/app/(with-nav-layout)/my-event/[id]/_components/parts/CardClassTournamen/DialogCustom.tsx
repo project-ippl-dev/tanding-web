@@ -9,17 +9,18 @@ import {
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
-import { Class, CreateClassPayload } from "@/types/class.types";
+import { ClassRules, CreateClassPayload } from "@/types/class.types";
+import { useLoading } from "@/context/loading.context";
 
 interface DialogCustomProps {
   open: boolean;
   onClose: () => void;
-  rules: Class[] 
+  rules: ClassRules[];
   sportId: string;
-  action: (formData: unknown) => void;
+  action: (params: CreateClassPayload) => Promise<void>; // Corrected type and return annotation
 }
 
-interface FormCreateClass{
+interface FormCreateClass {
   name: string;
   class_rule_id: string;
   match_type: string;
@@ -32,11 +33,24 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
   sportId,
   action,
 }) => {
-  const { handleSubmit, errors, control, register } = useForm();
+  const loading = useLoading();
+  const { handleSubmit, control, register, formState: { errors } } = useForm<FormCreateClass>();
 
-  const onSubmit = (data: FormCreateClass) => {
-    const formData: CreateClassPayload = { ...data, sport_id: sportId, class_type: "custom" };
-    action(formData);
+  function setLoading(value: boolean) {
+    if (loading?.changeState) {
+      loading.changeState(value);
+    }
+  }
+
+  const onSubmit = async (data: FormCreateClass) => {
+    const formData: CreateClassPayload = {
+      ...data,
+      sport_id: sportId,
+      class_type: "custom",
+    };
+    setLoading(true);
+    await action(formData);
+    setLoading(false);
     onClose();
   };
 
@@ -54,13 +68,13 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
             margin="normal"
             inputRef={register("name").ref}
             name="name"
-            error={!!errors.class_id}
+            error={!!errors?.name}
           />
           <Controller
             control={control}
             name="class_rule_id"
             defaultValue=""
-            render={({ onChange, value }) => (
+            render={({ field: { onChange, value } }) => (
               <TextField
                 select
                 fullWidth
@@ -68,8 +82,8 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
                 label="Peraturan Kelas"
                 margin="normal"
                 value={value}
-                onChange={({ target: { value } }) => onChange(value)}
-                error={!!errors.class_rule_id}
+                onChange={onChange}
+                error={!!errors?.class_rule_id}
               >
                 {rules.map((value) => (
                   <MenuItem key={value.id} value={value.id}>
@@ -83,7 +97,7 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
             control={control}
             name="match_type"
             defaultValue=""
-            render={({ onChange, value }) => (
+            render={({ field: { onChange, value } }) => (
               <TextField
                 select
                 fullWidth
@@ -91,8 +105,8 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
                 label="Metode eliminasi"
                 margin="normal"
                 value={value}
-                onChange={({ target: { value } }) => onChange(value)}
-                error={!!errors.match_type}
+                onChange={onChange}
+                error={!!errors?.match_type}
               >
                 <MenuItem value="single">Single Elimination</MenuItem>
                 <MenuItem value="order">Order</MenuItem>
