@@ -61,8 +61,8 @@ const Keuangan = () => {
       setPaymentData(prevState => ({
         ...prevState,
         payment: data,
-      })
-    )}
+      }));
+    };
     reqGetPayementForOwner(params.id, status, setPaymentOwnerData);
   }, [params.id, status]);
 
