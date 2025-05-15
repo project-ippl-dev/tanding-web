@@ -15,7 +15,7 @@ async function reqFinishTournament(eventID: string) {
   if (response.status === 200) {
     alert(response.message);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal mengambil data summary tournament, dengan error: " + response.error);
   }
 }
 

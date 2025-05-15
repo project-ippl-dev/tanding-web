@@ -62,7 +62,7 @@ export async function sendFinishTournament({ eventID }: { eventID: string | stri
 
 export async function updateTournamentDetail(
   id: string,
-  eventData: EventUpdatePayload, // Consider defining a more specific type for eventData
+  eventData: Omit<EventUpdatePayload, "thumbnail">, // Consider defining a more specific type for eventData
   newImageFile: File | null,
   oldImageUrl: string | undefined,
   changeNewImage: boolean

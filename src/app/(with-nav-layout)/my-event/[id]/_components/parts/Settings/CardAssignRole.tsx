@@ -41,7 +41,7 @@ async function reqGetUser(userInput: string, setData:(data: UserData[])=>void, l
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal mendapatkan data respon, dengan error: " + response.error);
+    alert("Gagal mendapatkan data pengguna untuk komite, dengan error: " + response.error);
   }
 }
 
@@ -52,7 +52,7 @@ async function reqGetComittee(eventID: string, setData:(data: CommitteeMember[])
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal mendapatkan data respon, dengan error: " + response.error);
+    alert("Gagal mengambil data komite, dengan error: " + response.error);
   }
 }
 
@@ -63,7 +63,7 @@ async function reqCreateComittee(eventID: string, data: CreateCommitteeRoleData)
   if (response.status === 200) {
     alert(response.message);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal membuat data komite, dengan error: " + response.error);
   }
 }
 
@@ -74,7 +74,7 @@ async function reqDeleteComittee(eventID: string, committeeID: string) {
   if (response.status === 200) {
     alert(response.message);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal menghapus data komite, dengan error: " + response.error);
   }
 }
 

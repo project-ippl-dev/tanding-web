@@ -1,44 +1,15 @@
 'use server';
 
-import { getExternalApiUrl } from '@/utils/api';
-import { cookies } from 'next/headers';
+import { handleFetch } from '@/utils/fetchHandler';
 
 
 export async function getSport(page='', page_size='', keyword='', category='') {
-  const tokenHeader = (await cookies()).get('access_token')?.value;
-
-  if (!tokenHeader && !(process.env.BYPASS_REQ_AUTH === 'true')) {
-    return {
-      error: 'Unauthorized: Bearer token is missing or invalid',
-      status: 401,
-    };
-  }
-
   // Construct query parameters to match the original behavior (sending empty strings)
-  const queryParams = new URLSearchParams({
-    page: String(page),
-    page_size: String(page_size),
-    keyword: String(keyword),
-    category: String(category),
-  });
-
-  const url = `/sport?${queryParams.toString()}`;
-
-  const response = await fetch(getExternalApiUrl(url), {
+  const url = `/sport?page=${page}&page_size=${page_size}&keyword=${keyword}&category=${category}`;
+  return await handleFetch({
+    url: url,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${tokenHeader}`,
-    },
+    isAuthorized: true,
   });
 
-  if (!response.ok) {
-    // Consistent with error handling in reference server action files
-    throw new Error('Failed to fetch sport data');
-  }
-
-  // Assuming the API response body is an object like: { data: <sport_data>, last_page: <number> }
-  // This matches the structure implied by `response.data.data` and `response.data.last_page` in the axios version.
-  const data = await response.json();
-
-  return data
 }

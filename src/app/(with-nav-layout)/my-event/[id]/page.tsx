@@ -216,7 +216,6 @@ const OwnTournamentDetail = () => {
                       scrollButtons="auto"
                       textColor="inherit"
                       indicatorColor="primary"
-                      centered
                     >
                       <Tab label="PREVIEW" {...a11yProps(0)} />
                       <Tab label="PESERTA" {...a11yProps(1)} />

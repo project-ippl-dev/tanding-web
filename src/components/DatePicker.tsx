@@ -7,7 +7,7 @@ interface DatePickerCustomProps {
   helperText?: string;
   name?: string;
   error?: boolean;
-  value: Date | null;
+  value: string | Date | null;
   onChange: (date: Moment | null) => void;
   label?: string;
   format?: string;

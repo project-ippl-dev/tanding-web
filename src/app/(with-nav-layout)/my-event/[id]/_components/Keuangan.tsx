@@ -13,7 +13,6 @@ import { useParams } from "next/navigation";
 import { getPaymentForOwner, getPaymentTotalForOwner } from "@/store/actions/payment";
 import { PaymentOwner, PaymentSummary } from "@/types/payment";
 import Table from "./parts/Keuangan/Table";
-import { PAYMENT_OWNER, PAYMENT_SUMMARY } from "@/store/payment";
 
 
 async function reqGetPayementForOwner(eventID: string, status: string = "", setData: (data: PaymentOwner)=> void) {

@@ -55,7 +55,7 @@ async function reqDeleteClassTournament(eventID: string, classID: string) {
   if ([200, 201].includes(response.status)) {
     alert(response.message);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal menghapus kelas turnamen, dengan error: " + response.error);
   }
 }
 

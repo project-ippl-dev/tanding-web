@@ -1,37 +1,12 @@
 'use server'
 import { handleFetch } from "@/utils/fetchHandler";
-import { cookies } from "next/headers";
-
 
 export async function getProvince() {
-    const tokenHeader = (await cookies()).get('access_token')?.value;
-  // if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
-  if (!tokenHeader) {
-    return {
-      error: 'Unauthorized: Bearer token is missing or invalid',
-      status: 401
-    };
-  }
-
-  // Akses nilai token
-  // const token = tokenHeader.split(' ')[1];
-  // console.log(getExternalApiUrl(`/profile/${uuid}/basic`))
-
-
-  const endpoint = `https://api.general.eoatech.com/provinces/search?kata_kunci=`;
-  const response = await fetch(endpoint, {
+  return handleFetch({
+    url: `https://api.general.eoatech.com/provinces/search?kata_kunci=`,
     method: "GET",
+    externalURL: true,
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  const data = await response.json()
-  // console.log(await response.json())
-
-  // return NextResponse.json(data, {
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  return data;
 }
 
 
@@ -39,5 +14,6 @@ export const getCities = async (id_province: string) => {
   return handleFetch({
     url: `https://api.general.eoatech.com/regencies/search?kata_kunci=&id_province=${id_province}`,
     method: "GET",
+    externalURL: true,
   });
 };

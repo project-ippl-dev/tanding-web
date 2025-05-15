@@ -9,6 +9,7 @@ interface FetchHandlerParams {
   data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   isAuthorized?: boolean;
   contentType?: string;
+  externalURL?: boolean; // Optional, default is false
 }
 
 export async function handleFetch({
@@ -17,6 +18,7 @@ export async function handleFetch({
   data,
   isAuthorized = true, // Default to true, as most of your functions require authorization
   contentType = 'application/json',
+  externalURL = false,
 }: FetchHandlerParams) {
   const headers: HeadersInit = {};
 
@@ -50,8 +52,12 @@ export async function handleFetch({
     }
   }
   
-
-  const response = await fetch(getExternalApiUrl(url), fetchOptions);
+  let apiUrl = url;
+  if (!externalURL) {
+    apiUrl = getExternalApiUrl(url);
+  }
+  
+  const response = await fetch(apiUrl, fetchOptions);
 
   if (!response.ok) {
     let errorData;

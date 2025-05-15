@@ -38,25 +38,24 @@ async function reqGetProvince(setData: (data: AddressProvince[]) => void) {
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal mengambil data provinsi, dengan error: " + response.error);
   }
 }
 
 async function reqSport(setData: (data: SportResponseMultiple) => void) {
   const response = await getSport();
-  console.log(response);
-  if (response.status === 200) {
+  if ([200,201].includes(response.status)) {
     setData(response);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal mengambil data olahraga, dengan error: " + response.error);
   }
 }
 
 async function reqUpdateTournamentDetail(
-  eventID: string, 
-  data: EventUpdatePayload, 
-  bannerFile: File | null, 
-  oldBannerURL: string | undefined, 
+  eventID: string,
+  data: Omit<EventUpdatePayload,'thumbnail'>,
+  bannerFile: File | null,
+  oldBannerURL: string | undefined,
   changeNewImage: boolean
 ): Promise<void> {
   const response = await updateTournamentDetail(
@@ -69,7 +68,7 @@ async function reqUpdateTournamentDetail(
   if (response.status === 200) {
     alert("Berhasil mengupdate data");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal mengupdate data tournament detail, dengan error: " + response.error);
   }
 }
 
@@ -81,7 +80,7 @@ async function reqGetCities(
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    alert("Gagal mengambil data kota, dengan error: " + response.error);
   }
 }
 
@@ -339,16 +338,17 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
                     margin="normal"
                     value={field.value || ""}
                     onChange={field.onChange}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
                     disabled
                   >
                     {sport?.data?.map((s: Sport) => (
                       <MenuItem key={s.id} value={s.id}>
                         {s.name}
                       </MenuItem>
-                    ))}
+                    )) || (
+                      <MenuItem value={""}>
+                        {"Data Olahraga tidak ditemukan"}
+                      </MenuItem>
+                    )}
                   </TextField>
                 )}
               />
