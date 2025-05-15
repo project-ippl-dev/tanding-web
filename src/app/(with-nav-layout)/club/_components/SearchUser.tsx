@@ -1,5 +1,5 @@
 "use client";
-import { ClubBaseType } from "@/types/club.type";
+import { ClubFetchOneData } from "@/types/club.type";
 import { Autocomplete, Button, Grid, MenuItem, TextField } from "@mui/material";
 import { useState } from "react";
 
@@ -8,7 +8,7 @@ export default function SearchUser({
   club,
 }: {
   // clubId: string;
-  club?: ClubBaseType; // TODO: Make Club type
+  club?: ClubFetchOneData; // TODO: Make Club type
 }) {
   const [keyword, setKeyword] = useState<string>("");
   const [userSelected, setUserSelected] = useState(null);

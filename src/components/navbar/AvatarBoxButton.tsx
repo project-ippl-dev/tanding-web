@@ -1,4 +1,5 @@
 import { Avatar, Box, Typography } from "@mui/material";
+import { useAuth } from "@/context/auth.context";
 
 export default function AvatarBoxButton({
   onClick,
@@ -6,6 +7,7 @@ export default function AvatarBoxButton({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick?: (event: any) => void;
 }) {
+  const { authData } = useAuth();
   return (
     <Box
       sx={{
@@ -34,7 +36,7 @@ export default function AvatarBoxButton({
         }}
         noWrap
       >
-        username
+        {authData? authData.profile.name : "username"}
       </Typography>
     </Box>
   );

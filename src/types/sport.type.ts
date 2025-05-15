@@ -1,8 +1,12 @@
 export interface SportBaseType {
-  id: number;
-  sport_id: string;
-  sport_name: string;
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  thumbnail?: string;
 }
+
+
 export interface GetSportParams {
   keyword?: string;
   category?: string;
