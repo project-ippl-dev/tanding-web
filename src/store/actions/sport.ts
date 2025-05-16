@@ -1,6 +1,7 @@
 'use server';
 import { getExternalApiUrl } from "@/utils/api";
 import { getAccessToken } from "./auth";
+import { handleFetch } from '@/utils/fetchHandler';
 
 interface GetAllSportParams {
   page?: number;
@@ -37,4 +38,17 @@ export async function getAllSports(query: GetAllSportParams) {
 
   const data = await response.json()
   return data;
+}
+
+
+
+export async function getSport(page='', page_size='', keyword='', category='') {
+  // Construct query parameters to match the original behavior (sending empty strings)
+  const url = `/sport?page=${page}&page_size=${page_size}&keyword=${keyword}&category=${category}`;
+  return await handleFetch({
+    url: url,
+    method: 'GET',
+    isAuthorized: true,
+  });
+
 }

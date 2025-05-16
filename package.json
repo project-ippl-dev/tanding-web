@@ -24,7 +24,7 @@
     "react": "^19.0.0",
     "react-brackets": "^0.4.7",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.55.0",
+    "react-hook-form": "^7.56.3",
     "react-number-format": "^5.4.4",
     "yup": "^1.6.1"
   },

@@ -11,6 +11,7 @@ import { EventData } from "@/types/event.type";
 import { useAuth } from "@/context/auth.context";
 import {
   BracketOrderResponse,
+  BracketResponse,
   BracketSingleResponse,
 } from "@/types/bracket.type";
 import { AuthData } from "@/types/auth.type";
@@ -18,11 +19,6 @@ import SingleElimination from "./SingleElimination";
 import { useLoading } from "@/context/loading.context";
 import { getBracketDetails } from "@/store/actions/bracket";
 
-interface BracketResponse {
-  singleBracket: BracketSingleResponse | null;
-  orderBracket: BracketOrderResponse | null;
-  type: string | null;
-}
 
 const StyledContainer = styled("div")(({ theme }) => ({
   padding: "0 80px",
