@@ -1,4 +1,6 @@
-export const BracketSingle = {
+import { BracketOrderResponse, BracketSingleResponse } from "@/types/bracket.type"
+
+export const BracketSingle: BracketSingleResponse = {
     "message": "fetch one bracket for specific event class success",
     "data": [
         {
@@ -472,7 +474,7 @@ export const BracketSingle = {
     ]
 }
 
-export const BracketOrder = {
+export const BracketOrder: BracketOrderResponse = {
   "message": "fetch one bracket for specific event class success",
   "data": [
     {

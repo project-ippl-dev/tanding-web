@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import DatePickerCustom from "./parts/DialogProfileBasic/DatePickerCustom";
-import TextFieldNumeric from "./parts/DialogProfileBasic/TextFieldNumeric";
+import TextFieldNumeric from "../../../../components/input/TextFieldNumeric";
 import { CloudUpload } from "@mui/icons-material";
 import { useAuth } from "@/context/auth.context";
 import Image from "next/image";

@@ -52,6 +52,12 @@ export interface BracketSingleResponse {
   summary: BracketSummary[];
 }
 
+export interface BracketResponse {
+  singleBracket: BracketSingleResponse | null;
+  orderBracket: BracketOrderResponse | null;
+  type: string | null;
+}
+
 export interface BracketOrderScore {
   id: string;
   round1: number;
@@ -80,4 +86,42 @@ export interface BracketOrderResponse {
   match_type: "order";
   lock_score: boolean;
   summary: BracketSummary[];
+}
+
+export interface BracketParticipant {
+  event_registration_id: string;
+  iteration: number;
+}
+
+export interface LockOrderBracketData {
+  status: boolean;
+  participants: BracketParticipant[];
+}
+
+export interface BracketSingleSeedTeam {
+  id: number;
+  club_id: string;
+  club_name: {
+    String: string;
+    Valid: boolean;
+  };
+  type: "home" | "away";
+  participants: string[] | null;
+  is_bye: boolean;
+  event_registration_id: string;
+}
+
+export interface BracketSingleSeedData {
+  id: string;
+  event_turn: number;
+  match_order: number;
+  teams: BracketSingleSeedTeam[];
+}
+
+export interface LockSingleBracketData {
+  status: boolean;
+  data: {
+    title: string;
+    seed: BracketSingleSeedData[];
+  };
 }

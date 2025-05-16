@@ -1,5 +1,4 @@
 'use server'
-
 import { getExternalApiUrl } from "@/utils/api";
 import { cookies } from "next/headers";
 
@@ -36,3 +35,14 @@ export const authLogout = async () => {
   return { success: true, message: 'Logged out successfully' };
 
 };
+
+export const getAccessToken = async () => {
+  const accessToken = (await cookies()).get('access_token')?.value;
+  if (!accessToken) {
+    return {
+      error: 'Unauthorized: Bearer token is missing or invalid',
+      status: 401
+    };
+  }
+  return accessToken
+}
