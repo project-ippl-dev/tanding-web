@@ -112,3 +112,22 @@ export interface EventInfinityResponse {
   data: Array<EventInfinityData>;
   total_item: number; // Added to match the EVENT_INFINITY response
 }
+
+export interface EventUpdatePayload {
+  name: string;
+  type: string;
+  description: string;
+  prize_pool: string;
+  location: string;
+  province: string;
+  city: string;
+  thumbnail: string;
+  start_date: Date | string | null;
+  end_date: Date | string | null;
+  deadline: Date | string | null;
+  sport_id: string;
+  rules: string;
+  proposal_link?: string;
+  quota: number;
+  open: Date | string | null;
+}

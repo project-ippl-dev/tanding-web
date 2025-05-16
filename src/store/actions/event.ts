@@ -1,6 +1,7 @@
 'use server';
-import { getExternalApiUrl } from '@/utils/api';
-import { cookies } from 'next/headers';
+import { EventUpdatePayload } from '@/types/event.type';
+import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
+import { EVENT_PARTICIPANTS } from '../event';
 
 interface InfinityQueryParams {
   limit: number;
@@ -11,54 +12,15 @@ interface InfinityQueryParams {
 }
 
 export async function getTournamentDetail({ id }: { id: string }) {
-  /* 
-      Warning :
-      Kemungkinan bisa indirect access dengan ganti parameternya
-  */
-  // const {id} = await params
 
-  // const tokenHeader = request.headers.get('Authorization')
-  // console.log(request.headers.get('Authorization'))
-  const tokenHeader = (await cookies()).get('access_token')?.value;
-  // if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
-  if (!tokenHeader) {
-    return {
-      error: 'Unauthorized: Bearer token is missing or invalid',
-      status: 401
-    };
-  }
+  const url = `/event/${id}`;
+  const result = await handleFetch({ url, method: 'GET' });
 
-  // Akses nilai token
-  // const token = tokenHeader.split(' ')[1];
-  // console.log(getExternalApiUrl(`/profile/${uuid}/basic`))
-
-  const url = `/event/${id}`
-
-  const response = await fetch(getExternalApiUrl(url), {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${tokenHeader}`,
-    }
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  const data = await response.json()
-  // console.log(await response.json())
-
-  // return NextResponse.json(data, {
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  return data;
+  return result;
 }
 
 export async function getTournamentInfinity(params: InfinityQueryParams) {
-  /* 
-      Warning :
-      Kemungkinan bisa indirect access dengan ganti parameternya
-  */
 
-  // const urlObject = new URL(request.url || "/")
   const query: InfinityQueryParams = {
     limit: params.limit || 10,
     type: params.type || '',
@@ -67,123 +29,84 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
     remark: params.remark || '',
   };
 
-  // const tokenHeader = request.headers.get('Authorization')
-  // console.log(request.headers.get('Authorization'))
-  const tokenHeader = (await cookies()).get('access_token')?.value;
-  if (!tokenHeader) {
-    return {
-      error: 'Unauthorized: Bearer token is missing or invalid',
-      status: 401
-    };
-  }
+  const url = `/event/infinite?limit=${query.limit}&category=${query.type}&sport_id=${query.sport_id}&name=${query.search}&remark=${query.remark}`;
+  const result = await handleFetch({ url, method: 'GET' });
 
-  // Akses nilai token
-  // const token = tokenHeader.split(' ')[1];
-  // console.log(getExternalApiUrl(`/profile/${uuid}/basic`))
-
-  const url = `/event/infinite?limit=${query.limit}&category=${query.type}&sport_id=${query.sport_id}&name=${query.search}&remark=${query.remark}`
-
-  const response = await fetch(getExternalApiUrl(url), {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${tokenHeader}`,
-    }
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  const data = await response.json()
-  // console.log(await response.json())
-
-  // return NextResponse.json(data, {
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  return data;
+  return result;
 }
 
 export async function getTournamentParticipants({ eventID }: { eventID: string | string[] }) {
-  /* 
-      Warning :
-      Kemungkinan bisa indirect access dengan ganti parameternya
-  */
-  // const {eventID} = await params
 
-  // const tokenHeader = request.headers.get('Authorization')
-  // console.log(request.headers.get('Authorization'))
-  const tokenHeader = (await cookies()).get('access_token')?.value;
-  // if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
-  if (!tokenHeader) {
-    return {
-      error: 'Unauthorized: Bearer token is missing or invalid',
-      status: 401
-    };
+  if(process.env.BYPASS_REQ_AUTH === 'true') return EVENT_PARTICIPANTS
+  const url = `/event/${eventID}/participant`;
+  const result = await handleFetch({ url, method: 'GET' });
 
-  }
-
-  // Akses nilai token
-  // const token = tokenHeader.split(' ')[1];
-  // console.log(getExternalApiUrl(`/profile/${uuid}/basic`))
-
-  const url = `/event/${eventID}/participant`
-
-  const response = await fetch(getExternalApiUrl(url), {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${tokenHeader}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  const data = await response.json()
-  // console.log(await response.json())
-  // return NextResponse.json(data, {
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  return data;
+  return result;
 }
 
 export async function registerToTournament({ eventID, payload }: { eventID: string, payload: object }) {
-  /* 
-      Warning :
-      Kemungkinan bisa indirect access dengan ganti parameternya
-  */
-  // const {eventID} = await params
 
-  // const tokenHeader = request.headers.get('Authorization')
-  // console.log(request.headers.get('Authorization'))
-  const tokenHeader = (await cookies()).get('access_token')?.value;
-  // if (!tokenHeader || !tokenHeader.startsWith('Bearer')) {
-  if (!tokenHeader) {
+  const url = `/event/${eventID}/register`;
+  const result = await handleFetch({ url, method: 'POST', data: payload });
+
+  return result;
+}
+
+export async function sendFinishTournament({ eventID }: { eventID: string | string[] }) {
+
+  const url = `/event/${eventID}/summary`;
+  const result = await handleFetch({ url, method: 'POST' });
+
+  return result;
+}
+
+export async function updateTournamentDetail(
+  id: string,
+  eventData: Omit<EventUpdatePayload, "thumbnail">, // Consider defining a more specific type for eventData
+  newImageFile: File | null,
+  oldImageUrl: string | undefined,
+  changeNewImage: boolean
+) {
+  let imageUrl = oldImageUrl;
+
+  try {
+    // UPLOAD BANNER if a new image is provided and changeNewImage is true
+    if (changeNewImage && newImageFile) {
+      const formBanner = new FormData();
+      formBanner.append("dir", "banner");
+      formBanner.append("file", newImageFile);
+
+      const uploadResult = await handleFetch({
+        url: '/file/upload',
+        method: 'POST',
+        data: formBanner,
+        contentType: undefined, // Let fetch set Content-Type for FormData
+      });
+
+      if (uploadResult.error || !uploadResult.data) {
+        return {
+          error: uploadResult.error || 'File upload failed or did not return data.',
+          status: uploadResult.status,
+        };
+      }
+      imageUrl = uploadResult.data; // Assuming the URL is in uploadResult.data
+    }
+
+    // Update tournament details
+    const updatePayload = { ...eventData, thumbnail: imageUrl };
+    const result = await handleFetch({
+      url: `/event/${id}`,
+      method: 'PUT',
+      data: updatePayload,
+    });
+
+    return result;
+  } catch (error) {
+    // Catch any unexpected errors during the process
+    console.error("Error in updateTournamentDetail:", error);
     return {
-      error: 'Unauthorized: Bearer token is missing or invalid',
-      status: 401
+      error: error.message || 'An unexpected error occurred while updating tournament details.',
+      status: 500, // Generic server error status
     };
   }
-
-  // Akses nilai token
-  // const token = tokenHeader.split(' ')[1];
-  // console.log(getExternalApiUrl(`/profile/${uuid}/basic`))
-
-  const url = `/event/${eventID}/register`
-
-  const response = await fetch(getExternalApiUrl(url), {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${tokenHeader}`,
-      'Content-Type': 'application/json',
-    },
-    // body: JSON.stringify(await request.json())
-    body: JSON.stringify(payload)
-  });
-  if (!response.ok) {
-    throw new Error("Failed to register to tournament");
-  }
-  const data = await response.json()
-  // console.log(await response.json())
-
-  // return NextResponse.json(data, {
-  //   headers: { 'Content-Type': 'application/json' },
-  // });
-  return data;
 }
