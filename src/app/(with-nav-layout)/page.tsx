@@ -1,19 +1,19 @@
-// import { getBffApiUrl } from "@/utils/api";
+import HomeEventsCarousel from "@/components/home/HomeEventsCarousel";
 import { Container, Typography } from "@mui/material";
 
-// // Example of data fetching with server components
-// async function fetchData() {
-//   const response = await fetch(getBffApiUrl("/api"), {
-//     method: "GET",
-//   });
-//   return response.json();
-// }
-
 export default async function Home() {
-  // const data = await fetchData(); // Example Fetch data from the API
 
   return (
-    <Container>
+    <Container
+      maxWidth="xl"
+      sx={{
+        padding: {
+          xs: 0,
+          md: 10,
+        },
+      }}
+    >
+      <HomeEventsCarousel />
       <Typography>Welcome to Tanding!</Typography>
       <Typography>-Sedang dalam pengembangan-</Typography>
     </Container>

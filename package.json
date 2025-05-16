@@ -24,7 +24,9 @@
     "react-brackets": "^0.4.7",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
-    "react-number-format": "^5.4.4"
+    "react-number-format": "^5.4.4",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
