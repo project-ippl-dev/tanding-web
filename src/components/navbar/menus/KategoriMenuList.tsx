@@ -1,6 +1,6 @@
 "use client";
 // import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -8,41 +8,52 @@ import {
   ListItem,
   ListItemText,
   ListSubheader,
+  Skeleton,
 } from "@mui/material";
 import StyledMenu from "./StyledMenu";
 import { ArrowForwardIos } from "@mui/icons-material";
+import { Sport } from "@/types/sport.type";
+import { getSport } from "@/store/actions/sport";
+import { useRouter } from "next/navigation";
 
-// TODO: DUMMY DATA
-const SPORTS_DUMMY = [
-  {
-    id: 1,
-    name: "Sport",
-  },
-  {
-    id: 2,
-    name: "E-Sport",
-  },
-];
+// TODO: Caching option in fetchHandler
 
 export default function KategoriMenuList({
   anchorEl,
   id,
   open,
   onClose,
-}: // TODO: Connect to actual logout and profile
-// onLogout,
-// profile,
+}:
 {
   anchorEl: null | HTMLElement;
   id: string;
   open: boolean;
   onClose: () => void;
 }) {
-  // const router = useRouter();
+  const router = useRouter();
   const [sportState, setSportState] = useState<{
     open: boolean | null;
     type: string | null;
   }>({ open: false, type: null });
+  const [sportLoading, setSportLoading] = useState<boolean>(true);
+  const [sportData, setSportData] = useState<Sport[]>([]);
+
+  useEffect(() => {
+    async function fetchSport(type: string) {
+      setSportLoading(true);
+      const response = await getSport("", "", "", type);
+      if ([200, 201].includes(response.status)) {
+        setSportData(response.data);
+      } else {
+        alert("Gagal mengambil data olahraga, dengan error: " + response.error);
+      }
+      setSportLoading(false);
+    }
+
+    if (sportState.type) {
+      fetchSport(sportState.type);
+    }
+  }, [sportState.type]);
 
   return (
     <StyledMenu
@@ -89,7 +100,6 @@ export default function KategoriMenuList({
               <ListItem
                 onMouseEnter={() => {
                   setSportState({ open: true, type: "sport" });
-                  // TODO: Fetch sport data
                 }}
               >
                 <ListItemText primary="Sport" />
@@ -100,7 +110,6 @@ export default function KategoriMenuList({
               <ListItem
                 onMouseEnter={() => {
                   setSportState({ open: true, type: "e-sport" });
-                  // TODO: Fetch e-sport data
                 }}
               >
                 <ListItemText primary="E-Sport" />
@@ -124,17 +133,35 @@ export default function KategoriMenuList({
                   </ListSubheader>
                 }
               >
-                {SPORTS_DUMMY.map((value, index) => (
-                  <ListItem
-                    key={index}
-                    onClick={() => {
-                      onClose();
-                      // TODO: Redirect to sport page
-                    }}
-                  >
-                    <ListItemText primary={value.name} />
-                  </ListItem>
-                ))}
+                {sportLoading
+                  ? Array(2)
+                      .fill("a")
+                      .map((value, index) => (
+                        <ListItem key={index}>
+                          <Skeleton
+                            width={"100%"}
+                            variant="text"
+                            animation="wave"
+                          />
+                          ;
+                        </ListItem>
+                      ))
+                  : sportData.map((value, index) => (
+                      <ListItem
+                        key={index}
+                        sx={{
+                          "&:hover": {
+                            cursor: "pointer",
+                          },
+                        }}
+                        onClick={() => {
+                          onClose();
+                          router.push(`/tournament?sport=${value.id}`);
+                        }}
+                      >
+                        <ListItemText primary={value.name} />
+                      </ListItem>
+                    ))}
               </List>
             </Box>
           </Grid>
