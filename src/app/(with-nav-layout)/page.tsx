@@ -1,5 +1,6 @@
 import HomeEventsCarousel from "@/components/home/HomeEventsCarousel";
-import { Container, Typography } from "@mui/material";
+import HomePageContents from "@/components/home/HomePageContents";
+import { Container } from "@mui/material";
 
 export default async function Home() {
 
@@ -14,8 +15,9 @@ export default async function Home() {
       }}
     >
       <HomeEventsCarousel />
-      <Typography>Welcome to Tanding!</Typography>
-      <Typography>-Sedang dalam pengembangan-</Typography>
+      {/* <Typography>Welcome to Tanding!</Typography>
+      <Typography>-Sedang dalam pengembangan-</Typography> */}
+      <HomePageContents />
     </Container>
   );
 }

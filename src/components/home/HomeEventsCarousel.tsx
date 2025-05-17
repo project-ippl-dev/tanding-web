@@ -1,22 +1,18 @@
 "use client";
-import { Box, Container, Typography } from "@mui/material";
-import Carousel from "../carousel/Carousel";
+import BannerMobile from "@/assets/images/banner-mobile.jpg"
+import BannerDesktop from "@/assets/images/banner-desktop.jpg"
+import Image from "next/image";
 
 export default function HomeEventsCarousel() {
-  // const data = await fetchData(); // Example Fetch data from the API
-
   return (
-    <Box
-      sx={(theme) => ({
-        marginTop: theme.spacing(2),
-        padding: theme.spacing(0, 3),
-        [theme.breakpoints.down("md")]: {
-          marginTop: theme.spacing(7),
-          padding: theme.spacing(0, 0),
-        },
-      })}
-    >
-      <Carousel />
-    </Box>
+    <>
+      <div className="block sm:hidden w-full aspect-video object-cover bg-white">
+        <Image alt="Banner_Mobile" src={BannerMobile} />
+      </div>
+      <div className="hidden sm:block w-full aspect-16/4 object-cover bg-white">
+        <Image alt="Banner_Desktop" src={BannerDesktop} />
+      </div>
+    </>
+    // </Box>
   );
 }
