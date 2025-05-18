@@ -131,3 +131,43 @@ export interface EventUpdatePayload {
   quota: number;
   open: Date | string | null;
 }
+
+export interface EventOwnData {
+  id: string;
+  user_id: string;
+  user_name: string;
+  type: string;
+  name: string;
+  description: string;
+  prize_pool: string;
+  location: string;
+  province: string;
+  city: string;
+  thumbnail: string;
+  start_date: string;
+  end_date: string;
+  deadline: string;
+  sport_id: string;
+  sport_name: string;
+  rules: string;
+  proposal_link: string;
+  status: boolean;
+  quota: number;
+  open: string;
+  remark: string;
+  // participants is missing in EVENT_OWN sample data, but present in EventInfinityData.
+  // Add if it can be present, otherwise omit. For now, I'll assume it might be similar to EventInfinityData.
+  participants?: number;
+}
+
+export interface EventOwnResponse {
+  message: string;
+  data: EventOwnData[];
+  current_page: number;
+  has_previous_page: boolean;
+  has_next_page: boolean;
+  previous_page: number;
+  next_page: number;
+  last_page: number;
+  total_item: number;
+}
