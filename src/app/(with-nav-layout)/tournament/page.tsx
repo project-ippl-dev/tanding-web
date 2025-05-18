@@ -1,7 +1,7 @@
 "use client"
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react"; // Import Suspense
 import {
   Container,
   Grid,
@@ -12,7 +12,7 @@ import {
   Radio,
   FormControlLabel,
   RadioGroup,
-  Skeleton, // Import Skeleton if needed for other parts, though our new component encapsulates its usage
+  Skeleton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -23,7 +23,7 @@ import { getTournamentInfinity } from "@/store/actions/event";
 import { EventInfinityResponse } from "@/types/event.type";
 import SecondTournamentItem from "@/components/SecondTournamentItem";
 import DialogFilter from "./_components/DialogFilter";
-import SecondTournamentItemSkeleton from "./_components/SecondTournamentItemSkeleton"; // Import the skeleton component
+import SecondTournamentItemSkeleton from "./_components/SecondTournamentItemSkeleton";
 import { useRouter, useSearchParams } from "next/navigation";
 
 async function reqSport(
@@ -61,7 +61,8 @@ async function reqTournamentInfinity(
   }
 }
 
-const Tournament = () => {
+// This new component will contain the logic that uses useSearchParams
+const TournamentContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const theme = useTheme();
@@ -109,7 +110,6 @@ const Tournament = () => {
     } else {
       setCategory("");
     }
-    // Set tournamentInfinity to null before fetching to show skeleton
     setTournamentInfinity(null); 
     reqTournamentInfinity(
       100,
@@ -121,7 +121,7 @@ const Tournament = () => {
         setTournamentInfinity(data);
       }
     );
-  }, [searchParams]); // Add searchParams to dependency array to refetch when URL query changes
+  }, [searchParams]);
 
   useEffect(() => {
     if(!alreadyFetch.current) {
@@ -260,8 +260,7 @@ const Tournament = () => {
               </Grid>
             )}
             <Grid
-              // size={hideFilter ? 12 : 9}
-              size={isMdUp ? 9 : 12}
+              size={isMdUp && !hideFilter ? 9 : 12} // Adjusted logic for size
               sx={{
                 padding: (theme) => theme.spacing(0, 2),
                 minHeight: "700px",
@@ -301,13 +300,45 @@ const Tournament = () => {
   );
 };
 
+// The main export for the page, wrapping TournamentContent in Suspense
+const Tournament = () => {
+  return (
+    <Suspense fallback={<TournamentPageSkeleton />}> {/* You can create a more specific skeleton for the whole page */}
+      <TournamentContent />
+    </Suspense>
+  );
+};
+
+// A simple skeleton for the whole page while searchParams are loading
+const TournamentPageSkeleton = () => {
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+  return (
+    <Box sx={{ marginTop: { xs: 0, md: 10 } }}>
+      <Container maxWidth="lg" sx={{ paddingLeft: { xs: 2, md: 4 }, paddingRight: { xs: 2, md: 4 } }}>
+        <Box marginTop={3}>
+          <Box marginBottom={2}>
+            <Skeleton variant="rectangular" width={100} height={36} />
+          </Box>
+          <Grid container>
+            {isMdUp && (
+              <Grid size={3} sx={{ padding: (theme) => theme.spacing(0, 2) }}>
+                <Skeleton variant="text" height={40} />
+                <Skeleton variant="rectangular" height={100} sx={{ mt: 1, mb: 2 }} />
+                <Skeleton variant="text" height={40} />
+                <Skeleton variant="rectangular" height={150} sx={{ mt: 1 }} />
+              </Grid>
+            )}
+            <Grid size={isMdUp ? 9 : 12} sx={{ padding: (theme) => theme.spacing(0, 2), minHeight: "700px" }}>
+              {[...Array(3)].map((_, index) => (
+                <SecondTournamentItemSkeleton key={index} />
+              ))}
+            </Grid>
+          </Grid>
+        </Box>
+      </Container>
+    </Box>
+  );
+};
+
 export default Tournament;
-
-// const mapStateToProps = (state) => ({
-//   tournament: state.tournament,
-//   sport: state.sport,
-// });
-
-// export default connect(mapStateToProps, { getTournamentInfinity, getSport })(
-//   Tournament
-// );
