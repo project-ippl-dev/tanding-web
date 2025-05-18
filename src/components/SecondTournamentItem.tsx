@@ -30,7 +30,7 @@ const statusColor = (status: string): string => {
   return "#000000"; // Default color
 };
 
-const SecondTournamentItem: React.FC<{ data: EventInfinityData }> = ({ data }) => {
+const SecondTournamentItem: React.FC<{ data: EventInfinityData, targetEventUrl?: "tournament" | "my-event" }> = ({ data, targetEventUrl = 'tournament' }) => { 
   const router = useRouter();
 
   return (
@@ -43,7 +43,9 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData }> = ({ data }) =
           margin: { xs: 2, md: "13.6px 16px" },
           flexDirection: { xs: "column", md: "row" },
         }}
-        onClick={() => router.push(`/my-event/${data.id}`)}
+        onClick={() => {
+          router.push(`/${targetEventUrl}/${data.id}`);
+        }}
       >
         <Box sx={{ position: "relative" }}>
           <Image
