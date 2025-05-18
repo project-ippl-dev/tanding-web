@@ -10,7 +10,7 @@ import {
   Skeleton,
 } from "@mui/material";
 import Big3Section from "./Big3Section";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import RankingTable from "./RankingTable";
 import { getSport } from "@/store/actions/sport";
 import { Sport } from "@/types/sport.type";
@@ -23,9 +23,10 @@ export default function RankingPageContents() {
   const [chosenSport, setChosenSport] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [sportLoading, setSportLoading] = useState<boolean>(true);
-  const [rankingList, setRangkingList] = useState<
-    RankingClubData[] | RankingUserData[]
-  >([]);
+  // const [rankingList, setRangkingList] = useState<
+  //   RankingClubData[] | RankingUserData[]
+  // >([]);
+  const rankingList = useRef<RankingClubData[] | RankingUserData[]>([]);
   const [rankLoading, setRankLoading] = useState<boolean>(true);
   const [lastPage, setLastPage] = useState<number>(1);
   // const [powerList, setPowerList] = useState
@@ -64,7 +65,8 @@ export default function RankingPageContents() {
       }
 
       if ([200, 201].includes(result.status)) {
-        setRangkingList(result.data);
+        // setRangkingList(result.data);
+        rankingList.current = result.data
         setLastPage(result.last_page);
       } else {
         alert("Gagal mengambil data olahraga, dengan error: " + result.error);
@@ -205,16 +207,16 @@ export default function RankingPageContents() {
           </Box>
           {rankLoading ? (
             <Skeleton sx={{ width: "100%", height: "500px" }} />
-          ) : rankingList && rankingList.length > 0 ? (
+          ) : rankingList.current && rankingList.current.length > 0 ? (
             <>
               <div className="hidden sm:block">
                 <Box>
-                  <Big3Section data={rankingList} />
+                  <Big3Section data={rankingList.current} />
                 </Box>
               </div>
               <Box marginTop={3} paddingX={1}>
                 <RankingTable
-                  data={rankingList}
+                  data={rankingList.current}
                   page={page}
                   pageSize={PAGE_SIZE}
                   setPage={setPage}
