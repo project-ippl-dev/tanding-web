@@ -9,6 +9,7 @@ import {
   PaymentData,
   PaymentSummary,
 } from "@/types/paymet.type";
+import { handleFetch } from "@/utils/fetchHandler";
 
 // Payment Actions
 export async function storePayment(
@@ -121,77 +122,26 @@ export async function getDetailPaymentForClub(
 
 export async function getPaymentForOwner(
   id: string,
-  params: PaymentQueryParams = {}
-): Promise<FetchResponseBody<PaymentData[]>> {
-  const accessToken = await getAccessToken();
-
-  try {
-    const queryParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        queryParams.append(key, value.toString());
-      }
-    });
-
-    const queryString = queryParams.toString();
-    const basePath = `/event/${id}/payment`;
-    const finalUrl = queryString ? `${basePath}?${queryString}` : basePath;
-
-    const response = await fetch(getExternalApiUrl(finalUrl), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.message || "Failed to fetch payments for owner");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    throw new Error(`Fetch owner payments failed: ${error}`);
-  }
+  status: string = "",
+) {
+  const url = `/event/${id}/payment?status=${status}`;
+  
+  return handleFetch({
+    url: url,
+    method: "GET",
+  });
 }
 
 export async function getPaymentTotalForOwner(
   id: string,
-  status: string = ""
-): Promise<FetchResponseBody<PaymentSummary>> {
-  const accessToken = await getAccessToken();
+) {
 
-  try {
-    const queryParams = new URLSearchParams();
-    if (status) {
-      queryParams.append("status", status);
-    }
+  const url = `/event/${id}/payment/summary`;
 
-    const queryString = queryParams.toString();
-    const basePath = `/event/${id}/payment/summary`;
-    const finalUrl = queryString ? `${basePath}?${queryString}` : basePath;
-
-    const response = await fetch(getExternalApiUrl(finalUrl), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.message || "Failed to fetch payment summary");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    throw new Error(`Fetch payment summary failed: ${error}`);
-  }
+  return handleFetch({
+    url: url,
+    method: "GET",
+  });
 }
 
 export async function getPaymentForClubOwner(

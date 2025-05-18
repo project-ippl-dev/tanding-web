@@ -11,6 +11,7 @@ import {
   TableRow,
   TableCell,
   colors,
+  TableContainer,
 } from "@mui/material";
 
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
@@ -62,16 +63,18 @@ const DialogDetail = ({ dialog, onClose }) => {
                   borderRadius: "5px",
                 }}
               >
-                <Table>
-                  <TableBody>
-                    {Object.keys(dialog.data?.teams[0].Score).map((key) => (
-                      <TableRow key={key}>
-                        <TableCell>{key}</TableCell>
-                        <TableCell>{dialog.data.teams[0].Score[key]}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <TableContainer>
+                  <Table>
+                    <TableBody>
+                      {Object.keys(dialog.data?.teams[0].Score).map((key) => (
+                        <TableRow key={key}>
+                          <TableCell>{key}</TableCell>
+                          <TableCell>{dialog.data.teams[0].Score[key]}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Box>
             )}
           </Grid>
@@ -118,6 +121,7 @@ const DialogDetail = ({ dialog, onClose }) => {
                   borderRadius: "5px",
                 }}
               >
+                <TableContainer>
                 <Table>
                   <TableBody>
                     {Object.keys(dialog.data?.teams[1].Score).map((key) => (
@@ -128,6 +132,7 @@ const DialogDetail = ({ dialog, onClose }) => {
                     ))}
                   </TableBody>
                 </Table>
+                </TableContainer>
               </Box>
             )}
           </Grid>

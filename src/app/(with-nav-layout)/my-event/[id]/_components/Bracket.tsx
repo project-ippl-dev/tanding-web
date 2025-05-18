@@ -183,7 +183,7 @@ const Bracket = ({
         </Typography>
       </Box>
       <div>
-        <Grid container justifyContent="center">
+        <Grid sx={{ padding: { xs: 2, md: 10 }}} container justifyContent="center">
           <Grid size={{md:5,xs:12}}>
             <TextField
               fullWidth

@@ -33,8 +33,6 @@ import StyledTabs from "@/components/StyledTabs/StyledTabs";
 import StyledTab from "@/components/StyledTab/StyledTab";
 import TabPanel from "@/components/TabPanel/TabPanel";
 import Preview from "./_components/Preview";
-import { getSport } from "@/store/actions/sport";
-import { getProvince } from "@/store/actions/address";
 import Participant from "./_components/Participant";
 import Bracket from "./_components/Bracket";
 import Setting from "./_components/Setting";
@@ -83,7 +81,7 @@ const OwnTournamentDetail = () => {
     if (typeof params.id === "string") {
       fetchTournamentDetail(params.id);
     }
-  }, [params.id]);
+  }, []);
 
 
   const MemoizeParticipant = useMemo(() => {
@@ -175,7 +173,6 @@ const OwnTournamentDetail = () => {
                     <StyledTabs
                       value={tabs}
                       onChange={handleTabs}
-                      textColor=""
                       indicatorColor="primary"
                     >
                       <StyledTab label="PREVIEW" {...a11yProps(0)} />

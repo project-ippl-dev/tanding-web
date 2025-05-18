@@ -10,6 +10,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
 } from "@mui/material";
 import { purple } from "@mui/material/colors";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
@@ -64,29 +65,31 @@ const DialogDetail: React.FC<DialogDetailProps> = ({ dialog, onClose }) => {
           </div>
         </Box>
         <Box sx={{ marginTop: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Round</TableCell>
-                <TableCell>Point</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.keys(dialog.data.scores).map((key) => (
-                <TableRow key={key}>
-                  {key !== "id" && (
-                    <>
-                      <TableCell>{key}</TableCell>
-                      <TableCell>{dialog.data.scores[key]}</TableCell>
-                    </>
-                  )}
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Round</TableCell>
+                  <TableCell>Point</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Box>
-      </DialogContent>
-    </Dialog>
+              </TableHead>
+              <TableBody>
+                {Object.keys(dialog.data.scores).map((key) => (
+                  <TableRow key={key}>
+                    {key !== "id" && (
+                      <>
+                        <TableCell>{key}</TableCell>
+                        <TableCell>{dialog.data.scores[key]}</TableCell>
+                      </>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+      </Box>
+    </DialogContent>
+  </Dialog>
   );
 };
 

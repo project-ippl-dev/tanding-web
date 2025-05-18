@@ -11,6 +11,7 @@ import {
   TableRow,
   TableCell,
   colors,
+  TableContainer,
 } from "@mui/material";
 
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
@@ -22,7 +23,7 @@ const DialogDetail = ({ dialog, onClose }) => {
       <DialogContent>
         <Grid container>
           <Grid
-            xs={6}
+            size={{ xs: 12, sm: 6 }} // Ganti xs dengan size menggunakan breakpoint
             sx={{
               padding: (theme) => theme.spacing(0, 1),
               display: "flex",
@@ -62,6 +63,7 @@ const DialogDetail = ({ dialog, onClose }) => {
                   borderRadius: "5px",
                 }}
               >
+                <TableContainer>
                 <Table>
                   <TableBody>
                     {Object.keys(dialog.data?.teams[0].Score).map((key) => (
@@ -72,13 +74,14 @@ const DialogDetail = ({ dialog, onClose }) => {
                     ))}
                   </TableBody>
                 </Table>
+                </TableContainer>
               </Box>
             )}
           </Grid>
 
           {/* AWAY */}
           <Grid
-            xs={6}
+            size={{ xs: 12, sm: 6 }} // Ganti xs dengan size menggunakan breakpoint
             sx={{
               padding: (theme) => theme.spacing(0, 1),
               display: "flex",
@@ -118,16 +121,18 @@ const DialogDetail = ({ dialog, onClose }) => {
                   borderRadius: "5px",
                 }}
               >
-                <Table>
-                  <TableBody>
-                    {Object.keys(dialog.data?.teams[1].Score).map((key) => (
-                      <TableRow key={key}>
-                        <TableCell>{key}</TableCell>
-                        <TableCell>{dialog.data.teams[1].Score[key]}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <TableContainer>
+                  <Table>
+                    <TableBody>
+                      {Object.keys(dialog.data?.teams[1].Score).map((key) => (
+                        <TableRow key={key}>
+                          <TableCell>{key}</TableCell>
+                          <TableCell>{dialog.data.teams[1].Score[key]}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Box>
             )}
           </Grid>

@@ -8,6 +8,7 @@ import {
   TableRow,
   TableBody,
   IconButton,
+  TableContainer,
 } from "@mui/material";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
 
@@ -33,6 +34,7 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tourna
 
   return (
     <>
+    <TableContainer>
       <Table>
         <TableHead>
           <TableRow>
@@ -68,6 +70,7 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tourna
           ))}
         </TableBody>
       </Table>
+    </TableContainer>
 
       {dialogDetail.open && (
         <DialogDetail
