@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useState } from "react";
 import { styled, Theme } from "@mui/material/styles";
-import { Container, Tabs, Typography, Tab, Box, TabsProps, TabProps } from "@mui/material";
+import { Container, Tabs, Typography, Tab, Box, TabsProps, TabProps, Backdrop, CircularProgress } from "@mui/material";
 
 // import { Pagination } from "../../components";
 
@@ -88,6 +88,7 @@ async function reqTournamentDetailData(page:number, page_size:number,setData:(da
 export default function OwnTournament () {
   const [tabs, setTabs] = useState(0);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [tournamentOwn, setTournamentOwn] = useState<EventOwnResponse | null>(null);
 
   const handleTabs = ( _event: React.SyntheticEvent, newValue: number) => {
@@ -95,10 +96,15 @@ export default function OwnTournament () {
   };
 
   useEffect(() => {
-    const saveTournamentData = (data: EventOwnResponse) => {
-      setTournamentOwn(data);
-    };
-    reqTournamentDetailData(page, page_size, saveTournamentData);
+    async function fetchData() {
+      const saveTournamentData = (data: EventOwnResponse) => {
+        setTournamentOwn(data);
+      }
+      setLoading(true);
+      await reqTournamentDetailData(page, page_size, saveTournamentData);
+      setLoading(false);
+    }
+    fetchData();
   }, [page]);
 
 
@@ -154,6 +160,15 @@ export default function OwnTournament () {
           </TabPanel>
         </Container>
       </div>
+      <Backdrop
+        open={loading}
+        sx={(theme) => ({
+          zIndex: theme.zIndex.drawer + 1,
+          color: "#fff",
+        })}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </RootStyle>
   );
 };
