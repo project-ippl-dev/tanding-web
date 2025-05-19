@@ -29,8 +29,7 @@ export default function ProfileMenuList({
   id,
   open,
   onClose,
-}: // onLogout,
-// profile,
+}: 
 {
   anchorEl: null | HTMLElement;
   id: string;
@@ -38,7 +37,6 @@ export default function ProfileMenuList({
   onClose: () => void;
 }) {
   const router = useRouter();
-  //TODO: connect to BE
 
   const redirectToProfile = () => {
     router.push("/user-profile");
