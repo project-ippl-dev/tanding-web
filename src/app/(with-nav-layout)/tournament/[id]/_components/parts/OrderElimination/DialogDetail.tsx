@@ -10,6 +10,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  TableContainer,
 } from "@mui/material";
 import { purple } from "@mui/material/colors";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
@@ -64,6 +65,7 @@ const DialogDetail: React.FC<DialogDetailProps> = ({ dialog, onClose }) => {
           </div>
         </Box>
         <Box sx={{ marginTop: 3 }}>
+          <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
@@ -84,6 +86,7 @@ const DialogDetail: React.FC<DialogDetailProps> = ({ dialog, onClose }) => {
               ))}
             </TableBody>
           </Table>
+          </TableContainer>
         </Box>
       </DialogContent>
     </Dialog>
