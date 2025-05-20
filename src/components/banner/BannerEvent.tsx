@@ -69,9 +69,9 @@ export default function BannerEvent() {
                 boxShadow: "none",
               },
             }}
-            onClick={() => router.push("/tournament/create-tournament")}
+            onClick={() => router.push("/create-tournament")}
           >
-            Buat TournamentList!
+            Buat Turnamen Baru!
           </Button>
           <Button
             size="large"
@@ -89,7 +89,7 @@ export default function BannerEvent() {
             }}
             onClick={() => router.push("/tournament")}
           >
-            Cari TournamentList!
+            Cari Turnamen
           </Button>
         </Box>
       </Box>
