@@ -87,14 +87,24 @@ export default function DesktopAppNavbar() {
                 >
                   Ranking
                 </DesktopAppNavbarButton>
-                {/* TODO: Navigation */}
-                <DesktopAppNavbarButton variant="text">
+                <DesktopAppNavbarButton
+                  variant="text"
+                  onClick={() => router.push("/my-event")}
+                >
                   Turnamenku!
                 </DesktopAppNavbarButton>
               </Grid>
               <Grid container spacing={0.25}>
                 {authData ? (
-                  <AvatarBox onClick={handleProfileMenuOpen} />
+                  <>
+                    <DesktopAppNavbarButton
+                      variant="text"
+                      onClick={() => router.push("/payment")}
+                    >
+                      Kelola Pembayaran
+                    </DesktopAppNavbarButton>
+                    <AvatarBox onClick={handleProfileMenuOpen} />
+                  </>
                 ) : null}
               </Grid>
             </Box>
