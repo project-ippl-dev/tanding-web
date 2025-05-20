@@ -19,6 +19,16 @@ export async function getTournamentDetail({ id }: { id: string }) {
   return result;
 }
 
+
+export async function getOwnTournament({ page = 1, page_size = 10 }) {
+
+  const url = `/event/own?page=${page}&page_size=${page_size}`;
+  const result = await handleFetch({ url, method: 'GET' });
+
+  return result;
+}
+
+
 export async function getTournamentInfinity(params: InfinityQueryParams) {
 
   const query: InfinityQueryParams = {
