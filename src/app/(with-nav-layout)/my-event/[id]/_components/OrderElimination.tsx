@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -8,29 +8,60 @@ import {
   TableRow,
   TableBody,
   IconButton,
-  TableContainer,
 } from "@mui/material";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
 
 import DialogDetail from "./parts/OrderElimination/DialogDetail";
-import { BracketOrderData } from "@/types/bracket.type";
+import { BracketOrderData, DialogState, ScoreData } from "@/types/bracket.type";
 import { EventData } from "@/types/event.type";
+import DialogScore from "./parts/OrderElimination/DialogScore";
+import { storeBracketOrderScore } from "@/store/actions/bracket";
 
 // Define types for props
 
 interface OrderEliminationProps {
   bracketData: BracketOrderData[] | [];
   tournament: EventData | null;
+  selected?: string;
+  lockScoreStatus?: boolean;
 }
 
 const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tournament }) => {
-  const [dialogDetail, setDialogDetail] = useState<{
-    open: boolean;
-    data: BracketOrderData | null;
-  }>({
+  const [dialogScore, setDialogScore] = useState<DialogState<BracketOrderData>>(
+    {
+      open: false,
+      data: null,
+    }
+  );
+  const [dialogDetail, setDialogDetail] = useState<
+    DialogState<BracketOrderData>
+  >({
     open: false,
     data: null,
   });
+
+  // Function to handle scoring
+  const handleStoreBracketScore = async (
+      eventID: string,
+      bracketID: string,
+      data: ScoreData,
+      classID: string
+    ) => {
+      try {
+        const result = await storeBracketOrderScore({ eventID, bracketID, data, classID });
+        if (result.status === 200) {
+          alert(result.message || "Score has been stored");
+          window.location.reload(); // Refresh to update UI
+        } else {
+          alert("Failed to store score: " + (result.error || "Unknown error"));
+        }
+        return result;
+      } catch (error) {
+        alert("Error storing score: " + error);
+        throw error;
+      }
+    };
+  
 
   return (
     <>
@@ -71,6 +102,15 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tourna
         </TableBody>
       </Table>
       </TableContainer>
+
+      {dialogScore.open && (
+        <DialogScore
+          state={dialogScore}
+          onClose={() => setDialogScore({ open: false, data: null })}
+          action={handleStoreBracketScore}
+          selected={selected}
+        />
+      )}
 
       {dialogDetail.open && (
         <DialogDetail
