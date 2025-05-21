@@ -1,6 +1,4 @@
-import { AuthData } from "@/types/auth.type";
-
-export const AUTH_DATA:AuthData  = {
+export const AUTH_DATA  = {
   "message": "login success",
   "data": {
     "profile": {

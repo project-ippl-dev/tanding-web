@@ -1,4 +1,6 @@
-export const userProfileData = {
+import { ProfileBasicResponse } from "@/types/profile";
+
+export const userProfileData: ProfileBasicResponse = {
   "message": "fetch one basic information success",
   "data": {
     "id": "0a4a2681-b65f-4ab3-9b13-5a075531c0c3",
