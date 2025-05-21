@@ -83,7 +83,7 @@ const RenderSeed = ({ breakpoint, seed }) => {
 };
 
 
-nterface SingleEliminationProps {
+interface SingleEliminationProps {
   data: BracketRound[];
   tournament?: EventData | null;
   selected?: string;
