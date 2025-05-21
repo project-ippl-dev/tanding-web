@@ -59,7 +59,6 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
     about: "",
     photo: ""
   });
-  console.log("DialogProfileBasic", open);
 
   const { authData } = useAuth()
   
@@ -130,12 +129,9 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
       //   throw new Error("Failed to update profile");
       // }
 
-      const response = await updateProfileData({ uuid: url, payload: payload})
+      await updateProfileData({ uuid: url, payload: payload})
       // const result = await response.json();
-      const result = response;
-      console.log(result);
 
-      console.log("Profile updated successfully");
       // action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
       
       action(formData);

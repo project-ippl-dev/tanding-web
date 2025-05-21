@@ -278,7 +278,11 @@ const TournamentContent = () => {
                 </Box>
               ) : (
                 tournamentInfinity.data.map((value) => (
-                  <SecondTournamentItem key={value.id} data={value} />
+                  <SecondTournamentItem
+                    data-testid="tournament-item"
+                    key={value.id} 
+                    data={value} />
+
                 ))
               )}
             </Grid>
