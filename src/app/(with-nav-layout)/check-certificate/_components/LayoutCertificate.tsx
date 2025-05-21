@@ -32,7 +32,7 @@ export default function LayoutCertificate({ data }: LayoutCertificateProps) {
     >
       <div style={{ position: "relative" }}>
         <Image
-          src="/images/layout-certificate.jpg" // Nanti mau taruh di mana belum tahu
+          src="../../../../assets/layout-certificate.jpg" 
           alt="certificate"
           width={1000}
           height={700}

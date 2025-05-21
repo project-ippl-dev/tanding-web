@@ -115,6 +115,8 @@ export async function getDetailCertificate({
     return {
       data: result.data,
       message: result.message,
+      recipient: result.recipient || null,
+      event: result.event || null,
     };
   } catch (error: any) {
     console.error("Error in getDetailCertificate:", error);
