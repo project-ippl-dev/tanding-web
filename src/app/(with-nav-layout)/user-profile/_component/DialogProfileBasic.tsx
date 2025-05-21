@@ -59,6 +59,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
     about: "",
     photo: ""
   });
+  console.log("DialogProfileBasic", open);
 
   const { authData } = useAuth()
   

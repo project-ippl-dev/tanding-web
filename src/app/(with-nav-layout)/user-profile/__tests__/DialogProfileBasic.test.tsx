@@ -1,5 +1,6 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import DialogProfileBasic from "../_component/DialogProfileBasic";
 import { ProfileBasicResponse } from "@/types/profile";
 import { userProfileData } from "@/store/profile";
@@ -43,21 +44,5 @@ describe("Komponen DialogProfileBasic", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("calls onClose when dialog is closed", () => {
-    render(
-      <AuthProvider>
-        <DialogProfileBasic
-          open={true}
-          action={mockAction}
-          onClose={mockOnClose}
-          setLoading={mockSetLoading}
-          profile={mockProfile}
-        />
-      </AuthProvider>
-    );
-    // Simulate backdrop click or close button if available
-    // For now, call directly
-    mockOnClose();
-    expect(mockOnClose).toHaveBeenCalled();
-  });
+
 });

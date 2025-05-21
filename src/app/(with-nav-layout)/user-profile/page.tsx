@@ -21,6 +21,7 @@ import Image from "next/image";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 import { useAuth } from "@/context/auth.context";
 import { getProfileData } from "@/store/actions/profile";
+import { useNotification } from "@/context/notification.context";
 
 const HoverableSpan = styled("span")(() => ({
   fontWeight: 700,
@@ -33,6 +34,7 @@ const HoverableSpan = styled("span")(() => ({
 
 export default function UserProfile() {
   const theme = useTheme();
+  const notification = useNotification();
   const { authData } = useAuth();
 
   const [loading, setLoading] = useState(false);
@@ -69,10 +71,11 @@ export default function UserProfile() {
         });
         // const data: ProfileBasicResponse = await response.json();
         const data: ProfileBasicResponse = response;
-        console.log(data);
         setProfileData(data);
       } catch (error) {
-        console.error(error);
+        notification.showNotification( "Gagal memuat data profil",
+          "error",
+        );
       } finally {
         setLoadingProfile(false);
       }
@@ -179,16 +182,16 @@ export default function UserProfile() {
   }, [profileData]);
 
   return (
-    <div style={{ backgroundColor: "#fff" }}>
-      <Container
-        maxWidth="lg"
-        sx={{
-          paddingTop: theme.spacing(3),
-          [theme.breakpoints.down("md")]: {
-            paddingTop: theme.spacing(9),
-          },
-        }}
-      >
+      <div style={{ backgroundColor: "#fff" }}>
+        <Container
+          maxWidth="lg"
+          sx={{
+            paddingTop: theme.spacing(3),
+            [theme.breakpoints.down("md")]: {
+              paddingTop: theme.spacing(9),
+            },
+          }}
+        >
         <Grid container>
           <Grid size={{ xs: 12 }}>
             <Paper sx={{ borderRadius: "10px" }}>
@@ -219,12 +222,22 @@ export default function UserProfile() {
                   MemoizedAvatar
                 )}
                 <IconButton
+                  data-testid="edit-button"
                   sx={{
                     position: "absolute",
                     top: "310px",
                     right: "15px",
                   }}
-                  onClick={() => setDialogProfile(true)}
+                  onClick={() => {
+                    if (profileData) {
+                      setDialogProfile(true);
+                    } else {
+                      notification.showNotification(
+                        "Data profil Kosong",
+                        "error"
+                      );
+                    }
+                  }}
                 >
                   <Edit />
                 </IconButton>
@@ -257,7 +270,16 @@ export default function UserProfile() {
                       }}
                     >
                       {!profileData?.data?.can_participate ? (
-                        <HoverableSpan onClick={() => setDialogProfile(true)}>
+                        <HoverableSpan onClick={() => {
+                          if (profileData) {
+                            setDialogProfile(true);
+                          } else {
+                            notification.showNotification(
+                              "Data profil Kosong",
+                              "error"
+                            );
+                          }
+                        }}>
                           Update Profile Sekarang
                         </HoverableSpan>
                       ) : (
@@ -278,7 +300,7 @@ export default function UserProfile() {
                 >
                   {loadingProfile ? (
                     <Skeleton width="100%" height={50} />
-                  ) : authData?.clubs.length > 0 ? (
+                  ) : authData?.clubs.length && authData?.clubs.length > 0 ? (
                     authData?.clubs.map((value) => (
                       <div
                         style={{
@@ -335,6 +357,6 @@ export default function UserProfile() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-    </div>
+      </div>
   );
 }
