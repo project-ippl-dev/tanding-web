@@ -1,5 +1,5 @@
 'use server';
-import { EventUpdatePayload } from '@/types/event.type';
+import { EventUpdatePayload,EventCreatePayload } from '@/types/event.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
 import { EVENT_PARTICIPANTS } from '../event';
 
@@ -117,6 +117,91 @@ export async function updateTournamentDetail(
     return {
       error: error.message || 'An unexpected error occurred while updating tournament details.',
       status: 500, // Generic server error status
+    };
+  }
+}
+
+export async function createTournament({
+  data,
+  bannerFile,
+  proposalFile
+}: {
+  data: EventCreatePayload;
+  bannerFile: File;
+  proposalFile?: File;
+}) {
+  try {
+    // Upload banner
+    const formBanner = new FormData();
+    formBanner.append("dir", "banner");
+    formBanner.append("file", bannerFile);
+
+    const bannerUploadResult = await handleFetch({
+      url: '/file/upload',
+      method: 'POST',
+      data: formBanner,
+      contentType: undefined, 
+    });
+
+    if (bannerUploadResult.error || !bannerUploadResult.data) {
+      return {
+        error: bannerUploadResult.error || 'Failed to upload banner.',
+        status: bannerUploadResult.status || 500,
+      };
+    }
+
+    let proposalUrl = "";
+    
+    if (proposalFile) {
+      const formProposal = new FormData();
+      formProposal.append("dir", "proposal");
+      formProposal.append("file", proposalFile);
+      
+      const proposalUploadResult = await handleFetch({
+        url: '/file/upload',
+        method: 'POST',
+        data: formProposal,
+        contentType: undefined,
+      });
+      
+      if (proposalUploadResult.error || !proposalUploadResult.data) {
+        return {
+          error: proposalUploadResult.error || 'Failed to upload proposal.',
+          status: proposalUploadResult.status || 500,
+        };
+      }
+      
+      proposalUrl = proposalUploadResult.data;
+    }
+
+    // Create tournament with uploaded files
+    const createResult = await handleFetch({
+      url: '/event',
+      method: 'POST',
+      data: {
+        ...data,
+        thumbnail: bannerUploadResult.data,
+        proposal_link: proposalUrl,
+      },
+    });
+
+    if (createResult.error) {
+      return {
+        error: createResult.error,
+        status: createResult.status || 500,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Tournament berhasil dibuat",
+      data: createResult.data,
+    };
+  } catch (error: any) {
+    console.error("Error in createTournament:", error);
+    return {
+      error: error.message || 'An unexpected error occurred while creating tournament.',
+      status: error.status || 500,
     };
   }
 }

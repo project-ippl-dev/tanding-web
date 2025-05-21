@@ -171,3 +171,22 @@ export interface EventOwnResponse {
   last_page: number;
   total_item: number;
 }
+
+export interface EventCreatePayload {
+  name: string;
+  type: string;
+  description: string;
+  prize_pool: string | number;
+  location: string;
+  province: string;
+  city: string;
+  start_date: string;
+  end_date: string;
+  deadline: string;
+  sport_id: string;
+  rules: string;
+  quota: number;
+  open: string;
+  proposal_link?: string;
+  thumbnail?: string;
+}
