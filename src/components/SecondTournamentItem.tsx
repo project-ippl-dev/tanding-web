@@ -9,7 +9,7 @@ import {
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { NumericFormat } from "react-number-format";
-import { EventInfinityData } from "@/types/event.type";
+import { EventInfinityData, EventOwnData } from "@/types/event.type";
 import { useRouter } from "next/navigation";
 
 
@@ -30,7 +30,7 @@ const statusColor = (status: string): string => {
   return "#000000"; // Default color
 };
 
-const SecondTournamentItem: React.FC<{ data: EventInfinityData, targetEventUrl?: "tournament" | "my-event" }> = ({ data, targetEventUrl = 'tournament' }) => { 
+const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, targetEventUrl?: "tournament" | "my-event" }> = ({ data, targetEventUrl = 'tournament' }) => { 
   const router = useRouter();
 
   return (
@@ -90,19 +90,22 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData, targetEventUrl?:
             }}>{data.name}</Typography>
           </Box>
           <div>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Avatar
-                sx={{ width: "20px", height: "20px", marginRight: "5px" }}
-                src={data.user_image}
-              />
-              <Typography sx={{
-                fontSize: "13px",
-                color: "#616161",
-                textTransform: "capitalize",
-              }} noWrap>
-                {data.user_name}
-              </Typography>
-            </Box>
+
+            {"user_image" in data && data.user_image ?
+              (<Box sx={{ display: "flex", alignItems: "center" }}>
+                <Avatar
+                  sx={{ width: "20px", height: "20px", marginRight: "5px" }}
+                  src={data.user_image}
+                />
+                <Typography sx={{
+                  fontSize: "13px",
+                  color: "#616161",
+                  textTransform: "capitalize",
+                }} noWrap>
+                  {"user_name" in data ? data.user_name : ""}
+                </Typography>
+              </Box>) : ""
+            }
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{
                 width: "20px",
@@ -173,8 +176,8 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData, targetEventUrl?:
               <Box
                 sx={{
                   height: "3px",
-                  backgroundColor: slobarColor((data.participants / data.quota) * 100),
-                  width: `${(data.participants / data.quota) * 100}%`,
+                  backgroundColor: slobarColor((data?.participants || 0) / (data?.quota || 1) * 100),
+                  width: `${(data?.participants || 0) / (data?.quota || 1) * 100}%`,
                 }}
               />
             </Box>

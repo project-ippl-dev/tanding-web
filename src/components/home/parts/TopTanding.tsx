@@ -1,14 +1,14 @@
 "use client";
 
 import { Sport } from "@/types/sport.type";
-import { Box, Card, Tabs, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function TopTanding({ data }: { data: Sport[] }) {
   const router = useRouter();
   return (
-    <Tabs variant="scrollable" scrollButtons="auto" style={{ width: "100%" }}>
+    <Box sx={{ display: "flex", overflowX: "auto", gap: 2, p: 2 }}>
       {data.map((value) => (
         <Box
           component={"div"}
@@ -48,6 +48,6 @@ export default function TopTanding({ data }: { data: Sport[] }) {
           </Box>
         </Box>
       ))}
-    </Tabs>
+    </Box>
   );
 }
