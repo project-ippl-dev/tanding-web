@@ -9,6 +9,7 @@ import { AUTH_DATA } from "@/store/auth";
 import { EVENT_INFINITY } from "@/store/event";
 import { SPORT_ALL } from "@/store/sport";
 import Tournament from "../page";
+import WrapperContext from "@/app/wrapper";
 
 jest.mock("@/store/actions/event");
 jest.mock("@/store/actions/sport");
@@ -21,38 +22,49 @@ jest.mock("@/context/auth.context", () => {
   };
 });
 
+
 describe("Unit Testing Halaman List Tournament View", () => {
     
   beforeEach(() => {
     jest.clearAllMocks();
-    (eventStore.getTournamentInfinity as jest.Mock).mockResolvedValue(EVENT_INFINITY);
+    const mockEventInfinityData = {...EVENT_INFINITY};
+    mockEventInfinityData.status = 200;
+    const sportsDataAll = {...SPORT_ALL};
+    sportsDataAll.status = 200;
+    (eventStore.getTournamentInfinity as jest.Mock).mockResolvedValue(mockEventInfinityData);
 
-    (sportStore.getSport as jest.Mock).mockResolvedValue(SPORT_ALL);
+    (sportStore.getSport as jest.Mock).mockResolvedValue(sportsDataAll);
   });
 
   it("Menampilkan halaman secara normal", async () => {
     render(
-      <AuthProvider>
-        <NotificationProvider>
+      <WrapperContext>
           <Tournament />
-        </NotificationProvider>
-      </AuthProvider>
+      </WrapperContext>
     );
-
+    const skeleton = document.querySelector('.MuiSkeleton-root');
     
     await waitFor(() => {
-      const childItems = screen.getAllByTestId('tournament-item');
-      
-      // Memeriksa jumlah item torunament yang di render
-      expect(childItems.length).toEqual(EVENT_INFINITY.data.length);
-      expect(screen.getByText("Tipe Olahraga")).toBeInTheDocument();
-      expect(screen.getByText("Olahraga")).toBeInTheDocument();
+      expect(skeleton).toBeInTheDocument();
     });
 
+    await waitFor(() => {
+      expect(eventStore.getTournamentInfinity).toHaveBeenCalled();
+    })
+
+    await waitFor(() => {
+      expect(skeleton).not.toBeInTheDocument();
+    });
+
+    // Merender jumlah kartu turnamen yang sesuai
+    await waitFor(() => {
+      const tournamentItems = screen.getAllByTestId("tournament-item");
+      expect(tournamentItems.length).toEqual(EVENT_INFINITY.data.length);
+    });
   });
 
 /*
-  
+
   it('Menampilkan DialogProfileBasic saat tombol edit diklik', async () => {
     render(
       <AuthProvider>

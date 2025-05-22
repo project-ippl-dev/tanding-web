@@ -30,11 +30,15 @@ const statusColor = (status: string): string => {
   return "#000000"; // Default color
 };
 
-const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, targetEventUrl?: "tournament" | "my-event" }> = ({ data, targetEventUrl = 'tournament' }) => { 
+const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, targetEventUrl?: "tournament" | "my-event", "data-testid"?: string }> = ({
+  data,
+  targetEventUrl = 'tournament',
+  "data-testid": dataTestId
+}) => { 
   const router = useRouter();
 
   return (
-    <div>
+    <div data-testid={dataTestId}>
       <Box
         sx={{
           cursor: "pointer",

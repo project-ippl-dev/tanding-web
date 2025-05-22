@@ -16,7 +16,7 @@ import {
   Box,
   Divider,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import CloseIcon from "@mui/icons-material/Close"; // Corrected: Use default import
 import { SportResponseMultiple } from "@/types/sport.type";
 
 const Transition = React.forwardRef(function Transition(

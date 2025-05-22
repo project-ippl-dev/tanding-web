@@ -1,11 +1,7 @@
 import Notification from "@/components/common/Notification";
+import { NotificationContextProps, NotificationType } from "@/types/notification.type";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-export type NotificationType = "success" | "error" | "info" | "warning";
-
-interface NotificationContextProps {
-  showNotification: (message: string, type?: NotificationType) => void;
-}
 
 const NotificationContext = createContext<NotificationContextProps>({
   showNotification: () => {},
