@@ -16,16 +16,17 @@ import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import { getDetailCertificate } from "@/store/actions/certificate";
 import TournamentItem from "@/components/TournamentItem";
+import { useParams } from "next/navigation";
+import LayoutCertificateBg from "@/assets/images/layout-certificate.jpg"
 
-interface CertificateDetailPageProps {
-  params: {
-    id: string;
-  };
-}
+// interface CertificateDetailPageProps {
+//   params: {
+//     id: string;
+//   };
+// }
 
-export default function CertificateDetailPage({
-  params,
-}: CertificateDetailPageProps) {
+export default function CertificateDetailPage() {
+  const params = useParams<{ id: string }>();
   const theme = useTheme();
   const [certificateData, setCertificateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +44,7 @@ export default function CertificateDetailPage({
           setError(response.error);
           setCertificateData(null);
         } else {
-          setCertificateData(response);
+          setCertificateData(response.data);
           setError(null);
         }
       } catch (err) {
@@ -72,7 +73,7 @@ export default function CertificateDetailPage({
     );
   }
 
-  if (error || !certificateData?.data) {
+  if (error || !certificateData) {
     return (
       <Box
         sx={{
@@ -95,11 +96,11 @@ export default function CertificateDetailPage({
     );
   }
 
-  const certificate = certificateData.data;
+  // const certificate = certificateData.data;
 
   return (
-    <div
-      style={{
+    <Box component={'div'}
+      sx={{
         backgroundColor: "#fff",
         [theme.breakpoints.down("md") as string]: {
           marginTop: theme.spacing(9),
@@ -129,7 +130,7 @@ export default function CertificateDetailPage({
             >
               <div style={{ position: "relative" }}>
                 <Image
-                  src="../../../../assets/layout-certificate.jpg" 
+                  src={LayoutCertificateBg}
                   alt="certificate"
                   width={1000}
                   height={700}
@@ -159,7 +160,7 @@ export default function CertificateDetailPage({
                       },
                     }}
                   >
-                    {`Certificate ID : ${certificate.id}`}
+                    {`Certificate ID : ${certificateData.certificate.id}`}
                   </Typography>
                   <Typography
                     sx={{
@@ -170,7 +171,7 @@ export default function CertificateDetailPage({
                       },
                     }}
                   >
-                    {`Certificate URL : tanding.live/certificate/${certificate.id}`}
+                    {`Certificate URL : tanding.live/certificate/${certificateData.certificate.id}`}
                   </Typography>
                 </Box>
 
@@ -245,7 +246,7 @@ export default function CertificateDetailPage({
                       },
                     }}
                   >
-                    {certificate.name}
+                    {certificateData.certificate.name}
                   </Typography>
                 </Box>
 
@@ -282,7 +283,7 @@ export default function CertificateDetailPage({
                       },
                     }}
                   >
-                    {certificate.reward_as}
+                    {certificateData.certificate.reward_as}
                   </Typography>
                 </Box>
 
@@ -320,7 +321,7 @@ export default function CertificateDetailPage({
                       },
                     }}
                   >
-                    {certificate.event_name}
+                    {certificateData.certificate.event_name}
                   </Typography>
                 </Box>
 
@@ -353,7 +354,7 @@ export default function CertificateDetailPage({
                       },
                     }}
                   >
-                    {moment(certificate.created_at).format(
+                    {moment(certificateData.certificate.created_at).format(
                       "dddd, DD MMMM YYYY"
                     )}
                   </Typography>
@@ -387,7 +388,7 @@ export default function CertificateDetailPage({
                     alignItems: "center",
                   }}
                 >
-                  <Avatar src={certificateData.recipient || ""} />
+                  <Avatar src={certificateData.certificate.recipient || ""} />
                   <Typography
                     sx={{
                       fontSize: "15px",
@@ -395,7 +396,7 @@ export default function CertificateDetailPage({
                       ml: 1,
                     }}
                   >
-                    {certificate.name}
+                    {certificateData.certificate.name}
                   </Typography>
                 </Box>
               </Box>
@@ -424,6 +425,6 @@ export default function CertificateDetailPage({
           </Box>
         </Box>
       </Container>
-    </div>
+    </Box>
   );
 }

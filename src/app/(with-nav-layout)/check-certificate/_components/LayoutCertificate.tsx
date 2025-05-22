@@ -5,6 +5,7 @@ import moment from "moment";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
+import LayoutCertificateBg from "@/assets/images/layout-certificate.jpg"
 
 interface CertificateData {
   certificate: {
@@ -32,7 +33,7 @@ export default function LayoutCertificate({ data }: LayoutCertificateProps) {
     >
       <div style={{ position: "relative" }}>
         <Image
-          src="../../../../assets/layout-certificate.jpg" 
+          src={LayoutCertificateBg}
           alt="certificate"
           width={1000}
           height={700}

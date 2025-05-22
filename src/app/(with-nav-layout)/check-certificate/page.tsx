@@ -38,7 +38,7 @@ export default function CertificateVerificationPage() {
         setError(response.error);
         setCertificateData(null);
       } else {
-        setCertificateData({ certificate: response.data });
+        setCertificateData({ certificate: response.data.certificate });
         setError(null);
       }
     } catch (err) {
