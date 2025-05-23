@@ -1,15 +1,15 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-// import userEvent from "@testing-library/user-event"; // Tidak digunakan di tes spesifik ini
+import userEvent from "@testing-library/user-event";
 import * as sportStore from "@/store/actions/sport";
 import * as eventStore from "@/store/actions/event";
-import { AuthProvider } from "@/context/auth.context";
-import { NotificationProvider } from '@/context/notification.context'; // Ditambahkan
 import { AUTH_DATA } from "@/store/auth";
 import { EVENT_INFINITY } from "@/store/event";
 import { SPORT_ALL } from "@/store/sport";
 import Tournament from "../page";
 import WrapperContext from "@/app/wrapper";
+import { EventInfinityResponse } from "@/types/event.type";
+import { SportResponseMultiple } from "@/types/sport.type";
 
 jest.mock("@/store/actions/event");
 jest.mock("@/store/actions/sport");
@@ -22,15 +22,25 @@ jest.mock("@/context/auth.context", () => {
   };
 });
 
+interface EventInfinityMockResponse extends EventInfinityResponse {
+  status: number;
+}
 
-describe("Unit Testing Halaman List Tournament View", () => {
-    
+interface SportMockResponse extends SportResponseMultiple{
+  status: number;
+}
+
+describe("Unit Testing Halaman List Tournament View", () => {    
   beforeEach(() => {
     jest.clearAllMocks();
-    const mockEventInfinityData = {...EVENT_INFINITY};
-    mockEventInfinityData.status = 200;
-    const sportsDataAll = {...SPORT_ALL};
-    sportsDataAll.status = 200;
+    const mockEventInfinityData: EventInfinityMockResponse = {
+      ...EVENT_INFINITY,
+      status: 200,
+    };
+    const sportsDataAll:SportMockResponse = {
+      ...SPORT_ALL,
+      status: 200,
+    };
     (eventStore.getTournamentInfinity as jest.Mock).mockResolvedValue(mockEventInfinityData);
 
     (sportStore.getSport as jest.Mock).mockResolvedValue(sportsDataAll);
@@ -53,8 +63,12 @@ describe("Unit Testing Halaman List Tournament View", () => {
     })
 
     await waitFor(() => {
+      expect(sportStore.getSport).toHaveBeenCalled();
+    })
+
+    await waitFor(() => {
       expect(skeleton).not.toBeInTheDocument();
-    });
+    })
 
     // Merender jumlah kartu turnamen yang sesuai
     await waitFor(() => {
@@ -63,73 +77,66 @@ describe("Unit Testing Halaman List Tournament View", () => {
     });
   });
 
-/*
-
-  it('Menampilkan DialogProfileBasic saat tombol edit diklik', async () => {
-    render(
-      <AuthProvider>
-        <NotificationProvider>
-          <UserProfile />
-        </NotificationProvider>
-      </AuthProvider>
-    );
-
-    const editButton = screen.getByTestId('edit-button');
-    await userEvent.click(editButton);
-    await waitFor(() => {
-        // Memastikan form edit di render
-      expect(screen.getByRole("button", { name: /simpan/i })).toBeInTheDocument();
-    }, {interval: 1000});
-  });
-
-  it("Menampilkan notifikasi 'data kosong' saat tombol edit diklik dan fail fetch", async () => {
-    (profileStore.getProfileData as jest.Mock).mockRejectedValue(new Error("Error fetching data"));
+  it("Menguji jendela filter mobile",async ()=>{
+    // Mocking useMediaQuery menjadi ukuran md
+    jest.mock('@mui/material/useMediaQuery',() => (true));
 
     render(
-      <AuthProvider>
-        <NotificationProvider>
-          <UserProfile />
-        </NotificationProvider>
-      </AuthProvider>
+      <WrapperContext>
+          <Tournament />
+      </WrapperContext>
     );
+    const skeleton = document.querySelector('.MuiSkeleton-root');
 
-    const editButton = screen.getByTestId('edit-button');
-    await userEvent.click(editButton);
     await waitFor(() => {
-        expect(screen.getByText("Data profil Kosong")).toBeInTheDocument();
+      expect(skeleton).not.toBeInTheDocument();
+    })
+
+    await waitFor(async () => {
+      const filterButton = screen.getByTestId("filter-button-mobile-test");
+      expect(filterButton).toBeInTheDocument();
+      
+      await userEvent.click(filterButton);
+      waitFor(() => {
+        // Window filter terbuka
+        expect(screen.getByText("Tipe Olahraga")).toBeInTheDocument();
+      })
     })
   })
 
-  it("Menangani error saat memuat data dan menampilkan notifikasi", async () => {
-    (profileStore.getProfileData as jest.Mock).mockRejectedValue(new Error("Error fetching data"));
+  it("Menguji handle saat gagal akses server API Tournament", async () => {
+    (eventStore.getTournamentInfinity as jest.Mock).mockRejectedValue(new Error("Error fetching data"));
 
     render(
-      <AuthProvider>
-          <UserProfile />
-        </NotificationProvider>
-      </AuthProvider>
+      <WrapperContext>
+          <Tournament />
+      </WrapperContext>
     );
+
     await waitFor(() => {
-      // Memastikan notifikasi error muncul dengan pesan yang benar
-      expect(screen.getByText("Gagal memuat data profil")).toBeInTheDocument();
-    });
-  });
+      expect(eventStore.getTournamentInfinity).toHaveBeenCalled();
+    })
 
-  it("Menampilkan tulisan update profile saat, can_participate false", async () => {
-    const editedResponse = {...userProfileData}
-    editedResponse.data.can_participate = false;
+    await waitFor(() => {
+      expect(screen.getByText("Gagal mengakses server")).toBeInTheDocument();
+    })
+  })
 
-    (profileStore.updateProfileData as jest.Mock).mockResolvedValue(editedResponse);
+  it("Menguji handle saat gagal akses server API Sport", async () => {
+    (sportStore.getSport as jest.Mock).mockRejectedValue(new Error("Error fetching data"));
 
     render(
-      <AuthProvider>
-        <NotificationProvider>
-          <UserProfile />
-        </NotificationProvider>
-      </AuthProvider>
+      <WrapperContext>
+          <Tournament />
+      </WrapperContext>
     );
 
-    await waitFor(() => expect(screen.getByText("Update Profile Sekarang")).toBeInTheDocument());
-  });
-  */
+    await waitFor(() => {
+      expect(sportStore.getSport).toHaveBeenCalled();
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText("Gagal mengakses server")).toBeInTheDocument();
+    })
+  })
 });

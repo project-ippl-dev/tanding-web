@@ -34,11 +34,15 @@ async function reqSport(
   category: string = '',
   notification: NotificationContextProps
 ) {
-  const response = await getSport("", "", keyword, category);
-  if ([200,201].includes(response.status)) {
-    setData(response);
-  } else {
-    notification.showNotification("Gagal mengambil data olahraga", "error");
+  try{
+    const response = await getSport("", "", keyword, category);
+    if ([200,201].includes(response.status)) {
+      setData(response);
+    } else {
+      notification.showNotification("Gagal mengambil data olahraga", "error");
+    }
+  } catch (error) {
+    notification.showNotification("Gagal mengakses server", "error");
   }
 }
 
@@ -51,18 +55,22 @@ async function reqTournamentInfinity(
   setData: (data: EventInfinityResponse) => void,
   notification: NotificationContextProps
 ) {
-  const response = await getTournamentInfinity({
-    limit: limit,
-    type: type,
-    sport_id: sport_id,
-    search: search,
-    remark: remark,
-  });
-  if ([200, 201].includes(response.status)) {
-    console.log("Tournament Infinity Response: ", response);
-    setData(response);
-  } else {
-    notification.showNotification("Gagal mengambil data turnamen", "error");
+  try{
+    const response = await getTournamentInfinity({
+      limit: limit,
+      type: type,
+      sport_id: sport_id,
+      search: search,
+      remark: remark,
+    });
+    if ([200, 201].includes(response.status)) {
+      console.log("Tournament Infinity Response: ", response);
+      setData(response);
+    } else {
+      notification.showNotification("Gagal mengambil data turnamen", "error");
+    }
+  } catch (error) {
+    notification.showNotification("Gagal mengakses server", "error");
   }
 }
 
@@ -73,7 +81,6 @@ const TournamentContent = () => {
   const notification = useNotification();
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
-  const isMdDown = useMediaQuery(theme.breakpoints.down("md"));
 
   const [sportData, setSportData] = useState<SportResponseMultiple | null>(null);
   const alreadyFetch = useRef(false);
@@ -163,16 +170,18 @@ const TournamentContent = () => {
                 startIcon={<FilterListIcon />}
                 sx={{ borderRadius: 0 }}
                 variant="outlined"
+                data-testid="filter-button-test"
                 onClick={handleHideFilter}
               >
                 Filter
               </Button>
             )}
-            {isMdDown && (
+            {!isMdUp && (
               <Button
                 startIcon={<FilterListIcon />}
                 sx={{ borderRadius: 0 }}
                 variant="outlined"
+                data-testid="filter-button-mobile-test"
                 onClick={() => setDialogFilter(true)}
               >
                 Filter
