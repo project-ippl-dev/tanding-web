@@ -1,13 +1,15 @@
 import { EVENT, EVENT_INFINITY, EVENT_PARTICIPANTS } from "@/store/event";
 import WrapperContext from "@/app/wrapper";
 import * as eventStore from "@/store/actions/event";
+import * as bracketStore from "@/store/actions/bracket";
 import TournamentDetailPage from "../page";
 import { render, screen, waitFor } from "@testing-library/react";
 import * as navigation from "next/navigation";
+import { BracketSingle } from "@/store/bracket";
 
 jest.mock("next/navigation");
-
 jest.mock("@/store/actions/event");
+jest.mock("@/store/actions/bracket");
 
 describe('Tournament Page', () => {
     beforeEach(() => {
@@ -72,4 +74,31 @@ describe('Tournament Page', () => {
             expect(screen.getByText(EVENT_PARTICIPANTS.data[0].name)).toBeInTheDocument();
         });
     });
+
+    it("Memeriksa bagian bracket di render dengan benar", async () => {
+        (bracketStore.getBracketDetails as jest.Mock).mockResolvedValue({
+            ...BracketSingle,
+            status: 200,
+        })
+
+        render(
+            <WrapperContext>
+                <TournamentDetailPage />
+            </WrapperContext>
+        );
+
+        await waitFor(() => {
+            expect(eventStore.getTournamentInfinity).toHaveBeenCalled();
+        })
+
+        await waitFor(async () => {
+            const tabBracket = screen.getByTestId("tab-bracket");
+            expect(tabBracket).toBeInTheDocument();
+            tabBracket.click();
+
+            expect(bracketStore.getBracketDetails).toHaveBeenCalled();
+            expect(screen.getByText("Bracket")).toBeInTheDocument();
+        });
+        
+    })
 })

@@ -8,13 +8,9 @@ import FinalResult from "./parts/Bracket/FinalResult";
 import { useParams } from "next/navigation";
 import { EventData } from "@/types/event.type";
 // import { fetchProxyApi } from "@/utils/request";
-import { useAuth } from "@/context/auth.context";
 import {
-  BracketOrderResponse,
   BracketResponse,
-  BracketSingleResponse,
 } from "@/types/bracket.type";
-import { AuthData } from "@/types/auth.type";
 import SingleElimination from "./SingleElimination";
 import { useLoading } from "@/context/loading.context";
 import { getBracketDetails } from "@/store/actions/bracket";
@@ -33,7 +29,6 @@ export default function Bracket({
   data: EventData | null; // Replace with actual type
 }) {
   const params = useParams();
-  const { authData }: AuthData = useAuth();
   const [selected, setSelected] = useState<string>("");
   const [bracket, setBracket] = useState<BracketResponse>({
     singleBracket: null,
@@ -56,12 +51,10 @@ export default function Bracket({
         classID: selected || "",
       });
 
-      console.log('serverResponse:', serverResponse)
 
       if (!serverResponse) {
         alert("Gagal mengambil data, dengan error: " + serverResponse.error);
       } else {
-        console.log('masuk ga', serverResponse);
         setBracket((prevState) => {
           const result = { ...prevState };
           // if (serverResponse.data.match_type === "single") {
