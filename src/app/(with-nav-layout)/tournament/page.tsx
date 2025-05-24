@@ -64,7 +64,6 @@ async function reqTournamentInfinity(
       remark: remark,
     });
     if ([200, 201].includes(response.status)) {
-      console.log("Tournament Infinity Response: ", response);
       setData(response);
     } else {
       notification.showNotification("Gagal mengambil data turnamen", "error");

@@ -38,7 +38,11 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, t
   const router = useRouter();
 
   return (
-    <div data-testid={dataTestId}>
+    <Box data-testid={dataTestId}
+      onClick={() => {
+        router.push(`/${targetEventUrl}/${data.id}`);
+      }}
+    >
       <Box
         sx={{
           cursor: "pointer",
@@ -46,9 +50,6 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, t
           alignItems: "center",
           margin: { xs: 2, md: "13.6px 16px" },
           flexDirection: { xs: "column", md: "row" },
-        }}
-        onClick={() => {
-          router.push(`/${targetEventUrl}/${data.id}`);
         }}
       >
         <Box sx={{ position: "relative" }}>
@@ -196,7 +197,7 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, t
         </Box>
       </Box>
       <Divider />
-    </div>
+    </Box>
   );
 };
 

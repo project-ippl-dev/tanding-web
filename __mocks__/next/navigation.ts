@@ -4,7 +4,7 @@ const mockRouter = {
   route: '/',
   query: {},
   asPath: '/',
-  push: jest.fn(() => Promise.resolve(true)),
+  push: jest.fn((url: string) => Promise.resolve(true)),
   replace: jest.fn(() => Promise.resolve(true)),
   reload: jest.fn(),
   back: jest.fn(),

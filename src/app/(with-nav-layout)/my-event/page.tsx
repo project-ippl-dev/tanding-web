@@ -10,6 +10,8 @@ import { EventOwnResponse } from "@/types/event.type";
 import { getOwnTournament } from "@/store/actions/event";
 import CustomPagination from "@/components/common/CustomPagination";
 import SecondTournamentItem from "@/components/SecondTournamentItem";
+import { useNotification } from "@/context/notification.context";
+import { NotificationContextProps } from "@/types/notification.type";
 
 const StyledTabs = styled((props: TabsProps) => (
   <Tabs {...props} 
@@ -75,19 +77,28 @@ const RootStyle = styled("div")(({ theme }: { theme: Theme }) => ({
 
 const page_size = 10;
 
-async function reqTournamentDetailData(page:number, page_size:number,setData:(data:EventOwnResponse)=>void) {
-  const response = await getOwnTournament({page,page_size});
-  if (response.status === 200) {
-    setData(response);
-  } else {
-    throw new Error("Failed to fetch tournament data");
+async function reqTournamentDetailData(
+  page:number, 
+  page_size:number,
+  setData:(data:EventOwnResponse)=>void,
+  notification?: NotificationContextProps
+) {
+  try {
+    const response = await getOwnTournament({page,page_size});
+    if (response.status === 200) {
+      setData(response);
+    } else {
+      throw new Error("Failed to fetch tournament data");
+    }
+  } catch (error) {
+    notification?.showNotification("Gagal dalam mengambil data turnamen", "error");
   }
-
 }
 
 export default function OwnTournament () {
   const [tabs, setTabs] = useState(0);
   const [page, setPage] = useState(1);
+  const notification = useNotification();
   const [loading, setLoading] = useState(false);
   const [tournamentOwn, setTournamentOwn] = useState<EventOwnResponse | null>(null);
 
@@ -101,7 +112,7 @@ export default function OwnTournament () {
         setTournamentOwn(data);
       }
       setLoading(true);
-      await reqTournamentDetailData(page, page_size, saveTournamentData);
+      await reqTournamentDetailData(page, page_size, saveTournamentData,notification);
       setLoading(false);
     }
     fetchData();
@@ -146,7 +157,10 @@ export default function OwnTournament () {
           <TabPanel value={tabs} index={0}>
             <Box display="flex" flexDirection="column" justifyContent="center">
               {tournamentOwn?.data.map((value) => (
-                <SecondTournamentItem key={value.id} data={value} targetEventUrl="my-event" />
+                <SecondTournamentItem 
+                  key={value.id}
+                  data-testid="tournament-own-item"
+                  data={value} targetEventUrl="my-event" />
               ))}
             </Box>
             <Box marginY={7}>
