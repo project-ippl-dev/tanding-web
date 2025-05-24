@@ -20,7 +20,7 @@ import { getTournamentInfinity } from "@/store/actions/event";
 // TODO: mengatasi rerendering yang sering, gunakan useMemo
 
 export default function TournamentDetailPage() {
-  const params = useParams();
+  const {id: eventID} = useParams<{id:string}>();
   const { authData } = useAuth();
   const tournamentInfinityData = useRef<EventInfinityResponse>(null);
   const theme = useTheme();
@@ -88,7 +88,7 @@ export default function TournamentDetailPage() {
           padding: theme.spacing(0),
         }}
       >
-        <HeaderTournament eventID={params.id} />
+        <HeaderTournament eventID={eventID} />
         <Box
           sx={{
             padding: theme.spacing(7, 10, 5),

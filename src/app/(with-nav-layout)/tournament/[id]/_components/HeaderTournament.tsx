@@ -20,12 +20,14 @@ import Image from "next/image"; // Import Next.js Image component
 // import { Register, Bracket, Participant } from "./ContentTabs";
 import BannerTanding from "@/assets/images/banner-desktop.jpg";
 import { useAuth } from "@/context/auth.context";
-import { EventData, EventSingleResponse } from "@/types/event.type";
+import { EventData, EventSingleResponse } from "@/types/event.type"; // Removed EventSingleResponse
 import Register from "./Register";
 import Participant from "./Participant";
 import Bracket from "./Bracket";
-import { ParamValue } from "next/dist/server/request/params";
 import { a11yProps } from "@/utils/a11yProps";
+import { getTournamentDetail } from "@/store/actions/event";
+import { NotificationContextProps } from "@/types/notification.type";
+import { useNotification } from "@/context/notification.context";
 
 const StyledTabs = (props: TabsProps) => (
   <Tabs
@@ -86,12 +88,30 @@ const TabPanel = ({
   );
 };
 
+async function reqGetTournamentDetail(
+  id: string, 
+  setData: (data: EventSingleResponse) => void,
+  notification: NotificationContextProps
+) {
+  try {
+      const response = await getTournamentDetail({ id: id }); // Use the id parameter
+      if ([200,201].includes(response.status)) { // Check if response and response.data are not null
+        setData(response);
+      } else {
+        notification.showNotification("Gagal mengambil detail tournament",'error');
+      }
+  } catch (error) {
+    notification.showNotification("Gagal mengakses server",'error');
+  }
+}
+
 
 const HeaderTournament = ({
   eventID,
 }: {
-  eventID: ParamValue;
+  eventID: string | undefined;
 }) => {
+  const notification = useNotification()
   const [tabs, setTabs] = useState(0);
   const isMdDown = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [eventData, setEventData] = useState<EventData | null>(null);
@@ -103,39 +123,17 @@ const HeaderTournament = ({
   };
 
   useEffect(() => {
-    const fetchTournamentDetail = async () => {
-      try {
-        const token = authData?.token.access_token;
-        // console.log(authData)
-        // console.log(token)
-        // if (!token) {
-        //   throw new Error("Failed to fetch data");
-        // }
-        const url = `/api/event/detail/${eventID}`;
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const data: EventSingleResponse = await response.json();
-        console.log(data);
-        setEventData(data.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     if (eventID) {
-      fetchTournamentDetail();
+      reqGetTournamentDetail(
+        eventID,
+        (response: EventSingleResponse) => {
+          setEventData(response.data);
+        },
+        notification
+      );
       setTabs(0);
     }
   }, [authData?.token.access_token, eventID]);
-
   return (
     <Box
       sx={{
@@ -232,19 +230,28 @@ const HeaderTournament = ({
                     <Typography>{eventData?.start_date}</Typography>
                   </Box>
                 </Box>
-                <Box sx={{ marginTop: { xs: 0, md: 4 } }}>
+                <Box sx={{ 
+                  marginTop: { xs: 0, md: 4 },
+                  color: "#fff",
+                  }}>
                   <StyledTabs
                     value={tabs}
                     onChange={handleTabs}
-                    textColor="#fff"
+                    textColor="inherit"
                     indicatorColor="primary"
                   >
-                    <StyledTab label="DAFTAR" {...a11yProps(0)} />
-                    <StyledTab label="PESERTA" {...a11yProps(1)} />
+                    <StyledTab 
+                    data-testid="tab-daftar"
+                    label="DAFTAR" {...a11yProps(0)} />
+                    <StyledTab 
+                    data-testid="tab-peserta"
+                    label="PESERTA" {...a11yProps(1)} />
                     {(eventData?.remark === "closed" ||
                       eventData?.remark === "ongoing" ||
                       eventData?.remark === "done") && (
-                      <StyledTab label="BRAKET" {...a11yProps(2)} />
+                      <StyledTab 
+                      data-testid="tab-braket"
+                      label="BRAKET" {...a11yProps(2)} />
                     )}
                   </StyledTabs>
                 </Box>

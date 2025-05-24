@@ -46,6 +46,7 @@ export const __mockSearchParams = mockSearchParams;
 export const __mockPathname = mockPathname;
 
 export const useRouter = jest.fn(() => mockRouter);
+export const useParams = jest.fn();
 export const useSearchParams = jest.fn(() => mockSearchParams);
 export const usePathname = jest.fn(mockPathname); // Call the mockPathname to allow spying on its return value changes
 export const redirect = jest.fn();
@@ -58,6 +59,7 @@ module.exports = {
   ...jest.requireActual('next/navigation'), // Important to spread actual to not break other exports
   useRouter,
   useSearchParams,
+  useParams,
   usePathname,
   redirect,
   permanentRedirect,

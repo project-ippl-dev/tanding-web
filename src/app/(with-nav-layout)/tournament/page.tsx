@@ -71,6 +71,7 @@ async function reqTournamentInfinity(
   } catch (error) {
     notification.showNotification("Gagal mengakses server", "error");
   }
+
 }
 
 // This new component will contain the logic that uses useSearchParams
@@ -349,4 +350,4 @@ const TournamentPageSkeleton = () => {
   );
 };
 
-export default Tournament;
+export default Tournament

@@ -74,7 +74,6 @@ const DialogRegister = ({
       club_id: selectedClub,
       members: members.map((value) => ({ user_id: value })),
     };
-    console.log(data);
     // const url = `/api/event/register/${dataTournament?.id}`;
     // const serverResponse = await postProxyApi(url, authData.token.access_token, data)
 
@@ -122,7 +121,6 @@ const DialogRegister = ({
   }
 
   useEffect(() => {
-    console.log(kelas);
     if (kelas !== "") {
       let index = -1; // Default tidak ketemu
 
@@ -142,7 +140,6 @@ const DialogRegister = ({
       try {
         // const serverResponse = await fetchProxyApi(url, authData.token.access_token)
         const serverResponse = await getMembersOfClub({ clubID: idClub });
-        console.log(serverResponse);
         setMemberOption(serverResponse.data);
       } catch (error) {
         console.error(error);

@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as sportStore from "@/store/actions/sport";
 import * as eventStore from "@/store/actions/event";
@@ -10,6 +10,7 @@ import Tournament from "../page";
 import WrapperContext from "@/app/wrapper";
 import { EventInfinityResponse } from "@/types/event.type";
 import { SportResponseMultiple } from "@/types/sport.type";
+import { useRouter } from "next/navigation";
 
 jest.mock("@/store/actions/event");
 jest.mock("@/store/actions/sport");
@@ -137,6 +138,35 @@ describe("Unit Testing Halaman List Tournament View", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Gagal mengakses server")).toBeInTheDocument();
+    })
+  })
+  
+  it("Menguji url yang dibuat", async () => {
+    const mockRoute = useRouter()
+    
+    render(
+      <WrapperContext>
+          <Tournament />
+      </WrapperContext>
+    );
+
+    await waitFor(() => {
+      expect(sportStore.getSport).toHaveBeenCalled();
+    })
+    
+    await waitFor(() => {
+      expect(eventStore.getTournamentInfinity).toHaveBeenCalled();
+    })
+
+    await waitFor(async () => {
+      const tournamentItems = screen.getAllByTestId("tournament-item");
+
+      tournamentItems.forEach((item,index) => {
+        fireEvent.click(item);
+        expect(mockRoute.push).toHaveBeenCalledWith(`/tournament/${EVENT_INFINITY.data[index].id}`);
+      });
+
+
     })
   })
 });

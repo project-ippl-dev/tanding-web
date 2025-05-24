@@ -39,8 +39,8 @@ export default function Participant() {
 
   const [expanded, setExpanded] = useState<string | false>(false);
   const [participants, setParticipants] = useState<
-    EventParticipantsResponse | []
-  >([]);
+    EventParticipantsResponse | null
+  >(null);
 
   useEffect(() => {
     async function getParticipants() {
@@ -62,7 +62,6 @@ export default function Participant() {
       } else {
         // setParticipants(serverResponse.data);
         setParticipants(serverResponse);
-        console.log(serverResponse);
       }
 
       if (loadingObj.changeState) loadingObj.changeState(false);
@@ -71,7 +70,7 @@ export default function Participant() {
     getParticipants();
   }, []);
 
-  const handleChange = (panel) => (event, isExpanded) => {
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
 
@@ -88,15 +87,16 @@ export default function Participant() {
         </Typography>
       </Box>
       <Box paddingTop={3}>
-        {participants?.data?.map((value, index) => (
-          <Accordion
-            key={`peserta${index + 1}`}
-            expanded={expanded === `panel${index + 1}` ? true : false}
-            onChange={handleChange(`panel${index + 1}`)}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              sx={{
+        {!participants ? "" :
+          participants?.data?.map((value, index) => (
+            <Accordion
+              key={`peserta${index + 1}`}
+              expanded={expanded === `panel${index + 1}` ? true : false}
+              onChange={handleChange(`panel${index + 1}`)}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{
                 padding: "0 24px",
                 "@media (max-width: 960px)": { padding: "0" },
               }}

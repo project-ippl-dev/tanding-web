@@ -88,10 +88,10 @@ async function reqTournamentDetailData(
     if (response.status === 200) {
       setData(response);
     } else {
-      throw new Error("Failed to fetch tournament data");
+      notification?.showNotification("Gagal dalam mengambil data turnamen", "error");
     }
   } catch (error) {
-    notification?.showNotification("Gagal dalam mengambil data turnamen", "error");
+    notification?.showNotification("Gagal dalam mengakses sever");
   }
 }
 

@@ -21,7 +21,10 @@ const CardTournaments = ({ data }: {data:Array<EventInfinityData>}) => {
         style={{ width: "100%", paddingBottom: "5px" }}
       >
         {data.map((value, index) => (
-          <CardTournamentItem key={index} data={value} />
+          <CardTournamentItem 
+          data-testid="card-tournament-item"
+          key={index} 
+          data={value} />
         ))}
       </Tabs>
     </>

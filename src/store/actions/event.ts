@@ -15,7 +15,6 @@ export async function getTournamentDetail({ id }: { id: string }) {
 
   const url = `/event/${id}`;
   const result = await handleFetch({ url, method: 'GET' });
-
   return result;
 }
 
@@ -46,10 +45,8 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
 
 export async function getTournamentParticipants({ eventID }: { eventID: string | string[] }) {
 
-  if(process.env.BYPASS_REQ_AUTH === 'true') return EVENT_PARTICIPANTS
   const url = `/event/${eventID}/participant`;
   const result = await handleFetch({ url, method: 'GET' });
-
   return result;
 }
 

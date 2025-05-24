@@ -67,7 +67,7 @@ describe("Unit Testing Halaman List Tournament View", () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText("Gagal dalam mengambil data turnamen")).toBeInTheDocument();
+        expect(screen.getByText("Gagal dalam mengakses sever")).toBeInTheDocument();
       })
     })
 

@@ -22,11 +22,15 @@ const statusColor = (status: string): string => {
   return colors.grey[700];
 };
 
-const CardTournamentItem = ({ data }: { data: EventInfinityData }) => {
+const CardTournamentItem = ({ 
+  data, "data-testid":dataTestid }: { 
+  data: EventInfinityData, "data-testid"?: string }) => {
   const router = useRouter();
 
   return (
-    <div style={{ width: "230px", margin: "0 8px", paddingBottom: "5px" }}>
+    <div 
+    data-testid={dataTestid}
+    style={{ width: "230px", margin: "0 8px", paddingBottom: "5px" }}>
       <Card
         sx={{
           cursor: "pointer",
