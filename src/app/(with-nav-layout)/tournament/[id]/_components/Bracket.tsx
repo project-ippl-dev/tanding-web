@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, TextField, MenuItem } from "@mui/material";
+import { Box, Typography, Grid, MenuItem, FormControl, InputLabel, NativeSelect } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import OrderElimination from "./OrderElimination";
@@ -124,7 +124,9 @@ export default function Bracket({
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer 
+      className="bracket-container"
+    >
       <Box marginTop={3}>
         <Typography
           sx={{
@@ -132,27 +134,33 @@ export default function Bracket({
             fontWeight: "bold",
           }}
         >
-          Bagan Tournament
+          Bagan Turnamen
         </Typography>
       </Box>
       <div>
         <Grid container justifyContent="center">
           <Grid size={{ xs: 12, md: 5 }}>
-            <TextField
-              fullWidth
-              select
-              margin="normal"
-              variant="outlined"
-              label="Pilih Kelas Pertandingan"
-              value={selected}
-              onChange={({ target: { value } }) => setSelected(value)}
-            >
-              {data?.class_events.map((value) => (
-                <MenuItem value={value.id} key={value.id}>
-                  {value.class_name}
-                </MenuItem>
-              ))}
-            </TextField>
+            <FormControl fullWidth margin="normal" variant="standard">
+              <InputLabel id="select-class-event-label">Pilih Kelas Pertandingan</InputLabel>
+              <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                Pilih Kelas Pertandingan
+              </InputLabel>
+              <NativeSelect
+                data-testid="select-class-event"
+                value={selected}
+                onChange={({ target: { value } }) => setSelected(value)}
+                inputProps={{
+                  name: "class_event",
+                  id: "uncontrolled-native",
+                }}
+              >
+                {data?.class_events.map((value) => (
+                  <option value={value.id} key={value.id}>
+                    {value.class_name}
+                  </option>
+                ))}
+              </NativeSelect>
+            </FormControl>
           </Grid>
         </Grid>
       </div>

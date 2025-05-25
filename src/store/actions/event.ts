@@ -1,7 +1,7 @@
 'use server';
 import { EventUpdatePayload } from '@/types/event.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
-import { EVENT_PARTICIPANTS } from '../event';
+import { EVENT, EVENT_PARTICIPANTS } from '../event';
 
 interface InfinityQueryParams {
   limit: number;
@@ -12,7 +12,13 @@ interface InfinityQueryParams {
 }
 
 export async function getTournamentDetail({ id }: { id: string }) {
+  const testData = {
+    ...EVENT,
 
+    status: 200
+  }
+  testData.data.remark = 'open'; // Simulating ongoing status for testing purposes
+  return testData;
   const url = `/event/${id}`;
   const result = await handleFetch({ url, method: 'GET' });
   return result;

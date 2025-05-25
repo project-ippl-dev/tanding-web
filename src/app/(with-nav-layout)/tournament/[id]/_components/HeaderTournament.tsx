@@ -230,7 +230,9 @@ const HeaderTournament = ({
                     <Typography>{eventData?.start_date}</Typography>
                   </Box>
                 </Box>
-                <Box sx={{ 
+                <Box 
+                  data-testid="tabs-header"
+                  sx={{ 
                   marginTop: { xs: 0, md: 4 },
                   color: "#fff",
                   }}>
@@ -307,7 +309,7 @@ const HeaderTournament = ({
           <TabPanel value={tabs} index={0}>
             <Register
               data={eventData}
-              canRegister={authData?.can_participate}
+              canRegister={authData?.can_participate || false}
             />
           </TabPanel>
           <TabPanel value={tabs} index={1}>
