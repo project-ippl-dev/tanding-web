@@ -12,13 +12,15 @@ interface InfinityQueryParams {
 }
 
 export async function getTournamentDetail({ id }: { id: string }) {
+
+  /*
   const testData = {
     ...EVENT,
 
     status: 200
   }
   testData.data.remark = 'open'; // Simulating ongoing status for testing purposes
-  return testData;
+  return testData;*/
   const url = `/event/${id}`;
   const result = await handleFetch({ url, method: 'GET' });
   return result;

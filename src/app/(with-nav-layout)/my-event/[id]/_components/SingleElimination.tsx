@@ -33,7 +33,7 @@ const RenderSeed = ({ breakpoint, seed }) => {
                     }}
                   />
                   <Typography style={{ fontSize: "13px" }}>
-                    {seed.teams?.[0]?.club_name || "-----------"}
+                    {seed.teams?.[0]?.club_name.String || "-----------"}
                   </Typography>
                 </div>
                 <Typography style={{ fontSize: "13px" }}>

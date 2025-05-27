@@ -211,6 +211,7 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
                     fontWeight: "bold",
                     marginTop: 1,
                   }}
+                  data-testid="register-button"
                   onClick={handleRegister}
                   disabled={data?.remark !== "open"}
                 >

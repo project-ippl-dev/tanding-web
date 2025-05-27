@@ -122,7 +122,6 @@ const DialogRegister = ({
   }
 
   useEffect(() => {
-    console.log(kelas);
     if (kelas !== "") {
       let index = -1; // Default tidak ketemu
 
@@ -254,7 +253,7 @@ const DialogRegister = ({
               value={selectedClub}
               onChange={({ target: { value } }) => setSelectedClub(value)}
             >
-              {authData ? authData.clubs.map((value) => (
+              {authData?.clubs ? authData.clubs.map((value) => (
                 <MenuItem key={value.id} value={value.id}>
                   {value.name}
                 </MenuItem>

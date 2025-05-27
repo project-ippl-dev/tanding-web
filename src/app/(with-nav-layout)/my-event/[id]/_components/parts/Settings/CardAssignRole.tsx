@@ -37,7 +37,6 @@ import { useLoading } from "@/context/loading.context";
 async function reqGetUser(userInput: string, setData:(data: UserData[])=>void, limit: number = 5) {
   // Get user data
   const response = await searchUser(userInput, limit);
-  console.log("response user", response);
   if (response.status === 200) {
     setData(response.data);
   } else {
@@ -240,7 +239,9 @@ const CardAssignRole = ({
                   onMouseEnter={() => setSelectedId(value.id)}
                   onMouseLeave={() => setSelectedId(undefined)} // Set to undefined
                 >
-                  <Box marginBottom={2} display="flex" alignItems="center">
+                  <Box 
+                  data-testid={`committee-member-info`}
+                  marginBottom={2} display="flex" alignItems="center">
                     <div>
                       <Typography
                         sx={{ fontWeight: "bold", fontSize: "16px" }}

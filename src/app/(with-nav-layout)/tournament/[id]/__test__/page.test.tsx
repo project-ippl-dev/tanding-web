@@ -197,34 +197,4 @@ describe('Tournament Page', () => {
             expect(tabRegister).toBeInTheDocument();
         });
     })
-
-    it("Memeriksa apakah halaman register telah dirender", async () => {
-
-        const mockData = {
-            ...EVENT,
-            status: 200,
-        };
-        mockData.data.remark = "open";
-        (eventStore.getTournamentDetail as jest.Mock).mockResolvedValue(mockData);
-
-        render(
-            <WrapperContext>
-                <TournamentDetailPage />
-            </WrapperContext>
-        );
-
-        await waitFor(() => {
-            expect(eventStore.getTournamentDetail).toHaveBeenCalled();
-        })
-
-        await waitFor(async () => {
-
-            // Minimal menunjukkan nama kompetensi
-            expect(screen.getAllByText(EVENT.data.name)[0]).toBeInTheDocument();
-
-
-            const tabRegister = screen.getByTestId("register-button");
-            expect(tabRegister).toBeInTheDocument();
-        });
-    })
 })

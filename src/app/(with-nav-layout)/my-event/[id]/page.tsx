@@ -38,27 +38,30 @@ import Bracket from "./_components/Bracket";
 import Setting from "./_components/Setting";
 import Keuangan from "./_components/Keuangan";
 import { LoadingProvider } from "@/context/loading.context";
+import { useNotification } from "@/context/notification.context";
 
 
 const OwnTournamentDetail = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const params = useParams<{ id: string }>();
+  const notification = useNotification()
   const [tabs, setTabs] = useState<number>(0);
   const [tournament, setTournament] = useState<EventSingleResponse | null>(null);
   const theme = useTheme();
-  const isMdDown = useMediaQuery(theme.breakpoints.down("md"));
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
   const loadingElement = (
     <Backdrop
       open={loading}
+      data-testid="backdrop-loading"
       sx={{
         color: "#fff",
         zIndex: (theme) => theme.zIndex.drawer + 1000,
         backgroundColor: "rgba(0, 0, 0, 0.3)", // Transparent background
       }}
     >
-      <CircularProgress color="inherit" />
+      <CircularProgress
+        color="inherit" />
     </Backdrop>
   );
 
@@ -69,12 +72,10 @@ const OwnTournamentDetail = () => {
   useEffect(() => {
     async function fetchTournamentDetail(id: string) {
       const response: EventSingleResponse = await getTournamentDetail({ id });
-
-      console.log("response", response);
       if (response) {
         setTournament(response);
       } else {
-        alert("Gagal mengambil data, dengan error: " + response.message);
+        notification.showNotification("Gagal mengambil data turnamen", "error");
       }
     }
 
@@ -171,25 +172,34 @@ const OwnTournamentDetail = () => {
                 <Box sx={{ marginTop: { xs: 0, md: 4 } }}>
                   {isMdUp && (
                     <StyledTabs
+                      data-testid="tabs"
                       value={tabs}
                       onChange={handleTabs}
                       indicatorColor="primary"
                     >
-                      <StyledTab label="PREVIEW" {...a11yProps(0)} />
-                      <StyledTab label="PESERTA" {...a11yProps(1)} />
+                      <StyledTab 
+                        data-testid="tab-mobile-preview"
+                        label="PREVIEW" {...a11yProps(0)} />
+                      <StyledTab 
+                        data-testid="tab-mobile-peserta"
+                        label="PESERTA" {...a11yProps(1)} />
                       <StyledTab label="BRAKET" {...a11yProps(2)} />
                       {(tournament?.data?.user_privilege.role === "owner" ||
                         tournament?.data?.user_privilege.role ===
                           "admin") && (
-                        <StyledTab label="SETTING" {...a11yProps(3)} />
+                        <StyledTab 
+                        data-testid="tab-mobile-setting"
+                        label="SETTING" {...a11yProps(3)} />
                       )}
                       {tournament?.data?.user_privilege.role ===
                         "owner" && (
-                        <StyledTab label="KEUANGAN" {...a11yProps(4)} />
+                        <StyledTab 
+                        data-testid="tab-mobile-keuangan"
+                        label="KEUANGAN" {...a11yProps(4)} />
                       )}
                     </StyledTabs>
                   )}
-                  {isMdDown && (
+                  {!isMdUp && (
                     <Tabs
                       value={tabs}
                       onChange={handleTabs}
@@ -198,17 +208,26 @@ const OwnTournamentDetail = () => {
                       textColor="inherit"
                       indicatorColor="primary"
                     >
-                      <Tab label="PREVIEW" {...a11yProps(0)} />
-                      <Tab label="PESERTA" {...a11yProps(1)} />
-                      <Tab label="BRAKET" {...a11yProps(2)} />
+                      <Tab 
+                      label="PREVIEW" {...a11yProps(0)} />
+                      <Tab 
+                        data-testid="tab-peserta"
+                        label="PESERTA" {...a11yProps(1)} />
+                      <Tab 
+                        data-testid="tab-braket"
+                        label="BRAKET" {...a11yProps(2)} />
                       {(tournament?.data?.user_privilege.role === "owner" ||
                         tournament?.data?.user_privilege.role ===
                           "admin") && (
-                        <Tab label="SETTING" {...a11yProps(3)} />
+                        <Tab 
+                        data-testid="tab-setting"
+                        label="SETTING" {...a11yProps(3)} />
                       )}
                       {tournament?.data?.user_privilege.role ===
                         "owner" && (
-                        <Tab label="KEUANGAN" {...a11yProps(4)} />
+                        <Tab 
+                        data-testid="tab-keuangan"
+                        label="KEUANGAN" {...a11yProps(4)} />
                       )}
                     </Tabs>
                   )}

@@ -34,7 +34,6 @@ import { updateTournamentDetail } from "@/store/actions/event";
 
 async function reqGetProvince(setData: (data: AddressProvince[]) => void) {
   const response = await getProvince();
-  console.log(response);
   if (response.status === 200) {
     setData(response.data);
   } else {
@@ -255,6 +254,7 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
             </div>
             {formDisabled && (
               <Button
+                data-testid="edit-tournament-data"
                 variant="contained"
                 size="small"
                 color="primary"
@@ -317,6 +317,7 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
               label="Nama Pertandingan"
               placeholder="Tournament Apex Legend Mobile 2th"
               fullWidth
+              data-testid="tournament-name"
               margin="normal"
               {...register("name", { required: "Data harus diisi" })}
               error={!!errors.name}

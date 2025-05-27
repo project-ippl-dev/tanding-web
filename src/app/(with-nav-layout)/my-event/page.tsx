@@ -91,7 +91,7 @@ async function reqTournamentDetailData(
       notification?.showNotification("Gagal dalam mengambil data turnamen", "error");
     }
   } catch (error) {
-    notification?.showNotification("Gagal dalam mengakses sever");
+    notification?.showNotification("Gagal mengakses server");
   }
 }
 

@@ -75,7 +75,9 @@ const DialogDetail: React.FC<DialogDetailProps> = ({ dialog, onClose }) => {
               </TableHead>
               <TableBody>
                 {Object.keys(dialog.data.scores).map((key) => (
-                  <TableRow key={key}>
+                  <TableRow
+                    data-testid={`order-match-detail`}
+                   key={key}>
                     {key !== "id" && (
                       <>
                         <TableCell>{key}</TableCell>
