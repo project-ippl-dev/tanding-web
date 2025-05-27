@@ -1,5 +1,6 @@
 "use client";
-import { AccountCircle, Home } from "@mui/icons-material";
+import { useAuth } from "@/context/auth.context";
+import { AccountCircle, EmojiEvents, Home } from "@mui/icons-material";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -28,6 +29,7 @@ export default function MobileBottomNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [value, setValue] = useState<number | null>(0);
+  const { authData } = useAuth();
 
   const redirectToValueAndPath = (newValue: number, newPath: string) => {
     if (!(newValue === value)) {
@@ -39,8 +41,10 @@ export default function MobileBottomNavbar() {
     const path = pathname.split("/");
     if (path[1] === "") {
       setValue(0);
-    } else if (path[1] === "profile") {
+    } else if (path[1] === "powerlist") {
       setValue(1);
+    } else if (path[1] === "user-profile") {
+      setValue(2);
     } else {
       setValue(null);
     }
@@ -54,11 +58,15 @@ export default function MobileBottomNavbar() {
         onClick={() => redirectToValueAndPath(0, "/")}
       />
       <BottomNavigationAction
+        label="PowerList!"
+        icon={<EmojiEvents style={{ fontSize: "23px" }} />}
+        onClick={() => redirectToValueAndPath(1, "/powerlist")}
+      />
+      {authData ? <BottomNavigationAction
         label="Profil"
         icon={<AccountCircle />}
-        // TODO: Navigate to Profile
-        // onClick={() => router.push("/")}
-      />
+        onClick={() => redirectToValueAndPath(2, "/user-profile")}
+      />: null}
     </StyledBottomNavigation>
   );
 }

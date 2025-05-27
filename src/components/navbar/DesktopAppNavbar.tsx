@@ -6,6 +6,8 @@ import Image from "next/image";
 import AvatarBox from "./AvatarBoxButton";
 import ProfileMenuList from "./menus/ProfileMenuList";
 import KategoriMenuList from "./menus/KategoriMenuList";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth.context";
 
 const DesktopAppNavbarButton = styled(Button)(() => ({
   paddingLeft: 12,
@@ -18,7 +20,8 @@ const DesktopAppNavbarButton = styled(Button)(() => ({
 }));
 
 export default function DesktopAppNavbar() {
-  const isLoggedIn = true; // TODO: Dummy state, replace with actual login state
+  const router = useRouter();
+  const { authData } = useAuth();
   const [anchorElProfile, setAnchorElProfile] = useState(null);
   const [anchorElKategori, setAnchorElKategori] = useState(null);
 
@@ -72,27 +75,37 @@ export default function DesktopAppNavbar() {
               }}
             >
               <Grid container spacing={0.25}>
-                {/* TODO: Navigation */}
                 <DesktopAppNavbarButton
                   variant="text"
                   onClick={handleMenuKategoriOpen}
                 >
                   Kategori
                 </DesktopAppNavbarButton>
-                <DesktopAppNavbarButton variant="text">
+                <DesktopAppNavbarButton
+                  variant="text"
+                  onClick={() => router.push("/ranking")}
+                >
                   Ranking
                 </DesktopAppNavbarButton>
-                <DesktopAppNavbarButton variant="text">
+                <DesktopAppNavbarButton
+                  variant="text"
+                  onClick={() => router.push("/my-event")}
+                >
                   Turnamenku!
                 </DesktopAppNavbarButton>
               </Grid>
               <Grid container spacing={0.25}>
-                {/**TODO: Check login state. If logged in, show Avatar. Else, show loginButton */}
-                {isLoggedIn ? (
-                  <AvatarBox onClick={handleProfileMenuOpen} />
-                ) : (
-                  <div>Logged In</div>
-                )}
+                {authData ? (
+                  <>
+                    <DesktopAppNavbarButton
+                      variant="text"
+                      onClick={() => router.push("/payment")}
+                    >
+                      Kelola Pembayaran
+                    </DesktopAppNavbarButton>
+                    <AvatarBox onClick={handleProfileMenuOpen} />
+                  </>
+                ) : null}
               </Grid>
             </Box>
           </Toolbar>
@@ -103,20 +116,12 @@ export default function DesktopAppNavbar() {
         anchorEl={anchorElProfile}
         open={isProfileMenuOpen}
         onClose={handleProfileMenuClose}
-        // TODO: Replace with actual props
-        // onLogout={authLogout}
-        // auth={auth}
-        // profile={profile}
       />
       <KategoriMenuList
         id="menu-kategori-id"
         anchorEl={anchorElKategori}
         open={isKategoriMenuOpen}
         onClose={handleKategoriMenuClose}
-        // TODO: Replace with actual props
-        // onLogout={authLogout}
-        // auth={auth}
-        // profile={profile}
       />
     </div>
   );

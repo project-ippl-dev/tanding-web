@@ -1,5 +1,5 @@
 "use client";
-import { Menu } from "@mui/icons-material";
+import { Menu, Paid } from "@mui/icons-material";
 import {
   AppBar,
   Box,
@@ -9,6 +9,7 @@ import {
   useScrollTrigger,
 } from "@mui/material";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const HideOnScroll = (props: any) => {
@@ -30,6 +31,7 @@ export default function AppMobileNavbar({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
 }) {
+  const router = useRouter()
   return (
     <>
       <HideOnScroll {...props}>
@@ -51,7 +53,9 @@ export default function AppMobileNavbar({
                 flexGrow: 1,
               }}
             />
-
+            <IconButton onClick={() => router.push("/payment")}>
+              <Paid />
+            </IconButton>
             <IconButton onClick={() => setOpenDrawer(true)}>
               <Menu />
             </IconButton>
