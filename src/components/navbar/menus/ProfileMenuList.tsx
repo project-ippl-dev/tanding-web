@@ -120,7 +120,7 @@ export default function ProfileMenuList({
             </Box>
             <Divider />
             <Divider />
-            {club.map((value) => (
+            {club?.map((value) => (
               <Box
                 key={value.id}
                 sx={{

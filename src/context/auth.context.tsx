@@ -20,7 +20,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authData, setAuthData] = useState<AuthData | null>(AUTH_DATA.data);
+  const [authData, setAuthData] = useState<AuthData | null>(null);
 
   // Restore previous session from localStorage, if any
   useEffect(() => {

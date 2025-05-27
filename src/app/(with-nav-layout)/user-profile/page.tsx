@@ -48,24 +48,6 @@ export default function UserProfile() {
     const fetchProfileData = async () => {
       try {
         setLoadingProfile(true);
-        // const token = ""; // Replace with actual token retrieval logic (in store)
-        // 
-        // const url =
-        //   process.env.NODE_ENV === "development"
-        //     ? "own"
-        //     : authData
-        //     ? authData.user_id
-        //     : ""; //TODO: Handle if accessed without authData
-        // const response = await fetch(`/api/profile/${url}`, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     Authorization: `Bearer ${token}`,
-        //   },
-        // });
-        // if (!response.ok) {
-        //   throw new Error("Failed to fetch data");
-        // }
         const response = await getProfileData({
           uuid: 'own', //NOTE: URL now uses own, uuid is accessible by admin only
         });
@@ -300,7 +282,7 @@ export default function UserProfile() {
                 >
                   {loadingProfile ? (
                     <Skeleton width="100%" height={50} />
-                  ) : authData?.clubs.length && authData?.clubs.length > 0 ? (
+                  ) : authData?.clubs?.length && authData?.clubs.length > 0 ? (
                     authData?.clubs.map((value) => (
                       <div
                         style={{
