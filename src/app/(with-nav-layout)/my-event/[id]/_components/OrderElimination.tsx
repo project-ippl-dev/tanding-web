@@ -8,6 +8,7 @@ import {
   TableRow,
   TableBody,
   IconButton,
+  TableContainer,
 } from "@mui/material";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
 
@@ -26,7 +27,11 @@ interface OrderEliminationProps {
   lockScoreStatus?: boolean;
 }
 
-const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tournament }) => {
+const OrderElimination: React.FC<OrderEliminationProps> = ({
+  bracketData,
+  tournament,
+  selected = "",
+}: OrderEliminationProps) => {
   const [dialogScore, setDialogScore] = useState<DialogState<BracketOrderData>>(
     {
       open: false,
@@ -42,65 +47,69 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({ bracketData, tourna
 
   // Function to handle scoring
   const handleStoreBracketScore = async (
-      eventID: string,
-      bracketID: string,
-      data: ScoreData,
-      classID: string
-    ) => {
-      try {
-        const result = await storeBracketOrderScore({ eventID, bracketID, data, classID });
-        if (result.status === 200) {
-          alert(result.message || "Score has been stored");
-          window.location.reload(); // Refresh to update UI
-        } else {
-          alert("Failed to store score: " + (result.error || "Unknown error"));
-        }
-        return result;
-      } catch (error) {
-        alert("Error storing score: " + error);
-        throw error;
+    eventID: string,
+    bracketID: string,
+    data: ScoreData,
+    classID: string
+  ) => {
+    try {
+      const result = await storeBracketOrderScore({
+        eventID,
+        bracketID,
+        data,
+        classID,
+      });
+      if (result.status === 200) {
+        alert(result.message || "Score has been stored");
+        window.location.reload(); // Refresh to update UI
+      } else {
+        alert("Failed to store score: " + (result.error || "Unknown error"));
       }
-    };
-  
+      return result;
+    } catch (error) {
+      alert("Error storing score: " + error);
+      throw error;
+    }
+  };
 
   return (
     <>
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>No.</TableCell>
-            <TableCell>Club</TableCell>
-            <TableCell>Peserta</TableCell>
-            <TableCell>Points</TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {bracketData.map((value, index) => (
-            <TableRow key={value.id}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{value.club_name}</TableCell>
-              <TableCell>{value.participants[0]}</TableCell>
-              <TableCell>{value.scores?.total || 0}</TableCell>
-              <TableCell>
-                {!!value.scores &&
-                  (tournament?.remark === "ongoing" ||
-                    tournament?.remark === "done") && (
-                    <IconButton
-                      sx={{ padding: "5px" }}
-                      onClick={() =>
-                        setDialogDetail({ open: true, data: value })
-                      }
-                    >
-                      <FindInPageIcon />
-                    </IconButton>
-                  )}
-              </TableCell>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>No.</TableCell>
+              <TableCell>Club</TableCell>
+              <TableCell>Peserta</TableCell>
+              <TableCell>Points</TableCell>
+              <TableCell></TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {bracketData.map((value, index) => (
+              <TableRow key={value.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{value.club_name}</TableCell>
+                <TableCell>{value.participants[0]}</TableCell>
+                <TableCell>{value.scores?.total || 0}</TableCell>
+                <TableCell>
+                  {!!value.scores &&
+                    (tournament?.remark === "ongoing" ||
+                      tournament?.remark === "done") && (
+                      <IconButton
+                        sx={{ padding: "5px" }}
+                        onClick={() =>
+                          setDialogDetail({ open: true, data: value })
+                        }
+                      >
+                        <FindInPageIcon />
+                      </IconButton>
+                    )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </TableContainer>
 
       {dialogScore.open && (
