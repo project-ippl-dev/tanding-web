@@ -21,7 +21,7 @@ export async function handleFetch({
   externalURL = false,
 }: FetchHandlerParams) {
   const headers: HeadersInit = {};
-
+  // throw new Error(`This function is not implemented yet ${url}`); // Placeholder for the actual implementation
   if (isAuthorized) {
     const tokenHeader = (await cookies()).get('access_token')?.value;
     if (!tokenHeader && !(process.env.BYPASS_REQ_AUTH === 'true')) {

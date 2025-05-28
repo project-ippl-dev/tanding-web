@@ -74,15 +74,17 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
 
   return (
     <>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>No.</TableCell>
-              <TableCell>Club</TableCell>
-              <TableCell>Peserta</TableCell>
-              <TableCell>Points</TableCell>
-              <TableCell></TableCell>
+    <TableContainer
+      data-testid="order-elimination-table"
+    >
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>No.</TableCell>
+            <TableCell>Club</TableCell>
+            <TableCell>Peserta</TableCell>
+            <TableCell>Points</TableCell>
+            <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

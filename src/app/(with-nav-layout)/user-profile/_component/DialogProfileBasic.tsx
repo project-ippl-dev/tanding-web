@@ -20,6 +20,7 @@ import Image from "next/image";
 import moment from "moment";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 import { updateProfileData } from "@/store/actions/profile";
+import { useNotification } from "@/context/notification.context";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -61,7 +62,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
   });
 
   const { authData } = useAuth()
-  
+  const notification = useNotification();
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
   const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
 
@@ -129,18 +130,17 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
       //   throw new Error("Failed to update profile");
       // }
 
-      const response = await updateProfileData({ uuid: url, payload: payload})
-      // const result = await response.json();
-      const result = response;
-      console.log(result);
+    const serverResponse  = await updateProfileData({ uuid: url, payload: payload})
 
-      console.log("Profile updated successfully");
-      // action(formData, image || false, profile.data.id, setLoading, profile.data.photo);
-      
-      action(formData);
+    if ([200,201].includes(serverResponse.status)) {
+        notification.showNotification("Profil berhasil diperbarui", "success");
+        action(formData);
+      } else {
+        notification.showNotification("Gagal memperbarui profil", "error");
+      }
       onClose();
     } catch (error) {
-      console.error("Error updating profile:", error);
+      notification.showNotification("Terjadi error saat mengirim data", "error");
     } finally {
       setLoading(false);
     }

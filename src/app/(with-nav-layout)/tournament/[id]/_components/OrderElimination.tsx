@@ -93,7 +93,9 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
 
   return (
     <>
-    <TableContainer>
+    <TableContainer
+      data-testid="order-elimination-table"
+    >
       <Table>
         <TableHead>
           <TableRow>
@@ -119,6 +121,7 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
                   (tournament?.remark === "ongoing" ||
                     tournament?.remark === "done") && (
                     <IconButton
+                      data-testid={`order-match-detail`}
                       sx={{ padding: "5px" }}
                       onClick={() =>
                         setDialogDetail({ open: true, data: value })

@@ -1,7 +1,7 @@
 'use server';
 import { EventUpdatePayload } from '@/types/event.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
-import { EVENT_PARTICIPANTS } from '../event';
+import { EVENT, EVENT_PARTICIPANTS } from '../event';
 
 interface InfinityQueryParams {
   limit: number;
@@ -13,9 +13,16 @@ interface InfinityQueryParams {
 
 export async function getTournamentDetail({ id }: { id: string }) {
 
+  /*
+  const testData = {
+    ...EVENT,
+
+    status: 200
+  }
+  testData.data.remark = 'open'; // Simulating ongoing status for testing purposes
+  return testData;*/
   const url = `/event/${id}`;
   const result = await handleFetch({ url, method: 'GET' });
-
   return result;
 }
 
@@ -24,7 +31,6 @@ export async function getOwnTournament({ page = 1, page_size = 10 }) {
 
   const url = `/event/own?page=${page}&page_size=${page_size}`;
   const result = await handleFetch({ url, method: 'GET' });
-
   return result;
 }
 
@@ -47,10 +53,8 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
 
 export async function getTournamentParticipants({ eventID }: { eventID: string | string[] }) {
 
-  if(process.env.BYPASS_REQ_AUTH === 'true') return EVENT_PARTICIPANTS
   const url = `/event/${eventID}/participant`;
   const result = await handleFetch({ url, method: 'GET' });
-
   return result;
 }
 

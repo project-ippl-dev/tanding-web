@@ -21,7 +21,7 @@ import { NumericFormat } from "react-number-format";
 
 // import { fetchProxyApi, postProxyApi } from "@/utils/request";
 import { useAuth } from "@/context/auth.context";
-import { ClubMemberData } from "@/types/club.type";
+import { ClubMember } from "@/types/club.type";
 import { EventData } from "@/types/event.type";
 import { useLoading } from "@/context/loading.context";
 import { getMembersOfClub } from "@/store/actions/club";
@@ -57,7 +57,7 @@ const DialogRegister = ({
   const [selectedClass, setSelectedClass] = useState<number>(0);
   const [inputUser, setInputUser] = useState("");
   const [selectedClub, setSelectedClub] = useState<string>("");
-  const [clubMemberOption, setMemberOption] = useState<ClubMemberData | null>(
+  const [clubMemberOption, setMemberOption] = useState<ClubMember[] | null>(
     null
   );
   const [members, setMembers] = useState<string[]>([]);
@@ -74,7 +74,6 @@ const DialogRegister = ({
       club_id: selectedClub,
       members: members.map((value) => ({ user_id: value })),
     };
-    console.log(data);
     // const url = `/api/event/register/${dataTournament?.id}`;
     // const serverResponse = await postProxyApi(url, authData.token.access_token, data)
 
@@ -122,7 +121,6 @@ const DialogRegister = ({
   }
 
   useEffect(() => {
-    console.log(kelas);
     if (kelas !== "") {
       let index = -1; // Default tidak ketemu
 
@@ -139,11 +137,11 @@ const DialogRegister = ({
     async function getMemberClub(idClub: string) {
       if (loadingObj.changeState) loadingObj.changeState(true);
       // const url = `/api/club/member/${idClub}`
-      try {
+      try { 
         // const serverResponse = await fetchProxyApi(url, authData.token.access_token)
         const serverResponse = await getMembersOfClub({ clubID: idClub });
-        console.log(serverResponse);
-        setMemberOption(serverResponse.data);
+        console.log("serverResponse", serverResponse);
+        setMemberOption(serverResponse.data?.participants || null);
       } catch (error) {
         console.error(error);
       } finally {
@@ -163,7 +161,7 @@ const DialogRegister = ({
         multiple
         filterSelectedOptions
         options={
-          clubMemberOption?.data.participants.map((value) => ({
+          clubMemberOption?.map((value) => ({
             label: value.name,
             id: value.user_id,
           })) || []

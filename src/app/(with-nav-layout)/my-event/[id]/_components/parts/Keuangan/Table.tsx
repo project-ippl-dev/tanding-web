@@ -120,7 +120,9 @@ const Table: React.FC<TableProps> = ({ payment, page, setPage, status, setStatus
           </Box>
         </Grid>
       </Grid>
-      <TableContainer>
+      <TableContainer
+        data-testid="payment-table"
+      >
         <TableMui>
           <TableHead>
             <TableRow>
@@ -132,7 +134,9 @@ const Table: React.FC<TableProps> = ({ payment, page, setPage, status, setStatus
           </TableHead>
           <TableBody>
             {payment?.data?.map((value, index) => (
-              <TableRow key={value.id}>
+              <TableRow 
+                data-testid={`payment-row-data`}
+                key={value.id}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{value.club_name}</TableCell>
                 <TableCell>

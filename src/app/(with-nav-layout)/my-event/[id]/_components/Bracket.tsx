@@ -7,6 +7,8 @@ import {
   TextField,
   MenuItem,
   Grid,
+  NativeSelect,
+  InputLabel,
 } from "@mui/material";
 
 import SingleElimination from "./SingleElimination";
@@ -112,8 +114,6 @@ const Bracket = ({
         classID: selected || "",
       });
 
-      console.log('serverResponse:', serverResponse)
-
       if (!serverResponse) {
         alert("Gagal mengambil data, dengan error: " + serverResponse.error);
       } else {
@@ -147,8 +147,6 @@ const Bracket = ({
       ? bracket?.singleBracket
       : null;
 
-  console.log(selected);
-  console.log('currentBrack:', bracket?.type );
 
   const BracketDetailContent = currentBracket?.generate_status ? (
     bracket?.type === "order" ? (
@@ -186,27 +184,31 @@ const Bracket = ({
     <div>
       <Box sx={{ padding: { xs: 2, md: 10 }, marginTop: 3 }}>
         <Typography sx={{ fontSize: "23px", fontWeight: "bold" }}>
-          Bagan Tournament
+          Bagan Turnamen
         </Typography>
       </Box>
       <div>
         <Grid sx={{ padding: { xs: 2, md: 10 }}} container justifyContent="center">
           <Grid size={{md:5,xs:12}}>
-            <TextField
+              <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                Pilih Kelas Pertandingan
+              </InputLabel>
+            <NativeSelect
               fullWidth
-              select
-              margin="normal"
               variant="outlined"
-              label="Pilih Kelas Pertandingan"
+              inputProps={{
+                name: "class_event",
+                id: "uncontrolled-native",
+              }}
               value={selected}
               onChange={({ target: { value } }) => setSelected(value)}
             >
-              {data?.class_events.map((value) => (
-                <MenuItem value={value.id} key={value.id}>
-                  {value.class_name}
-                </MenuItem>
-              ))}
-            </TextField>
+                {data?.class_events.map((value) => (
+                  <option value={value.id} key={value.id}>
+                    {value.class_name}
+                  </option>
+                ))}
+            </NativeSelect>
           </Grid>
         </Grid>
       </div>

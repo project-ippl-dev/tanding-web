@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, TextField, MenuItem } from "@mui/material";
+import { Box, Typography, Grid, MenuItem, FormControl, InputLabel, NativeSelect } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import OrderElimination from "./OrderElimination";
@@ -8,13 +8,9 @@ import FinalResult from "./parts/Bracket/FinalResult";
 import { useParams } from "next/navigation";
 import { EventData } from "@/types/event.type";
 // import { fetchProxyApi } from "@/utils/request";
-import { useAuth } from "@/context/auth.context";
 import {
-  BracketOrderResponse,
   BracketResponse,
-  BracketSingleResponse,
 } from "@/types/bracket.type";
-import { AuthData } from "@/types/auth.type";
 import SingleElimination from "./SingleElimination";
 import { useLoading } from "@/context/loading.context";
 import { getBracketDetails } from "@/store/actions/bracket";
@@ -33,7 +29,6 @@ export default function Bracket({
   data: EventData | null; // Replace with actual type
 }) {
   const params = useParams();
-  const { authData }: AuthData = useAuth();
   const [selected, setSelected] = useState<string>("");
   const [bracket, setBracket] = useState<BracketResponse>({
     singleBracket: null,
@@ -56,12 +51,10 @@ export default function Bracket({
         classID: selected || "",
       });
 
-      console.log('serverResponse:', serverResponse)
 
       if (!serverResponse) {
         alert("Gagal mengambil data, dengan error: " + serverResponse.error);
       } else {
-        console.log('masuk ga', serverResponse);
         setBracket((prevState) => {
           const result = { ...prevState };
           // if (serverResponse.data.match_type === "single") {
@@ -138,7 +131,9 @@ export default function Bracket({
   );
 
   return (
-    <StyledContainer>
+    <StyledContainer 
+      className="bracket-container"
+    >
       <Box marginTop={3}>
         <Typography
           sx={{
@@ -146,27 +141,33 @@ export default function Bracket({
             fontWeight: "bold",
           }}
         >
-          Bagan Tournament
+          Bagan Turnamen
         </Typography>
       </Box>
       <div>
         <Grid container justifyContent="center">
           <Grid size={{ xs: 12, md: 5 }}>
-            <TextField
-              fullWidth
-              select
-              margin="normal"
-              variant="outlined"
-              label="Pilih Kelas Pertandingan"
-              value={selected}
-              onChange={({ target: { value } }) => setSelected(value)}
-            >
-              {data?.class_events.map((value) => (
-                <MenuItem value={value.id} key={value.id}>
-                  {value.class_name}
-                </MenuItem>
-              ))}
-            </TextField>
+            <FormControl fullWidth margin="normal" variant="standard">
+              <InputLabel id="select-class-event-label">Pilih Kelas Pertandingan</InputLabel>
+              <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                Pilih Kelas Pertandingan
+              </InputLabel>
+              <NativeSelect
+                data-testid="select-class-event"
+                value={selected}
+                onChange={({ target: { value } }) => setSelected(value)}
+                inputProps={{
+                  name: "class_event",
+                  id: "uncontrolled-native",
+                }}
+              >
+                {data?.class_events.map((value) => (
+                  <option value={value.id} key={value.id}>
+                    {value.class_name}
+                  </option>
+                ))}
+              </NativeSelect>
+            </FormControl>
           </Grid>
         </Grid>
       </div>

@@ -25,17 +25,24 @@ import SecondTournamentItem from "@/components/SecondTournamentItem";
 import DialogFilter from "./_components/DialogFilter";
 import SecondTournamentItemSkeleton from "./_components/SecondTournamentItemSkeleton";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useNotification } from "@/context/notification.context";
+import { NotificationContextProps } from "@/types/notification.type";
 
 async function reqSport(
   setData: (data: SportResponseMultiple) => void,
   keyword: string = '',
-  category: string = ''
+  category: string = '',
+  notification: NotificationContextProps
 ) {
-  const response = await getSport("", "", keyword, category);
-  if ([200,201].includes(response.status)) {
-    setData(response);
-  } else {
-    alert("Gagal mengambil data olahraga, dengan error: " + response.error);
+  try{
+    const response = await getSport("", "", keyword, category);
+    if ([200,201].includes(response.status)) {
+      setData(response);
+    } else {
+      notification.showNotification("Gagal mengambil data olahraga", "error");
+    }
+  } catch (error) {
+    notification.showNotification("Gagal mengakses server", "error");
   }
 }
 
@@ -45,29 +52,35 @@ async function reqTournamentInfinity(
   sport_id: string = "",
   search: string = "",
   remark: string = "",
-  setData: (data: EventInfinityResponse) => void
+  setData: (data: EventInfinityResponse) => void,
+  notification: NotificationContextProps
 ) {
-  const response = await getTournamentInfinity({
-    limit: limit,
-    type: type,
-    sport_id: sport_id,
-    search: search,
-    remark: remark,
-  });
-  if ([200, 201].includes(response.status)) {
-    setData(response);
-  } else {
-    alert("Gagal mengambil data turnamen, dengan error: " + response.error);
+  try{
+    const response = await getTournamentInfinity({
+      limit: limit,
+      type: type,
+      sport_id: sport_id,
+      search: search,
+      remark: remark,
+    });
+    if ([200, 201].includes(response.status)) {
+      setData(response);
+    } else {
+      notification.showNotification("Gagal mengambil data turnamen", "error");
+    }
+  } catch (error) {
+    notification.showNotification("Gagal mengakses server", "error");
   }
+
 }
 
 // This new component will contain the logic that uses useSearchParams
 const TournamentContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const notification = useNotification();
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
-  const isMdDown = useMediaQuery(theme.breakpoints.down("md"));
 
   const [sportData, setSportData] = useState<SportResponseMultiple | null>(null);
   const alreadyFetch = useRef(false);
@@ -119,7 +132,8 @@ const TournamentContent = () => {
       "",
       (data) => {
         setTournamentInfinity(data);
-      }
+      },
+      notification
     );
   }, [searchParams]);
 
@@ -131,11 +145,11 @@ const TournamentContent = () => {
           setSportData(data);
         },
         "",
-        ""
+        "",
+        notification
       );
     }
   }, []);
-
   return (
     <Box
       sx={{
@@ -149,40 +163,32 @@ const TournamentContent = () => {
           paddingRight: { xs: 2, md: 4 },
         }}
       >
-        {/* {keyword !== "" && (
-          <Box marginTop={4}>
-            <Typography className={classes.textResultSearch}>
-              {`${tournament.infinity.total_item} hasil pencarian "${keyword}"`}
-            </Typography>
-          </Box>
-        )} */}
         <Box marginTop={3}>
           <Box marginBottom={2}>
-            {/* Gantikan Hidden mdDown */}
             {isMdUp && (
               <Button
                 startIcon={<FilterListIcon />}
                 sx={{ borderRadius: 0 }}
                 variant="outlined"
+                data-testid="filter-button-test"
                 onClick={handleHideFilter}
               >
                 Filter
               </Button>
             )}
-            {/* Gantikan Hidden mdUp */}
-            {isMdDown && (
+            {!isMdUp && (
               <Button
                 startIcon={<FilterListIcon />}
                 sx={{ borderRadius: 0 }}
                 variant="outlined"
+                data-testid="filter-button-mobile-test"
                 onClick={() => setDialogFilter(true)}
               >
                 Filter
               </Button>
             )}
           </Box>
-          <Grid container >
-            {/* Gantikan Hidden mdDown */}
+          <Grid container>
             {!hideFilter && isMdUp && (
               <Grid
                 size={3}
@@ -260,7 +266,7 @@ const TournamentContent = () => {
               </Grid>
             )}
             <Grid
-              size={isMdUp && !hideFilter ? 9 : 12} // Adjusted logic for size
+              size={isMdUp && !hideFilter ? 9 : 12}
               sx={{
                 padding: (theme) => theme.spacing(0, 2),
                 minHeight: "700px",
@@ -268,7 +274,7 @@ const TournamentContent = () => {
             >
               {tournamentInfinity === null ? (
                 <>
-                  {[...Array(3)].map((_, index) => (
+                  {[1].map((_, index) => (
                     <SecondTournamentItemSkeleton key={index} />
                   ))}
                 </>
@@ -278,7 +284,10 @@ const TournamentContent = () => {
                 </Box>
               ) : (
                 tournamentInfinity.data.map((value) => (
-                  <SecondTournamentItem key={value.id} data={value} />
+                  <SecondTournamentItem
+                    data-testid="tournament-item"
+                    key={value.id}
+                    data={value} />
                 ))
               )}
             </Grid>
@@ -341,4 +350,4 @@ const TournamentPageSkeleton = () => {
   );
 };
 
-export default Tournament;
+export default Tournament

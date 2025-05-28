@@ -1,9 +1,14 @@
 'use server';
 import { ApiResponse, LockOrderBracketData, LockSingleBracketData, ScoreData, SingleMatchScoreData } from '@/types/bracket.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import the new handler
-
+import { BracketOrder } from '../bracket';
 
 export async function getBracketDetails({ eventID, classID }: { eventID: string | string[], classID: string }) {
+  return {
+    ...BracketOrder,
+    status: 200,
+  }
+
   const url = `/event/${eventID}/class/${classID}/bracket`;
   const result = await handleFetch({ url, method: 'GET' });
 

@@ -30,11 +30,19 @@ const statusColor = (status: string): string => {
   return "#000000"; // Default color
 };
 
-const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, targetEventUrl?: "tournament" | "my-event" }> = ({ data, targetEventUrl = 'tournament' }) => { 
+const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, targetEventUrl?: "tournament" | "my-event", "data-testid"?: string }> = ({
+  data,
+  targetEventUrl = 'tournament',
+  "data-testid": dataTestId
+}) => { 
   const router = useRouter();
 
   return (
-    <div>
+    <Box data-testid={dataTestId}
+      onClick={() => {
+        router.push(`/${targetEventUrl}/${data.id}`);
+      }}
+    >
       <Box
         sx={{
           cursor: "pointer",
@@ -42,9 +50,6 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, t
           alignItems: "center",
           margin: { xs: 2, md: "13.6px 16px" },
           flexDirection: { xs: "column", md: "row" },
-        }}
-        onClick={() => {
-          router.push(`/${targetEventUrl}/${data.id}`);
         }}
       >
         <Box sx={{ position: "relative" }}>
@@ -192,7 +197,7 @@ const SecondTournamentItem: React.FC<{ data: EventInfinityData | EventOwnData, t
         </Box>
       </Box>
       <Divider />
-    </div>
+    </Box>
   );
 };
 

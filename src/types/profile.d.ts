@@ -9,7 +9,7 @@ export interface ProfileUpdate {
     born_at: string; // Place of birth
     identity_number: string // National identity number
     phone: string; // Phone number
-    gender: "male" | "female" | "" // Gender of the user
+    gender: "male" | "female" | '' // Gender of the user
     photo: string; // URL to the user's photo
     about: string; // Additional information about the user
 }
