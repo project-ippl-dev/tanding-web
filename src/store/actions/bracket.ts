@@ -1,5 +1,5 @@
 'use server';
-import { LockOrderBracketData, LockSingleBracketData } from '@/types/bracket.type';
+import { ApiResponse, LockOrderBracketData, LockSingleBracketData, ScoreData, SingleMatchScoreData } from '@/types/bracket.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import the new handler
 import { BracketOrder } from '../bracket';
 
@@ -66,6 +66,75 @@ export async function generateBracket({ eventID, classID }: { eventID: string | 
   return result;
 }
 
+export async function storeBracketOrderScore({ 
+  eventID, 
+  bracketID, 
+  classID,
+  data 
+}: { 
+  eventID: string | string[], 
+  bracketID: string,
+  classID: string, 
+  data: ScoreData
+}) {
+  const url = `/event/${eventID}/bracket/${bracketID}/score/order`;
+  const result = await handleFetch({ url, method: 'POST', data });
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  return result;
+}
 
+// Fetch one bracket order score
+export async function getBracketOrderScore({ 
+  eventID, 
+  bracketID 
+}: { 
+  eventID: string | string[], 
+  bracketID: string 
+}) {
+  const url = `/event/${eventID}/bracket/${bracketID}/score/order`;
+  const result = await handleFetch({ url, method: 'GET' });
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  return result;
+}
+
+// Store bracket single score
+export async function storeBracketSingleScore({ 
+  eventID, 
+  bracketID,
+  classID, 
+  data 
+}: { 
+  eventID: string | string[], 
+  bracketID: string,
+  classID: string, 
+  data: SingleMatchScoreData 
+}) {
+  const url = `/event/${eventID}/bracket/${bracketID}/score/single`;
+  const result = await handleFetch({ url, method: 'POST', data });
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  return result;
+}
+
+// Fetch one bracket single score
+export async function getBracketSingleScore({ 
+  eventID, 
+  bracketID 
+}: { 
+  eventID: string | string[], 
+  bracketID: string 
+}) {
+  const url = `/event/${eventID}/bracket/${bracketID}/score/single`;
+  const result = await handleFetch({ url, method: 'GET' });
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  return result;
+}
 
 

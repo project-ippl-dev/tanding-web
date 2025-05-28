@@ -125,3 +125,39 @@ export interface LockSingleBracketData {
     seed: BracketSingleSeedData[];
   };
 }
+
+
+export interface ApiResponse<T> {
+  message: string;
+  data: T;
+  status?: number;
+}
+
+// Score data structure (for order brackets)
+export interface ScoreData {
+  round_1?: number;
+  round_2?: number;
+  round_3?: number;
+  extra?: number;
+  total: number;
+}
+
+// Single match score data structure
+export interface SingleMatchScoreData {
+  home_round1?: number;
+  home_round2?: number;
+  home_round3?: number;
+  home_extra?: number;
+  home_total: number;
+  away_round1?: number;
+  away_round2?: number;
+  away_round3?: number;
+  away_extra?: number;
+  away_total: number;
+}
+
+export interface DialogState<T> {
+  open: boolean;
+  data: T | null;
+}
+

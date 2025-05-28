@@ -153,9 +153,16 @@ const Bracket = ({
       <OrderElimination
         bracketData={bracket.orderBracket?.data || []}
         tournament={data}
+        lockScoreStatus={currentBracket.lock_score}
+        selected={selected}
       />
     ) : bracket?.type === "single" ? (
-      <SingleElimination data={bracket.singleBracket?.data || []} />
+      <SingleElimination
+        data={bracket.singleBracket?.data || []}
+        tournament={data}
+        lockScoreStatus={currentBracket.lock_score}
+        selected={selected}
+      />
     ) : null
   ) : null;
 

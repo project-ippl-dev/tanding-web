@@ -87,13 +87,20 @@ export default function Bracket({
       : null;
 
   const BracketDetailContent = currentBracket?.generate_status ? (
-    bracket.type === "order" ? (
+    bracket?.type === "order" ? (
       <OrderElimination
         bracketData={bracket.orderBracket?.data || []}
         tournament={data}
+        selected={selected}
+        lockScoreStatus={currentBracket.lock_score}
       />
-    ) : bracket.type === "single" ? (
-      <SingleElimination data={bracket.singleBracket?.data || []} />
+    ) : bracket?.type === "single" ? (
+      <SingleElimination 
+        data={bracket.singleBracket?.data || []} 
+        tournament={data}
+        selected={selected}
+        lockScoreStatus={currentBracket.lock_score}
+      />
     ) : null
   ) : null;
 
