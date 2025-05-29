@@ -24,6 +24,7 @@ import { useAuth } from "@/context/auth.context";
 import { ClubMember } from "@/types/club.type";
 import { EventData } from "@/types/event.type";
 import { useLoading } from "@/context/loading.context";
+import { useNotification } from "@/context/notification.context";
 import { getMembersOfClub } from "@/store/actions/club";
 import { registerToTournament } from "@/store/actions/event";
 
@@ -53,6 +54,7 @@ const DialogRegister = ({
   onClose: () => void;
 }) => {
   const { authData } = useAuth();
+  console.log(authData)
   const [kelas, setKelas] = useState("");
   const [selectedClass, setSelectedClass] = useState<number>(0);
   const [inputUser, setInputUser] = useState("");
@@ -62,6 +64,7 @@ const DialogRegister = ({
   );
   const [members, setMembers] = useState<string[]>([]);
   const loadingObj = useLoading();
+  const { showNotification } = useNotification();
   // const {handleSubmit, control, } = useForm({
   //   resolver: yupResolver(validationSchema)
   // });
@@ -74,40 +77,45 @@ const DialogRegister = ({
       club_id: selectedClub,
       members: members.map((value) => ({ user_id: value })),
     };
-    // const url = `/api/event/register/${dataTournament?.id}`;
-    // const serverResponse = await postProxyApi(url, authData.token.access_token, data)
 
-    // if (loadingObj.changeState) loadingObj.changeState(false);
-
-    // if (serverResponse.success){
-    //   if (serverResponse.data?.message?.includes("forbidden")) {
-    //     alert("Gagal mendaftar, Hanya user yang memiliki club yang dapat mendaftar");
-    //   } else {
-    //     alert("Berhasil mendaftar untuk tournament ini");
-    //     emptyRegistrationForm()
-    //   }
-    // } else {
-    //   alert("Terjadi kesalahan dengan error: " + serverResponse.error);
-    // }
     try {
-      if (!dataTournament){
-        throw new Error("Tidak didapatkan id Event yang valid")
+      if (!dataTournament) {
+        showNotification("Tidak didapatkan id Event yang valid", "error");
+        if (loadingObj.changeState) loadingObj.changeState(false); // Reset loading state
+        return;
       }
-      const serverResponse = await registerToTournament({eventID: dataTournament.id, payload: data})
+      const serverResponse = await registerToTournament({
+        eventID: dataTournament.id,
+        payload: data,
+      });
       if (loadingObj.changeState) loadingObj.changeState(false);
-      if (serverResponse.success){
+      
+      if ([200, 201].includes(serverResponse.status)) {
         if (serverResponse.message?.includes("forbidden")) {
-          // if (serverResponse.data?.message?.includes("forbidden")) {
-          alert("Gagal mendaftar, Hanya user yang memiliki club yang dapat mendaftar");
+          showNotification(
+            "Gagal mendaftar, Hanya user yang memiliki club yang dapat mendaftar",
+            "error"
+          );
         } else {
-          alert("Berhasil mendaftar untuk tournament ini");
-          emptyRegistrationForm()
+          showNotification(
+            "Berhasil mendaftar untuk tournament ini",
+            "success"
+          );
+          emptyRegistrationForm();
         }
       } else {
-        throw new Error("Terjadi kesalahan dengan error: " + serverResponse.error);
+        showNotification(
+          `Gagal melakukan pendaftaran tournament registerToTournament: ${serverResponse.error}`,
+          "error"
+        );
       }
-    } catch (e) {
-      alert(e)
+    } catch (e: unknown) {
+      if (loadingObj.changeState) loadingObj.changeState(false);
+      let errorMessage = "Terjadi kesalahan saat melakukan pendaftaran tournament";
+      if (e instanceof Error) {
+        errorMessage = `Terjadi kesalahan saat melakukan pendaftaran tournament: ${e.message}`;
+      }
+      showNotification(errorMessage, "error");
     }
   }
 
@@ -136,13 +144,15 @@ const DialogRegister = ({
   useEffect(() => {
     async function getMemberClub(idClub: string) {
       if (loadingObj.changeState) loadingObj.changeState(true);
-      // const url = `/api/club/member/${idClub}`
-      try { 
-        // const serverResponse = await fetchProxyApi(url, authData.token.access_token)
+      try {
         const serverResponse = await getMembersOfClub({ clubID: idClub });
-        console.log("serverResponse", serverResponse);
         setMemberOption(serverResponse.data?.participants || null);
-      } catch (error) {
+      } catch (error: unknown) {
+        let errorMessage = "Gagal mengambil data member club";
+        if (error instanceof Error) {
+            errorMessage = `Gagal mengambil data member club getMembersOfClub: ${error.message}`;
+        }
+        showNotification(errorMessage, "error");
         console.error(error);
       } finally {
         if (loadingObj.changeState) loadingObj.changeState(false);
@@ -209,7 +219,7 @@ const DialogRegister = ({
           </TextField>
           {kelas !== "" &&
             selectedClass !== null &&
-            selectedClass !== undefined && (
+            selectedClass !== undefined && selectedClass !== -1 && (
               <Box marginTop={1}>
                 <Typography>Rules :</Typography>
                 <Typography>
@@ -252,11 +262,11 @@ const DialogRegister = ({
               value={selectedClub}
               onChange={({ target: { value } }) => setSelectedClub(value)}
             >
-              {authData ? authData.clubs.map((value) => (
+              {authData && Array.isArray(authData.clubs) ? authData.clubs.map((value) => (
                 <MenuItem key={value.id} value={value.id}>
                   {value.name}
                 </MenuItem>
-              )): null}
+              )): []}
             </TextField>
           </Box>
           {memberInputElement}
@@ -266,7 +276,7 @@ const DialogRegister = ({
             variant="contained"
             color="primary"
             onClick={handleRegister}
-            disabled={loadingObj.state}
+            disabled={loadingObj.state || !selectedClub || members.length === 0 || kelas === ""}
           >
             {loadingObj.state ? "Loading..." : "Register"}
           </Button>

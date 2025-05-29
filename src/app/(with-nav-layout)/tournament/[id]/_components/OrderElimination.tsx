@@ -22,6 +22,7 @@ import {
   lockBracketScore,
   storeBracketOrderScore,
 } from "@/store/actions/bracket";
+import { useNotification } from "@/context/notification.context";
 
 // Define types for props
 interface OrderEliminationProps {
@@ -50,6 +51,7 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
     open: false,
     data: null,
   });
+  const notification = useNotification();
 
   const handleLockScoring = async () => {
     if (selected) {
@@ -58,14 +60,14 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
           eventID: params.id,
           classID: selected,
         });
-        if (result.status === 200) {
-          alert(result.message || "Score has been locked");
+        if ([200,201].includes(result.status)) {
+          notification.showNotification(result.message || "Score has been locked", "success");
           window.location.reload(); // Refresh to update UI
         } else {
-          alert("Failed to lock score: " + (result.error || "Unknown error"));
+          notification.showNotification("Failed to lock score: " + (result.error || "Unknown error"), "error");
         }
       } catch (error) {
-        alert("Error locking score: " + error);
+        notification.showNotification("Error locking score: " + error, "error");
       }
     }
   };
@@ -80,14 +82,21 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
     try {
       const result = await storeBracketOrderScore({ eventID, bracketID, data, classID });
       if (result.status === 200) {
-        alert(result.message || "Score has been stored");
+        notification.showNotification(result.message || "Score has been stored", "success");
         window.location.reload(); // Refresh to update UI
       } else {
-        alert("Failed to store score: " + (result.error || "Unknown error"));
+        notification.showNotification(
+          `Failed to store score using storeBracketOrderScore: ${result.error || "Unknown error"}`,
+          "error"
+        );
       }
       return result;
-    } catch (error) {
-      alert("Error storing score: " + error);
+    } catch (error: unknown) {
+      let errorMessage = "Error storing score using storeBracketOrderScore";
+      if (error instanceof Error) {
+        errorMessage = `Error storing score using storeBracketOrderScore: ${error.message}`;
+      }
+      notification.showNotification(errorMessage, "error");
       throw error;
     }
   };
@@ -180,7 +189,7 @@ const OrderElimination: React.FC<OrderEliminationProps> = ({
         />
       )}
 
-      {dialogDetail.open && (
+      {dialogDetail.open && dialogDetail.data && (
         <DialogDetail
           dialog={dialogDetail}
           onClose={() => setDialogDetail({ open: false, data: null })}

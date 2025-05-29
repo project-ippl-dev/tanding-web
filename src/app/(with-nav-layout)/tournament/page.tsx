@@ -39,10 +39,15 @@ async function reqSport(
     if ([200,201].includes(response.status)) {
       setData(response);
     } else {
-      notification.showNotification("Gagal mengambil data olahraga", "error");
+      notification.showNotification(`Gagal mengambil data olahraga: ${response.error || 'Error tidak diketahui'}`, "error");
     }
   } catch (error) {
-    notification.showNotification("Gagal mengakses server", "error");
+    let message = "Error tidak diketahui";
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    notification.showNotification(`Gagal mengakses server: ${message}`, "error");
+    console.error("Error fetching sport data:", error);
   }
 }
 
@@ -66,10 +71,15 @@ async function reqTournamentInfinity(
     if ([200, 201].includes(response.status)) {
       setData(response);
     } else {
-      notification.showNotification("Gagal mengambil data turnamen", "error");
+      notification.showNotification(`Gagal mengambil data turnamen: ${response.error || 'Error tidak diketahui'}`, "error");
     }
   } catch (error) {
-    notification.showNotification("Gagal mengakses server", "error");
+    let message = "Error tidak diketahui";
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    notification.showNotification(`Gagal mengakses server: ${message}`, "error");
+    console.error("Error fetching tournament infinity:", error);
   }
 
 }
@@ -252,6 +262,7 @@ const TournamentContent = () => {
                       >
                         {sportData?.data.map((value) => (
                           <FormControlLabel
+                            data-testid={`sport-radio-filter`}
                             key={value.id}
                             value={value.id}
                             checked={searchParams.get("sport") === value.id}

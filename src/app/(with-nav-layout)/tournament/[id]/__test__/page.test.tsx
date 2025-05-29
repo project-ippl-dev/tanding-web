@@ -27,6 +27,7 @@ describe('Tournament Page', () => {
 
         (eventStore.getTournamentParticipants as jest.Mock).mockResolvedValue({
             data: EVENT_PARTICIPANTS.data,
+            status: 200,
         });
 
         (navigation.useParams as jest.Mock).mockReturnValue({

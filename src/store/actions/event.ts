@@ -1,7 +1,7 @@
 'use server';
 import { EventUpdatePayload } from '@/types/event.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
-import { EVENT, EVENT_PARTICIPANTS } from '../event';
+import { EVENT, EVENT_INFINITY, EVENT_PARTICIPANTS } from '../event';
 
 interface InfinityQueryParams {
   limit: number;
@@ -12,7 +12,6 @@ interface InfinityQueryParams {
 }
 
 export async function getTournamentDetail({ id }: { id: string }) {
-
   /*
   const testData = {
     ...EVENT,
@@ -44,7 +43,6 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
     search: params.search || '',
     remark: params.remark || '',
   };
-
   const url = `/event/infinite?limit=${query.limit}&category=${query.type}&sport_id=${query.sport_id}&name=${query.search}&remark=${query.remark}`;
   const result = await handleFetch({ url, method: 'GET' });
 
@@ -52,7 +50,6 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
 }
 
 export async function getTournamentParticipants({ eventID }: { eventID: string | string[] }) {
-
   const url = `/event/${eventID}/participant`;
   const result = await handleFetch({ url, method: 'GET' });
   return result;

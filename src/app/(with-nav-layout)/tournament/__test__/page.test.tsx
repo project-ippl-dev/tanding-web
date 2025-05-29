@@ -11,10 +11,12 @@ import WrapperContext from "@/app/wrapper";
 import { EventInfinityResponse } from "@/types/event.type";
 import { SportResponseMultiple } from "@/types/sport.type";
 import { useRouter } from "next/navigation";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 
 jest.mock("@/store/actions/event");
 jest.mock("@/store/actions/sport");
-
+jest.mock('@mui/material/useMediaQuery', () => jest.fn()); // Mock useMediaQuery untuk ukuran layar mobile
 jest.mock("@/context/auth.context", () => {
   const actual = jest.requireActual("@/context/auth.context");
   return {
@@ -34,6 +36,7 @@ interface SportMockResponse extends SportResponseMultiple{
 describe("Unit Testing Halaman List Tournament View", () => {    
   beforeEach(() => {
     jest.clearAllMocks();
+    (useMediaQuery as jest.Mock).mockReturnValue(true); // Mock useMediaQuery untuk ukuran layar desktop
     const mockEventInfinityData: EventInfinityMockResponse = {
       ...EVENT_INFINITY,
       status: 200,
@@ -80,8 +83,7 @@ describe("Unit Testing Halaman List Tournament View", () => {
 
   it("Menguji jendela filter mobile",async ()=>{
     // Mocking useMediaQuery menjadi ukuran md
-    jest.mock('@mui/material/useMediaQuery',() => (true));
-
+    (useMediaQuery as jest.Mock).mockReturnValue(false);
     render(
       <WrapperContext>
           <Tournament />
@@ -101,8 +103,11 @@ describe("Unit Testing Halaman List Tournament View", () => {
       waitFor(() => {
         // Window filter terbuka
         expect(screen.getByText("Tipe Olahraga")).toBeInTheDocument();
+        const sportRadio = screen.getAllByTestId("sport-radio-filter-mobile");
+        expect(sportRadio.length).toEqual(SPORT_ALL.data.length);
       })
     })
+
   })
 
   it("Menguji handle saat gagal akses server API Tournament", async () => {
@@ -139,6 +144,72 @@ describe("Unit Testing Halaman List Tournament View", () => {
     await waitFor(() => {
       expect(screen.getByText("Gagal mengakses server")).toBeInTheDocument();
     })
+  })
+
+  it("Menguji tampilan informasi ketika tidak ada data tournamen", async () => {
+      const mockedValue = {
+        ...EVENT_INFINITY,
+        status: 200,
+        data: [],
+      };
+      (eventStore.getTournamentInfinity as jest.Mock).mockResolvedValue(mockedValue);
+
+      render(
+        <WrapperContext>
+            <Tournament />
+        </WrapperContext>
+      );
+      const skeleton = document.querySelector('.MuiSkeleton-root');
+      
+      await waitFor(() => {
+        expect(skeleton).toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(eventStore.getTournamentInfinity).toHaveBeenCalled();
+      })
+
+      await waitFor(() => {
+        expect(sportStore.getSport).toHaveBeenCalled();
+      })
+
+      await waitFor(() => {
+        expect(skeleton).not.toBeInTheDocument();
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText("Data tidak ditemukan")).toBeInTheDocument();
+      })
+  })
+
+  it("Menguji jumlah pilihan olahraga dalam filter yang sesuai", async () => {
+      render(
+        <WrapperContext>
+            <Tournament />
+        </WrapperContext>
+      );
+      const skeleton = document.querySelector('.MuiSkeleton-root');
+      
+      await waitFor(() => {
+        expect(skeleton).toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(eventStore.getTournamentInfinity).toHaveBeenCalled();
+      })
+
+      await waitFor(() => {
+        expect(sportStore.getSport).toHaveBeenCalled();
+      })
+
+      await waitFor(() => {
+        expect(skeleton).not.toBeInTheDocument();
+      })
+
+      await waitFor(() => {
+        const sportRadio = screen.getAllByTestId("sport-radio-filter");
+        expect(sportRadio.length).toEqual(SPORT_ALL.data.length);
+      })
   })
   
   it("Menguji url yang dibuat", async () => {

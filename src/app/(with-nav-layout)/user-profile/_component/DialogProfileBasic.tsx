@@ -21,6 +21,7 @@ import moment from "moment";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
 import { updateProfileData } from "@/store/actions/profile";
 import { useNotification } from "@/context/notification.context";
+import { useLoading } from "@/context/loading.context";
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -39,7 +40,6 @@ interface DialogProfileBasicProps {
   open: boolean;
   action: (data: ProfileUpdate) => void;
   onClose: () => void;
-  setLoading: (loading: boolean) => void;
   profile: ProfileBasicResponse | null;
 }
 
@@ -47,7 +47,6 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
   open,
   action,
   onClose,
-  setLoading,
   profile,
 }) => {
   const [formData, setFormData] = useState<ProfileUpdate>({
@@ -62,6 +61,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
   });
 
   const { authData } = useAuth()
+  const {changeState: setLoading} = useLoading()
   const notification = useNotification();
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
   const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
@@ -111,36 +111,18 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         photo: image || profile?.data.photo, // Gunakan gambar baru jika ada
       };
 
-      const url =
-          process.env.NODE_ENV === "development"
-            ? "own"
-            : authData
-            ? authData.user_id
-            : ""; //TODO: Handle if accessed without authData
-      // const response = await fetch(`/api/profile/${url}`, {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: "Bearer "+ authData?.token.access_token,
-      //   },
-      //   body: JSON.stringify(payload),
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to update profile");
-      // }
-
-    const serverResponse  = await updateProfileData({ uuid: url, payload: payload})
+    const serverResponse  = await updateProfileData({ uuid: authData?.user_id || "", payload: payload})
 
     if ([200,201].includes(serverResponse.status)) {
         notification.showNotification("Profil berhasil diperbarui", "success");
         action(formData);
       } else {
-        notification.showNotification("Gagal memperbarui profil", "error");
+        notification.showNotification(`Gagal memperbarui profil: ${serverResponse.error || 'Error tidak diketahui'}`, "error");
       }
       onClose();
     } catch (error) {
-      notification.showNotification("Terjadi error saat mengirim data", "error");
+      notification.showNotification(`Terjadi error saat mengirim data` , "error");
+      console.log(error)
     } finally {
       setLoading(false);
     }

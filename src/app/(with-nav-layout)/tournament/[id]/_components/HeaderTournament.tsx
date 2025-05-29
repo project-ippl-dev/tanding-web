@@ -73,7 +73,7 @@ const TabPanel = ({
   children: React.ReactNode;
   value: number;
   index: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }) => {
   return (
     <div
@@ -102,6 +102,7 @@ async function reqGetTournamentDetail(
       }
   } catch (error) {
     notification.showNotification("Gagal mengakses server",'error');
+    console.error("Error fetching tournament detail:", error);
   }
 }
 
@@ -113,7 +114,7 @@ const HeaderTournament = ({
 }) => {
   const notification = useNotification()
   const [tabs, setTabs] = useState(0);
-  const isMdDown = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const isMdUp = useMediaQuery((theme) => theme.breakpoints.up("md"));
   const [eventData, setEventData] = useState<EventData | null>(null);
 
   const { authData } = useAuth();
@@ -133,7 +134,7 @@ const HeaderTournament = ({
       );
       setTabs(0);
     }
-  }, [authData?.token.access_token, eventID]);
+  }, [eventID]);
   return (
     <Box
       sx={{
@@ -157,7 +158,7 @@ const HeaderTournament = ({
       ) : (
         <>
           {/*TODO: saat loading mobile dia ke render dulu terus ngilang langsung agak ganggu */}
-          {!isMdDown && (
+          {isMdUp && (
             <Box
               sx={{
                 width: "100%",
@@ -258,7 +259,7 @@ const HeaderTournament = ({
                   </StyledTabs>
                 </Box>
               </Grid>
-              {!isMdDown && (
+              {isMdUp && (
                 <Grid size={{ xs: 12, md: 3 }}> {/* Updated to use size prop */}
                   <Box sx={{ marginTop: 1 }}>
                     <Typography>Organized by</Typography>

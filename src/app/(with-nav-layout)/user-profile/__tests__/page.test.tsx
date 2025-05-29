@@ -30,7 +30,10 @@ describe("Halaman UserProfile", () => {
     
   beforeEach(() => {
     jest.clearAllMocks();
-    (profileStore.getProfileData as jest.Mock).mockResolvedValue(userProfileData);
+    (profileStore.getProfileData as jest.Mock).mockResolvedValue({
+      ...userProfileData,
+      status: 200, // Simulasi status sukses
+    });
   });
 
   it("Menampilkan halaman secara normal", async () => {
@@ -41,7 +44,7 @@ describe("Halaman UserProfile", () => {
         </NotificationProvider>
       </AuthProvider>
     );
-    await waitFor(() => expect(screen.getByText("Aditya Lityanian Al Nasir")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(userProfileData.data.name)).toBeInTheDocument());
   });
 
   it('Menampilkan DialogProfileBasic saat tombol edit diklik', async () => {
@@ -75,7 +78,7 @@ describe("Halaman UserProfile", () => {
     const editButton = screen.getByTestId('edit-button');
     await userEvent.click(editButton);
     await waitFor(() => {
-        expect(screen.getByText("Data profil Kosong")).toBeInTheDocument();
+        expect(screen.getByText(/Gagal memuat data/i)).toBeInTheDocument();
     })
   })
 

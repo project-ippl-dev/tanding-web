@@ -4,8 +4,6 @@ import {
   Box,
   Typography,
   Button,
-  TextField,
-  MenuItem,
   Grid,
   NativeSelect,
   InputLabel,
@@ -16,127 +14,138 @@ import OrderElimination from "./OrderElimination";
 import FinalResult from "./parts/Bracket/FinalResult";
 import { EventData } from "@/types/event.type";
 import { useParams } from "next/navigation";
-import { BracketResponse, LockOrderBracketData, LockSingleBracketData } from "@/types/bracket.type";
+import { BracketParticipant, BracketResponse, LockOrderBracketData, LockSingleBracketData } from "@/types/bracket.type";
 import { FetchResponse } from "@/types/global";
 import { generateBracket, getBracketDetails, getBracketRandom, lockBracketOrder, lockBracketSingle, lockTurnBracketSingle } from "@/store/actions/bracket";
 import CardSettingBracket from "./parts/Bracket/CardSettingBracket";
+import { useNotification } from "@/context/notification.context";
+import { NotificationContextProps } from "@/types/notification.type";
 
-async function reqLockBracketOrder(classID: string, eventID: string, data: LockOrderBracketData) {
-  // Lock the bracket order
+async function reqLockBracketOrder(classID: string, eventID: string, data: LockOrderBracketData, showNotification: NotificationContextProps['showNotification']) {
   const response: FetchResponse = await lockBracketOrder({eventID, classID, data});
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message || "Berhasil melakukan lock bracket order", "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(`Gagal melakukan lockBracketOrder: ${response.error || 'Error tidak diketahui'}`, "error");
   }
 }
 
-async function reqLockBracketSingle(id: string, eventID: string, data: LockSingleBracketData) {
-  // Lock the bracket single
+async function reqLockBracketSingle(id: string, eventID: string, data: LockSingleBracketData, showNotification: NotificationContextProps['showNotification']) {
   const response: FetchResponse = await lockBracketSingle({eventID, classID: id, data});
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message || "Berhasil melakukan lock bracket single", "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(`Gagal melakukan lockBracketSingle: ${response.error || 'Error tidak diketahui'}`, "error");
   }
 }
 
-async function reqRandomBracket(eventID: string, classID: string) {
+async function reqRandomBracket(eventID: string, classID: string, showNotification: NotificationContextProps['showNotification']) {
   const response: FetchResponse = await getBracketRandom({eventID, classID});
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message || "Berhasil melakukan random bracket", "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(`Gagal melakukan getBracketRandom: ${response.error || 'Error tidak diketahui'}`, "error");
   }
 }
 
-async function reqLockTurnBracketSingle(eventID: string) {
+async function reqLockTurnBracketSingle(eventID: string, showNotification: NotificationContextProps['showNotification']) {
   const response: FetchResponse = await lockTurnBracketSingle({eventID});
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message || "Berhasil lock semua turnamen", "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(`Gagal melakukan lockTurnBracketSingle: ${response.error || 'Error tidak diketahui'}`, "error");
   }
 }
 
-async function reqGenerateBracket(eventID: string, classID: string) {
+async function reqGenerateBracket(eventID: string, classID: string, showNotification: NotificationContextProps['showNotification']) {
   const response: FetchResponse = await generateBracket({eventID, classID});
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message || "Berhasil generate bracket", "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(`Gagal melakukan generateBracket: ${response.error || 'Error tidak diketahui'}`, "error");
   }
 }
 
 const Bracket = ({
   data,
-  // randomBracket,
-  //cancelBracket,
-  // generateBracket,
-  // lockTurnBracketSingle,
-  // lockBracketScore,
-  // storeBracketOrderScore,
-  // storeBracketSingleScore,
 }: {
   data: EventData | null;
 }) => {
   const params = useParams<{ id: string }>();
   const [selected, setSelected] = useState("");
   const [bracket, setBracket] = useState<BracketResponse | null>();
+  const  { showNotification } = useNotification();
 
   const handleLock = (type: string) => {
     if (type === "order") {
-      const data = {
-        status: true,
-        participants: bracket?.orderBracket?.data.map((value, index) => ({
-          event_registration_id: value.event_registration_id,
-          iteration: index + 1, // Gak tau attributnya seperti apa
-        })),
-      };
-      reqLockBracketOrder(selected, params?.id || "", data);
+      const participants: BracketParticipant[] | undefined = bracket?.orderBracket?.data.map((value, index) => ({
+        event_registration_id: value.event_registration_id,
+        iteration: index + 1,
+        name: value.name, 
+        club_name: value.club_name,
+        final_score: value.final_score,
+        image: value.image,
+        is_winner: value.is_winner,
+        participant_no: value.participant_no,
+        score: value.score,
+        seed: value.seed,
+        status: value.status,
+      })); 
+      if(participants){
+        const dataLock: LockOrderBracketData = {
+          status: true,
+          participants: participants,
+        };
+        reqLockBracketOrder(selected, params?.id || "", dataLock, showNotification);
+      } else {
+        showNotification("Gagal memproses data partisipan untuk lockBracketOrder", "error");
+      }
     } else if (type === "single") {
-      const data = { status: true, data: bracket?.singleBracket?.data[0] };
-      reqLockBracketSingle(selected, params.id, data);
+      const bracketData = bracket?.singleBracket?.data[0];
+      if(bracketData){
+        const dataLock: LockSingleBracketData = { status: true, data: bracketData };
+        reqLockBracketSingle(selected, params.id, dataLock, showNotification);
+      } else {
+        showNotification("Gagal memproses data bracket untuk lockBracketSingle", "error");
+      }
     }
   };
 
   useEffect(() => {
     async function fetchBracketDetail() {
       const eventid = params.id;
-      // const token = authData.token.access_token; // Replace with actual token retrieval logic
-      // const url = `/api/event/bracket/${eventid || ""}/${selected || ""}`;
-
-      // if (loadingObj.changeState) loadingObj.changeState(true);
-
-      // const serverResponse = await fetchProxyApi(url, token)
-      const serverResponse = await getBracketDetails({
-        eventID: eventid || "",
-        classID: selected || "",
-      });
-
-      if (!serverResponse) {
-        alert("Gagal mengambil data, dengan error: " + serverResponse.error);
-      } else {
-        setBracket((prevState) => {
-          const result : BracketResponse= { ...prevState
-            , singleBracket: null, orderBracket: null, type: null };
-          if (serverResponse.match_type === "single") {
-            result.singleBracket = serverResponse;
-          } else if (serverResponse.match_type === "order") {
-            result.orderBracket = serverResponse;
-          }
-          result.type = serverResponse.match_type;
-          return result;
+      try {
+        const serverResponse = await getBracketDetails({
+          eventID: eventid || "",
+          classID: selected || "",
         });
-      }
 
-      // if (loadingObj.changeState) loadingObj.changeState(false);
+        if (!serverResponse) {
+          showNotification("Gagal mengambil detail bracket: Respon tidak valid dari getBracketDetails", "error");
+        } else if (serverResponse.error) { 
+          showNotification(`Gagal mengambil detail bracket (getBracketDetails): ${serverResponse.error}`, "error");
+        } else {
+          setBracket((prevState) => {
+            const result : BracketResponse= { ...prevState
+              , singleBracket: null, orderBracket: null, type: null };
+            if (serverResponse.match_type === "single") {
+              result.singleBracket = serverResponse;
+            } else if (serverResponse.match_type === "order") {
+              result.orderBracket = serverResponse;
+            }
+            result.type = serverResponse.match_type;
+            return result;
+          });
+        }
+      } catch (error) {
+        showNotification(`Gagal mengambil detail bracket (getBracketDetails): ${error instanceof Error ? error.message : String(error)}`, "error");
+      }
     }
 
     if (selected !== "") {
       fetchBracketDetail();
     }
-  }, [selected]);
+  }, [selected, params.id]);
 
 
   
@@ -181,7 +190,7 @@ const Bracket = ({
     </Box>
   );
   return (
-    <div>
+    <>
       <Box sx={{ padding: { xs: 2, md: 10 }, marginTop: 3 }}>
         <Typography sx={{ fontSize: "23px", fontWeight: "bold" }}>
           Bagan Turnamen
@@ -189,7 +198,7 @@ const Bracket = ({
       </Box>
       <div>
         <Grid sx={{ padding: { xs: 2, md: 10 }}} container justifyContent="center">
-          <Grid size={{md:5,xs:12}}>
+          <Grid item md={5} xs={12}>
               <InputLabel variant="standard" htmlFor="uncontrolled-native">
                 Pilih Kelas Pertandingan
               </InputLabel>
@@ -225,10 +234,9 @@ const Bracket = ({
           >
             {currentBracket?.generate_status && data?.remark === "closed" && !currentBracket.lock_status && (
               <CardSettingBracket
-                random={() => reqRandomBracket(params.id, selected)}
+                random={() => reqRandomBracket(params.id, selected, showNotification)}
                 lock={() => handleLock(currentBracket?.match_type || "")}
-                hasRandom={currentBracket?.random || false // random gak ada attributnya
-                }
+                hasRandom={currentBracket?.random_status || false}
               />
             )}
             {!currentBracket?.generate_status && data?.remark === "closed" && (
@@ -244,14 +252,14 @@ const Bracket = ({
                   <Button
                     variant="outlined"
                     color="primary"
-                    onClick={() => reqGenerateBracket(params.id, selected)}
+                    onClick={() => reqGenerateBracket(params.id, selected, showNotification)}
                   >
                     Generate Bracket
                   </Button>
                 </div>
               </Box>
             )}
-            {data?.remark === "done" && (
+            {data?.remark !== "closed" && data?.remark !== "pending" && data?.remark !== "open" && (
               <FinalResult
                 data={
                   bracket?.type === "order"
@@ -268,7 +276,7 @@ const Bracket = ({
             <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
               <Button
                 variant="outlined"
-                onClick={() => reqLockTurnBracketSingle(params.id)}
+                onClick={() => reqLockTurnBracketSingle(params.id, showNotification)}
               >
                 Lock All Tournament Turn
               </Button>
@@ -277,7 +285,7 @@ const Bracket = ({
         </Box>
       )}
       <Box sx={{ height: "300px" }} />
-    </div>
+    </>
   );
 };
 

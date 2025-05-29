@@ -8,8 +8,6 @@ import {
   IconButton,
   Typography,
   Box,
-  Backdrop,
-  CircularProgress,
   Skeleton,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
@@ -36,59 +34,64 @@ export default function UserProfile() {
   const theme = useTheme();
   const notification = useNotification();
   const { authData } = useAuth();
-
-  const [loading, setLoading] = useState(false);
   const [dialogProfile, setDialogProfile] = useState(false);
   const [profileData, setProfileData] = useState<ProfileBasicResponse | null>(
     null
   );
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         setLoadingProfile(true);
         const response = await getProfileData({
-          uuid: 'own', //NOTE: URL now uses own, uuid is accessible by admin only
+          uuid: authData?.user_id || "", //NOTE: URL now uses own, uuid is accessible by admin only
         });
-        // const data: ProfileBasicResponse = await response.json();
-        const data: ProfileBasicResponse = response;
-        setProfileData(data);
+
+        if (response.error || ![200, 201].includes(response.status)) {
+          notification.showNotification(
+            `Gagal mengambil data profil: ${response.error || "Error tidak diketahui"}`,
+            "error"
+          );
+          setProfileData(null); // Set to null if there's an error
+        } else {
+          // const data: ProfileBasicResponse = await response.json();
+          const data: ProfileBasicResponse = response;
+          setProfileData(data);
+        }
       } catch (error) {
-        notification.showNotification( "Gagal memuat data profil",
+        notification.showNotification(
+          `Gagal memuat data profil`,
           "error",
         );
+        console.log("Error fetching profile data:", error);
       } finally {
         setLoadingProfile(false);
       }
     };
 
     fetchProfileData();
-  }, []);
+  }, [authData?.user_id, notification]);
 
   function updateProfileData(updatedData: ProfileUpdate) {
     setProfileData((prevState) => {
-      const result = {
-        message: "",
-        data: {},
-      };
-
-      if (prevState)
-        result.data = {
-          ...prevState.data,
-          ...updatedData,
-          born_on: {
-            Time: updatedData.born_on,
-            Valid: true,
+      if (prevState) {
+        return {
+          ...prevState,
+          data: {
+            ...prevState.data,
+            ...updatedData,
+            born_on: {
+              Time: updatedData.born_on,
+              Valid: true,
+            },
           },
         };
-      else {
+      } else {
         // Kondisi yang sepertinya gak akan terjadi
         // Data Profil Awalnya udah null
-        result.message = "";
-        result.data = updatedData;
+        return null;
       }
-      return result;
     });
   }
 
@@ -164,16 +167,16 @@ export default function UserProfile() {
   }, [profileData]);
 
   return (
-      <div style={{ backgroundColor: "#fff" }}>
-        <Container
-          maxWidth="lg"
-          sx={{
-            paddingTop: theme.spacing(3),
-            [theme.breakpoints.down("md")]: {
-              paddingTop: theme.spacing(9),
-            },
-          }}
-        >
+    <div style={{ backgroundColor: "#fff" }}>
+      <Container
+        maxWidth="lg"
+        sx={{
+          paddingTop: theme.spacing(3),
+          [theme.breakpoints.down("md")]: {
+            paddingTop: theme.spacing(9),
+          },
+        }}
+      >
         <Grid container>
           <Grid size={{ xs: 12 }}>
             <Paper sx={{ borderRadius: "10px" }}>
@@ -215,7 +218,7 @@ export default function UserProfile() {
                       setDialogProfile(true);
                     } else {
                       notification.showNotification(
-                        "Data profil Kosong",
+                        "Data profil belum dimuat atau kosong, tidak dapat melakukan edit.",
                         "error"
                       );
                     }
@@ -252,16 +255,18 @@ export default function UserProfile() {
                       }}
                     >
                       {!profileData?.data?.can_participate ? (
-                        <HoverableSpan onClick={() => {
-                          if (profileData) {
-                            setDialogProfile(true);
-                          } else {
-                            notification.showNotification(
-                              "Data profil Kosong",
-                              "error"
-                            );
-                          }
-                        }}>
+                        <HoverableSpan
+                          onClick={() => {
+                            if (profileData) {
+                              setDialogProfile(true);
+                            } else {
+                              notification.showNotification(
+                                "Data profil belum dimuat atau kosong, tidak dapat melakukan update.",
+                                "error"
+                              );
+                            }
+                          }}
+                        >
                           Update Profile Sekarang
                         </HoverableSpan>
                       ) : (
@@ -327,18 +332,7 @@ export default function UserProfile() {
         open={dialogProfile}
         onClose={() => setDialogProfile(false)}
         action={updateProfileData}
-        setLoading={setLoading}
       />
-
-      <Backdrop
-        open={loading}
-        sx={{
-          zIndex: theme.zIndex.drawer + 1,
-          color: "#fff",
-        }}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      </div>
+    </div>
   );
 }

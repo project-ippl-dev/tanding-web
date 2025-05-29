@@ -16,6 +16,7 @@ import { useLoading } from "@/context/loading.context";
 import { useParams } from "next/navigation";
 import { EventParticipantsResponse } from "@/types/event.type";
 import { getTournamentParticipants } from "@/store/actions/event";
+import { useNotification } from "@/context/notification.context";
 
 const StyledContainer = styled("div")({
   padding: "0 80px",
@@ -35,6 +36,7 @@ const StyledDetail = styled("div")({
 export default function Participant() {
   // const { authData } = useAuth();
   const loadingObj = useLoading();
+  const notification = useNotification();
   const { id } = useParams();
 
   const [expanded, setExpanded] = useState<string | false>(false);
@@ -56,9 +58,10 @@ export default function Participant() {
         eventID: eventid || "",
       });
 
-      if (!serverResponse) {
+      if (![200,201].includes(serverResponse.status || serverResponse.error)) {
         // if (!serverResponse.success) {
-        alert(`Gagal mengambil data, dengan error: ` + serverResponse.message);
+        // alert(`Gagal mengambil data, dengan error: ` + serverResponse.message);
+        notification.showNotification(`Gagal mengambil data, dengan error: ` + serverResponse.error, "error");
       } else {
         // setParticipants(serverResponse.data);
         setParticipants(serverResponse);

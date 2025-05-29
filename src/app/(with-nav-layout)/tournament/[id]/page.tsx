@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useAuth } from "@/context/auth.context";
 import {
   Backdrop,
   Box,
@@ -12,60 +11,63 @@ import {
 import { useTheme } from "@mui/material/styles";
 import HeaderTournament from "./_components/HeaderTournament";
 import { EventInfinityResponse } from "@/types/event.type";
-import { LoadingProvider } from "@/context/loading.context";
 import CardTournaments from "./_components/CardTournaments";
 import { useParams } from "next/navigation";
 import { getTournamentInfinity } from "@/store/actions/event";
+import { useNotification } from "@/context/notification.context";
 
 // TODO: mengatasi rerendering yang sering, gunakan useMemo
 
 export default function TournamentDetailPage() {
-  const {id: eventID} = useParams<{id:string}>();
-  const { authData } = useAuth();
+  const { id: eventID } = useParams<{ id: string }>();
   const tournamentInfinityData = useRef<EventInfinityResponse>(null);
   const theme = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
+  const notification = useNotification();
 
   useEffect(() => {
     async function fetchTournamentInfinityData() {
       setLoading(true);
       // const token = authData?.token.access_token; // Replace with actual token retrieval logic
-    //   const url = `/api/event/infinity?limit=10&type=all&sport_id=1&search=&remark=ongoing`;
+      //   const url = `/api/event/infinity?limit=10&type=all&sport_id=1&search=&remark=ongoing`;
       // const serverResponse = await fetchProxyApi(url, token);
-      const serverResponse = await getTournamentInfinity({
-        limit: 10,
-        type: "all",
-        sport_id: "1",
-        search: '',
-        remark: "ongoing",
-      });
-      if (!serverResponse) {
-        // if (!serverResponse.success) {
-        alert("Gagal mengambil data, dengan error: " + serverResponse.error);
-      } else {
-        if (serverResponse.error) {
-          // if(serverResponse.data.error) {
-          alert(
-            "Gagal mengambil data, dengan error: " +
-              serverResponse.error.header
-            //   serverResponse.data.error.header
-          );
-          /*
-                        if(process.env.NODE_ENV === "development") {
-                            tournamentInfinityData.current = EVENT_INFINITY;
-                            changeID(EVENT_INFINITY.data[0].id)
-                        }
-                    */
-        } else {
-          // tournamentInfinityData.current = serverResponse.data;
-          tournamentInfinityData.current = serverResponse;
-        }
-      }
-      setLoading(false);
-    }
+      
+      try{
+          const serverResponse = await getTournamentInfinity({
+            limit: 10,
+            type: "all",
+            sport_id: "1",
+            search: "",
+            remark: "ongoing",
+          });
 
+          if (serverResponse.error || ![200, 201].includes(serverResponse.status)) {
+            // if(serverResponse.data.error) {
+            notification.showNotification(
+              `Gagal mengambil data: ${serverResponse.error || 'Error tidak diketahui'}`,
+              "error"
+            );
+          } else {
+            // tournamentInfinityData.current = serverResponse.data;
+            tournamentInfinityData.current = serverResponse;
+          }
+      }
+      catch (error) {
+        let message = "Error tidak diketahui";
+        if (error instanceof Error) {
+          message = error.message;
+        }
+        notification.showNotification(
+          `Gagal mengambil data: ${message}`,
+          "error"
+        );
+      }
+      finally {
+        setLoading(false);
+      }
+    }
     fetchTournamentInfinityData();
-  }, [authData?.token?.access_token]);
+  }, [notification]);
 
   const loadingElement = (
     <Backdrop
@@ -81,36 +83,34 @@ export default function TournamentDetailPage() {
   );
 
   return (
-    <LoadingProvider initialValue={loading} changeState={setLoading}>
-      <Container
-        maxWidth="xl"
+    <Container
+      maxWidth="xl"
+      sx={{
+        padding: theme.spacing(0),
+      }}
+    >
+      <HeaderTournament eventID={eventID} />
+      <Box
         sx={{
-          padding: theme.spacing(0),
+          padding: theme.spacing(7, 10, 5),
+          [theme.breakpoints.down("md")]: {
+            padding: theme.spacing(7, 2, 5),
+          },
         }}
       >
-        <HeaderTournament eventID={eventID} />
-        <Box
+        <Typography
           sx={{
-            padding: theme.spacing(7, 10, 5),
-            [theme.breakpoints.down("md")]: {
-              padding: theme.spacing(7, 2, 5),
-            },
+            fontSize: "22px",
+            fontWeight: "bold",
+            marginBottom: theme.spacing(2),
           }}
         >
-          <Typography
-            sx={{
-              fontSize: "22px",
-              fontWeight: "bold",
-              marginBottom: theme.spacing(2),
-            }}
-          >
-            Rekomendasi Tournament
-          </Typography>
-          <CardTournaments data={tournamentInfinityData.current?.data || []} />
-        </Box>
-        {/* {<FinalResult data={exampleTournamentResults} />} */}
-        {loadingElement}
-      </Container>
-    </LoadingProvider>
+          Rekomendasi Tournament
+        </Typography>
+        <CardTournaments data={tournamentInfinityData.current?.data || []} />
+      </Box>
+      {/* {<FinalResult data={exampleTournamentResults} />} */}
+      {loadingElement}
+    </Container>
   );
 }

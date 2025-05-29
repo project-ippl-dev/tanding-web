@@ -133,6 +133,7 @@ const DialogFilter = ({
               >
                 {sportData?.data.map((value) => (
                   <FormControlLabel
+                    data-testid={`sport-radio-filter-mobile`}
                     key={value.id}
                     value={value.id}
                     control={<Radio color="primary" />}
