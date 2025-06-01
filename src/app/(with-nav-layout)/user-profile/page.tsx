@@ -43,6 +43,7 @@ export default function UserProfile() {
     const fetchProfileData = async () => {
       try {
         setLoadingProfile(true);
+        console.log(authData)
         const response = await getProfileData({
           uuid: authData?.user_id || "", //NOTE: URL now uses own, uuid is accessible by admin only
         });
@@ -70,7 +71,7 @@ export default function UserProfile() {
     };
 
     fetchProfileData();
-  }, [authData?.user_id, notification]);
+  }, []);
 
   function updateProfileData(updatedData: ProfileUpdate) {
     setProfileData((prevState) => {

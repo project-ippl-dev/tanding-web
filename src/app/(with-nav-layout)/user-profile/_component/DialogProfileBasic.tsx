@@ -19,7 +19,7 @@ import { useAuth } from "@/context/auth.context";
 import Image from "next/image";
 import moment from "moment";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
-import { updateProfileData } from "@/store/actions/profile";
+import { storeProfilePhoto, updateProfileData } from "@/store/actions/profile";
 import { useNotification } from "@/context/notification.context";
 import { useLoading } from "@/context/loading.context";
 
@@ -64,19 +64,38 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
   const {changeState: setLoading} = useLoading()
   const notification = useNotification();
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
-  const [image, setImage] = useState<File | null>(null); // Annotate image as a File or null
+  const [image, setImage] = useState<string>(""); // Annotate image as a File or null
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
       if (formData.photo) {
         URL.revokeObjectURL(formData.photo); // Hapus URL lama
       }
-      setImage(file); // Simpan file gambar
-      setFormData(prevState => ({
-        ...prevState,
-        photo: URL.createObjectURL(file), // Simpan URL gambar
-      }))
+      setLoading(true); // Set loading state to true
+      try{
+        const fotoFormData = new FormData();
+        fotoFormData.append("dir", "profile"); // Tambahkan file gambar ke FormData
+        fotoFormData.append("file", file); // Tambahkan file gambar ke FormData
+        const response = await storeProfilePhoto(fotoFormData)
+
+        if ([200, 201].includes(response.status)) {
+          console.log("Gambar berhasil diunggah:", response);
+          setImage(response.data); // Simpan file gambar
+          setFormData(prevState => ({
+            ...prevState,
+            photo: response.data, // Simpan URL gambar
+          }))
+        } else {
+          notification.showNotification(`Gagal mengunggah foto profil: ${response.error || 'Error tidak diketahui'}`, "error");
+        }
+
+      } catch (error) {
+        console.error("Error while revoking object URL:", error);
+      } finally{
+        setLoading(false); // Set loading state to false
+      }
+
     }
   };
 
@@ -221,9 +240,9 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
             size="small"
             label="Tanggal Lahir"
             placeholder="Pilih Tanggal"
-            format="DD MMMM YYYY"
-            value={moment(formData.born_on)}
-            onChange={(value: moment.Moment | null) => handleChange("born_on", value ? value.toDate() : null)}
+            format="DD/MM/YYYY"
+            value={moment(formData.born_on? formData.born_on : new Date())} // Convert to moment object
+            onChange={(value: moment.Moment | null) => handleChange("born_on", value ? value.format("YYYY-MM-DD") : null)}
             margin="normal"
             error={!!errors.born_on}
             helperText={errors.born_on}

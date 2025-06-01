@@ -15,3 +15,10 @@ export async function updateProfileData({ uuid, payload }: { uuid: string; paylo
 
   return result;
 }
+
+export async function storeProfilePhoto(payload : FormData ) {
+  const url = `/storage/upload`
+  const result = await handleFetch({ url, method: 'POST', data: payload, contentType: 'multipart/form-data' });
+
+  return result;
+}

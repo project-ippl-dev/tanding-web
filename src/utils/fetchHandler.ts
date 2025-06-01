@@ -20,6 +20,7 @@ export async function handleFetch({
   contentType = 'application/json',
   externalURL = false,
 }: FetchHandlerParams) {
+  console.log(`Fetching URL: ${url} with method: ${method}`);
   const headers: HeadersInit = {};
   // throw new Error(`This function is not implemented yet ${url}`); // Placeholder for the actual implementation
   if (isAuthorized) {
