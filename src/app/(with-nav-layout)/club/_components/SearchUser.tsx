@@ -1,39 +1,74 @@
 "use client";
+import { inviteToClub } from "@/store/actions/club";
+import { searchUser } from "@/store/actions/user";
 import { ClubFetchOneData } from "@/types/club.type";
+import { UserData } from "@/types/user";
 import { Autocomplete, Button, Grid, MenuItem, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function SearchUser({
   // clubId,
   club,
 }: {
   // clubId: string;
-  club?: ClubFetchOneData; // TODO: Make Club type
+  club: ClubFetchOneData;
 }) {
   const [keyword, setKeyword] = useState<string>("");
-  const [userSelected, setUserSelected] = useState(null);
+  const [userSelected, setUserSelected] = useState<UserData | null>(null);
   const [sportSelected, setSportSelected] = useState("");
+  const searchUserRef = useRef([]);
+
+  const onSubmit = () => {
+    if (userSelected) {
+      const data = {
+        participants: [
+          {
+            user_id: userSelected?.id,
+            sport_id: sportSelected,
+          },
+        ],
+      };
+      inviteToClub(club?.id, data);
+    }
+  };
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const response = await searchUser(keyword, 5);
+      if (response.status === 200) {
+        searchUserRef.current = response.data;
+      } else {
+        alert(
+          "Gagal mendapatkan data pengguna, dengan error: " + response.error
+        );
+      }
+    };
+    fetchOptions();
+  }, [keyword]);
 
   return (
     <Grid
       container
       alignItems="center"
       sx={(theme) => ({ gap: theme.spacing(2) })}
+      data-testid="search-user-member"
     >
       <Grid size={{ md: 5, xs: 12 }}>
         <Autocomplete
+          data-testid="invite-new-member-autocomplete"
           fullWidth
-          // getOptionLabel={(option) => option.name}
-          options={[]} //TODO: User List for autocomplete
+          getOptionLabel={(option) => option.name}
+          options={searchUserRef.current}
           inputValue={keyword}
           onInputChange={(_, newInputValue) => {
             setKeyword(newInputValue);
           }}
           value={userSelected}
-          onChange={(e, newValue) => setUserSelected(newValue)}
+          onChange={(_, newValue) => setUserSelected(newValue)}
           renderInput={(params) => (
             <TextField
               {...params}
+              data-testid="invite-new-member-text-field"
               label="Invite new member"
               variant="outlined"
             />
@@ -62,8 +97,8 @@ export default function SearchUser({
           fullWidth
           variant="contained"
           color="primary"
-          // onClick={onSubmit}
-          disabled={userSelected === null || sportSelected === ""}
+          onClick={onSubmit}
+          disabled={!userSelected || sportSelected === ""}
         >
           Invite
         </Button>

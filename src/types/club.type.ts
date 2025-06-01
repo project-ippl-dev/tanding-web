@@ -36,6 +36,7 @@ export interface ClubFetchAllData {
   id: string;
   name: string;
   logo: string;
+  short_name?: string;
   owner: string;
   sports: {
     id: number;

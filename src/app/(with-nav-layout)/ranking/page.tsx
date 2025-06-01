@@ -1,7 +1,7 @@
 import { Container } from "@mui/material";
 import RankingPageContents from "./_components/RankingPageContents";
 
-export default async function RankingPage() {
+export default function RankingPage() {
 
   return (
     <Container

@@ -47,10 +47,51 @@ export const CLUB_ONE_DATA: FetchResponseBody<ClubFetchOneData> = {
         "sport_name": "Taekwondo Reversed"
       }
     ],
-    "privilege": true,
+    "privilege": false,
     "joined": false
   }
 }
+
+export const CLUB_ONE_DATA_PRIVILEGED: FetchResponseBody<ClubFetchOneData> = {
+  "message": "fetch one club success",
+  "data": {
+    "id": "41510e3f-f3ed-4b86-811d-74755b794519",
+    "name": "Black Jaguar Taekwondo Club",
+    "logo": "http://google.com",
+    "short_name": "BJTC",
+    "owner": "dytlan",
+    "sports": [
+      {
+        "id": 3,
+        "sport_id": "07302ca3-0350-46ad-861e-f9bcb99668df",
+        "sport_name": "Taekwondo Reversed"
+      }
+    ],
+    "privilege": true,
+    "joined": true
+  }
+}
+
+export const CLUB_ONE_DATA_JOINED: FetchResponseBody<ClubFetchOneData> = {
+  "message": "fetch one club success",
+  "data": {
+    "id": "41510e3f-f3ed-4b86-811d-74755b794519",
+    "name": "Black Jaguar Taekwondo Club",
+    "logo": "http://google.com",
+    "short_name": "BJTC",
+    "owner": "dytlan",
+    "sports": [
+      {
+        "id": 3,
+        "sport_id": "07302ca3-0350-46ad-861e-f9bcb99668df",
+        "sport_name": "Taekwondo Reversed"
+      }
+    ],
+    "privilege": true,
+    "joined": true
+  }
+}
+
 
 export const CLUB_MEMBER_DATA: FetchResponseBody<ClubFetchMemberData> = {
   "message": "fetch participant success",
@@ -93,7 +134,6 @@ export const CLUB_JOIN_DATA: FetchResponseBody<ClubFetchJoinRequestData[]> = {
   ]
 }
 
-// TODO: DUMMY DATA
 export const CLUB_DUMMY = [
   {
     id: 1,
@@ -160,5 +200,36 @@ export const CLUB_INVITE_DUMMY: ClubFetchInviteRequestData[] = [
     sport_name: "Football",
     sport_id: "",
     club_id: "",
+  },
+];
+
+export const MOCK_CLUB_DUMMY: ClubFetchAllData[] = [
+  {
+    id: '1',
+    name: "Club 1",
+    logo: "/images/logo.png",
+    owner: "Owner 1",
+    short_name: 'C1',
+    "sports": [
+      {
+        "id": 3,
+        "sport_id": "07302ca3-0350-46ad-861e-f9bcb99668df",
+        "sport_name": "Taekwondo Reversed"
+      }
+    ],
+  },
+  {
+    id: '2',
+    name: "Club 2",
+    logo: "/images/logo.png",
+    owner: "Owner 2",
+    short_name: 'C2',
+    "sports": [
+      {
+        "id": 3,
+        "sport_id": "07302ca3-0350-46ad-861e-f9bcb99668df",
+        "sport_name": "Taekwondo Reversed"
+      }
+    ],
   },
 ];

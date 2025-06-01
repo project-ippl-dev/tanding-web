@@ -17,4 +17,6 @@ export interface FetchResponseBody<T> {
     next_page?: number;
     last_page?: number;
     total_item?: number;
+    status?: number;
+    error?: string;
 }

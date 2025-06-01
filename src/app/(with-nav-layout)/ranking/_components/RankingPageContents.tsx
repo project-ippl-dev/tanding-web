@@ -16,20 +16,18 @@ import { getSport } from "@/store/actions/sport";
 import { Sport } from "@/types/sport.type";
 import { getPowerListClub, getPowerListUser } from "@/store/actions/ranking";
 import { RankingClubData, RankingUserData } from "@/types/ranking.types";
+import { useNotification } from "@/context/notification.context";
 
 export default function RankingPageContents() {
+  const notification = useNotification();
   const [typeRank, setTypeRank] = useState<string>("user");
   const [sport, setSport] = useState<Sport[]>([]);
   const [chosenSport, setChosenSport] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [sportLoading, setSportLoading] = useState<boolean>(true);
-  // const [rankingList, setRangkingList] = useState<
-  //   RankingClubData[] | RankingUserData[]
-  // >([]);
   const rankingList = useRef<RankingClubData[] | RankingUserData[]>([]);
   const [rankLoading, setRankLoading] = useState<boolean>(true);
   const [lastPage, setLastPage] = useState<number>(1);
-  // const [powerList, setPowerList] = useState
 
   useEffect(() => {
     async function fetchSport() {
@@ -38,13 +36,16 @@ export default function RankingPageContents() {
       if ([200, 201].includes(response.status)) {
         setSport(response.data);
       } else {
-        alert("Gagal mengambil data olahraga, dengan error: " + response.error);
+        console.error(
+          "Gagal mengambil data olahraga, dengan error: " + response.error
+        );
+        notification.showNotification("Gagal memuat daftar olahraga", "error");
       }
       setSportLoading(false);
     }
 
     fetchSport();
-  }, []);
+  }, [notification]);
 
   const PAGE_SIZE = 25;
 
@@ -64,21 +65,31 @@ export default function RankingPageContents() {
         result = await getPowerListClub(query);
       }
 
+      if (!result || !result.status || !result.data || !result.last_page) {
+        throw new Error("Gagal mengambil daftar ranking.");
+      }
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
       if ([200, 201].includes(result.status)) {
         // setRangkingList(result.data);
-        rankingList.current = result.data
+        rankingList.current = result.data;
         setLastPage(result.last_page);
       } else {
-        alert("Gagal mengambil data olahraga, dengan error: " + result.error);
+        console.error(
+          "Gagal mengambil data ranking, dengan error: " + result.error
+        );
+        notification.showNotification("Gagal memuat data ranking", "error");
       }
       setRankLoading(false);
       setSportLoading(false);
     }
     fetchRank();
-  }, [chosenSport, page, typeRank]);
+  }, [chosenSport, page, typeRank, notification]);
 
   return (
-    <>
+    <div>
       <Grid container>
         <Grid
           size={{
@@ -117,6 +128,7 @@ export default function RankingPageContents() {
                   value="user"
                   control={
                     <Radio
+                      data-testid="user-ranking-radio"
                       color="primary"
                       sx={{
                         padding: "5px",
@@ -129,6 +141,7 @@ export default function RankingPageContents() {
                   value="club"
                   control={
                     <Radio
+                      data-testid="club-ranking-radio"
                       color="primary"
                       sx={{
                         padding: "5px",
@@ -230,6 +243,6 @@ export default function RankingPageContents() {
         </Grid>
       </Grid>
       <Box height="100px" />
-    </>
+    </div>
   );
 }

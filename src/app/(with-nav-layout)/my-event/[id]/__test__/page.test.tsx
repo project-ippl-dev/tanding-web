@@ -292,7 +292,7 @@ describe('Menguji Detail Own Tournament Page', () => {
             await waitFor(() => expect(sportStore.getSport).toHaveBeenCalled());
 
             const tournamentInput = screen.getByTestId("tournament-name");
-            console.log(tournamentInput);
+            // console.log(tournamentInput);
             expect(tournamentInput).toBeInTheDocument();
             // expect(tournamentInput).toBeDisabled();
             const editButton = screen.getByTestId("edit-tournament-data");

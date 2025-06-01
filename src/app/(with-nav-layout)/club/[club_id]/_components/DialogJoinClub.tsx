@@ -1,5 +1,6 @@
 "use client";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
+import { useNotification } from "@/context/notification.context";
 import { joinClub } from "@/store/actions/club";
 import { ClubFetchOneData } from "@/types/club.type";
 import {
@@ -25,7 +26,7 @@ function DialogJoinClub({
   onClose: () => void;
   clubId: string;
 }) {
-  //TODO: Connect to actual logic
+  const notification = useNotification();
   const {
     handleSubmit,
     formState: { errors },
@@ -34,7 +35,6 @@ function DialogJoinClub({
   } = useForm<{sport_id: string}>();
 
   const onSubmit = async (data: {sport_id: string}) => {
-    // action(params.club_id, data);
     if (!data.sport_id) {
       setError("sport_id", {
         type: "manual", 
@@ -45,6 +45,7 @@ function DialogJoinClub({
         await joinClub(clubId, data)
       } catch (error){
         console.error(error)
+        notification.showNotification("Gagal bergabung dengan club", "error")
       } finally {
         onClose();
       }
@@ -52,7 +53,7 @@ function DialogJoinClub({
   };
 
   return (
-    <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose}>
+    <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose} data-testid="dialog-join-club-comp">
       <form onSubmit={handleSubmit(onSubmit)}>
         <StyledDialogTitle>{`Join to Club ${data?.name}`}</StyledDialogTitle>
         <DialogContent>
