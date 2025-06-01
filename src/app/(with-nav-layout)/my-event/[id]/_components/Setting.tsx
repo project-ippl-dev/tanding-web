@@ -7,15 +7,19 @@ import FinishTournament from "./parts/Settings/FinishTournament";
 import CardAssignRole from "./parts/Settings/CardAssignRole";
 import CardClassTournament from "./CardClassTournament";
 import CardEditTournament from "./parts/Settings/CardEditTournament";
+import { NotificationType } from "@/types/notification.type";
 
 
-async function reqFinishTournament(eventID: string) {
+async function reqFinishTournament(
+  eventID: string,
+  notification: (message:string,status?:NotificationType) => void
+) {
   // Finish the tournament
   const response = await sendFinishTournament({ eventID });
   if (response.status === 200) {
-    alert(response.message);
+    notification("Turnamen berhasil diselesaikan", "success");
   } else {
-    alert("Gagal mengambil data summary tournament, dengan error: " + response.error);
+    notification("Gagal menyelesaikan turnamen, dengan error: " + response.error, "error");
   }
 }
 

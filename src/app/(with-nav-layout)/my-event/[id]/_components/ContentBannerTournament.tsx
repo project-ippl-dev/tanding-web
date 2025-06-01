@@ -22,7 +22,7 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
   const auth = useAuth();
   const [dialogRegister, setDialogRegister] = useState(false);
   const [dialogReject, setDialogReject] = useState(false);
-
+  console.log("data", auth.authData?.can_participate)
   const handleRegister = () => {
     const canRegister = auth.authData?.can_participate
     if (!canRegister) {
@@ -77,6 +77,8 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
         return "Segera Hadir"
       case "ongoing":
         return "Kompetisi Sedang Berlangsung"
+      case "closed":
+        return "Pendaftaran Ditutup"
       default:
         return ""
     }

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint --strict",
     "test": "jest",
+    "test-preview": "jest-preview",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -46,6 +47,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-html-reporter": "^4.1.0",
+    "jest-preview": "^0.3.1",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"

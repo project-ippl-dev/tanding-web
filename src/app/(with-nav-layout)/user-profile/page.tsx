@@ -39,7 +39,6 @@ export default function UserProfile() {
     null
   );
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
-
   useEffect(() => {
     const fetchProfileData = async () => {
       try {

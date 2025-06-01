@@ -85,13 +85,14 @@ async function reqTournamentDetailData(
 ) {
   try {
     const response = await getOwnTournament({page,page_size});
-    if (response.status === 200) {
+    if ([200,201].includes(response.status)) {
       setData(response);
     } else {
       notification?.showNotification("Gagal dalam mengambil data turnamen", "error");
     }
   } catch (error) {
     notification?.showNotification("Gagal mengakses server");
+    console.error("Error fetching tournament data:", error);
   }
 }
 

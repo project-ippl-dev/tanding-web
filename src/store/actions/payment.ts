@@ -7,7 +7,6 @@ import {
   PaymentStoreData,
   PaymentQueryParams,
   PaymentData,
-  PaymentSummary,
 } from "@/types/paymet.type";
 import { handleFetch } from "@/utils/fetchHandler";
 

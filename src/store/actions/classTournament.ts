@@ -1,5 +1,5 @@
 import { handleFetch } from "@/utils/fetchHandler";
-import { CreateClassPayload, StoreClassTournamentPayload, UpdatePriceClassTournamentPayload } from "@/types/class.types";
+import { ClassAssignmentItem, CreateClassPayload, UpdatePriceClassTournamentPayload } from "@/types/class.types";
 
 // --- API Functions ---
 
@@ -41,7 +41,7 @@ export const createClass = async (payload: CreateClassPayload) => {
  * Assigns classes to a tournament event.
  * POST /event/{eventId}/class/assign
  */
-export const storeClassTournament = async (eventId: string, payload: StoreClassTournamentPayload) => {
+export const storeClassTournament = async (eventId: string, payload: ClassAssignmentItem[]) => {
   return handleFetch({
     url: `/event/${eventId}/class/assign`,
     method: "POST",

@@ -19,6 +19,7 @@ import {
   TextFieldProps,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
+import { useNotification } from "@/context/notification.context";
 
 import { useParams } from "next/navigation";
 import { EventData, EventUpdatePayload } from "@/types/event.type";
@@ -32,21 +33,21 @@ import DateTimePickerComp from "@/components/DateTimePicker";
 import DatePickerCustom from "@/components/DatePicker";
 import { updateTournamentDetail } from "@/store/actions/event";
 
-async function reqGetProvince(setData: (data: AddressProvince[]) => void) {
+async function reqGetProvince(setData: (data: AddressProvince[]) => void, showNotification: (msg: string, type?: string) => void) {
   const response = await getProvince();
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal mengambil data provinsi, dengan error: " + response.error);
+    showNotification("Gagal mengambil data provinsi, dengan error: " + response.error, "error");
   }
 }
 
-async function reqSport(setData: (data: SportResponseMultiple) => void) {
+async function reqSport(setData: (data: SportResponseMultiple) => void, showNotification: (msg: string, type?: string) => void) {
   const response = await getSport();
   if ([200,201].includes(response.status)) {
     setData(response);
   } else {
-    alert("Gagal mengambil data olahraga, dengan error: " + response.error);
+    showNotification("Gagal mengambil data olahraga, dengan error: " + response.error, "error");
   }
 }
 
@@ -55,7 +56,8 @@ async function reqUpdateTournamentDetail(
   data: Omit<EventUpdatePayload,'thumbnail'>,
   bannerFile: File | null,
   oldBannerURL: string | undefined,
-  changeNewImage: boolean
+  changeNewImage: boolean,
+  showNotification: (msg: string, type?: string) => void
 ): Promise<void> {
   const response = await updateTournamentDetail(
     eventID,
@@ -65,21 +67,22 @@ async function reqUpdateTournamentDetail(
     changeNewImage
   );
   if (response.status === 200) {
-    alert("Berhasil mengupdate data");
+    showNotification("Berhasil mengupdate data", "success");
   } else {
-    alert("Gagal mengupdate data tournament detail, dengan error: " + response.error);
+    showNotification("Gagal mengupdate data tournament detail, dengan error: " + response.error, "error");
   }
 }
 
 async function reqGetCities(
   id_province: number,
-  setData: (data: AddressCity[]) => void
+  setData: (data: AddressCity[]) => void,
+  showNotification: (msg: string, type?: string) => void
 ) {
   const response = await getCities(id_province.toString());
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal mengambil data kota, dengan error: " + response.error);
+    showNotification("Gagal mengambil data kota, dengan error: " + response.error, "error");
   }
 }
 
@@ -100,6 +103,7 @@ type FormInputs = Omit<EventUpdatePayload, 'thumbnail'> & {
 const CardEditTournament: React.FC<CardEditTournamentProps> = ({
   tournament,
 }) => {
+  const notification = useNotification();
   const params = useParams();
   const [address, setAddress] = useState<TournamentAddress>({
     province: [],
@@ -159,6 +163,7 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
       bannerFile,
       oldBanner,
       !!bannerFile,
+      notification.showNotification
     ).finally(() => {
       setLoading(false);
       setFormDisabled(true);
@@ -204,8 +209,8 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
       if (!alreadyFetch.current) {
         alreadyFetch.current = true;
         setLoading(true);
-        await reqGetProvince(setProvinceData);
-        await reqSport(setSportData);
+        await reqGetProvince(setProvinceData, notification.showNotification);
+        await reqSport(setSportData, notification.showNotification);
         setLoading(false);
 
       }
@@ -227,7 +232,7 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
       const foundProvince = address.province.find(
         (province) => province.name === address.selected_province
       );
-      if (foundProvince) reqGetCities(foundProvince.id, setCityData);
+      if (foundProvince) reqGetCities(foundProvince.id, setCityData, notification.showNotification);
     }
   }, [address.selected_province]);
 
@@ -267,7 +272,9 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
         }
       />
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form 
+          data-testid="form-edit-tournament"
+          onSubmit={handleSubmit(onSubmit)}>
           <div>
             <Box paddingX={1}>
               <Box
@@ -660,7 +667,9 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
           </div>
           <Box marginY={2}>
             {!formDisabled && (
-              <Button variant="contained" fullWidth type="submit">
+              <Button 
+                data-testid="submit-edit-tournament"
+                variant="contained" fullWidth type="submit">
                 Simpan Perubahan
               </Button>
             )}

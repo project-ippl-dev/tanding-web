@@ -1,38 +1,12 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import * as eventStore from "@/store/actions/event";
-import { AUTH_DATA } from "@/store/auth";
 import { EVENT_OWN } from "@/store/event";
 import WrapperContext from "@/app/wrapper";
-import { EventOwnResponse } from "@/types/event.type";
 import { useRouter } from "next/navigation";
 import OwnTournament from "../page";
 
-jest.mock("@/store/actions/event");
-
-jest.mock("@/context/auth.context", () => {
-  const actual = jest.requireActual("@/context/auth.context");
-  return {
-    ...actual,
-    useAuth: () => ({ authData: AUTH_DATA }),
-  };
-});
-
-interface EventOwnMockResponse extends EventOwnResponse {
-  status: number;
-}
-
-
-describe("Unit Testing Halaman List Own Tournament View", () => {    
-  beforeEach(() => {
-    jest.clearAllMocks();
-    const mockEventOwnData:  EventOwnMockResponse= {
-      ...EVENT_OWN,
-      status: 200,
-    };
-    (eventStore.getOwnTournament as jest.Mock).mockResolvedValue(mockEventOwnData);
-
-  });
+describe("Unit Testing Halaman List Own Tournament View", () => {
 
   it("Menampilkan halaman secara normal", async () => {
     render(
@@ -53,7 +27,7 @@ describe("Unit Testing Halaman List Own Tournament View", () => {
   });
 
   it("Menguji handle saat gagal akses server API Tournament", async () => {
-    (eventStore.getOwnTournament as jest.Mock).mockRejectedValue(new Error("Error fetching data"));
+    (eventStore.getOwnTournament as jest.Mock).mockRejectedValueOnce(new Error("Error fetching data"));
 
     render(
       <WrapperContext>
@@ -93,4 +67,4 @@ describe("Unit Testing Halaman List Own Tournament View", () => {
       });
     })
   })
-});
+})    

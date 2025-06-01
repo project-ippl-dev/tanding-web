@@ -22,7 +22,6 @@ import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
 import TextFieldFormat from "@/components/TextFieldFormat/TextFieldFormat";
 import DialogCustom from "./parts/CardClassTournamen/DialogCustom";
 import {
-  createClass,
   deleteClassTournament,
   getClass,
   getClassRules,
@@ -31,95 +30,103 @@ import {
 } from "@/store/actions/classTournament";
 import { useParams } from "next/navigation";
 import {
+  ClassAssignmentItem,
   ClassMultiple,
   ClassRulesMultiple,
-  CreateClassPayload,
-  StoreClassTournamentPayload,
   UpdatePriceClassTournamentPayload,
 } from "@/types/class.types";
-import { EventData } from "@/types/event.type";
 import { useLoading } from "@/context/loading.context";
+import { useNotification } from "@/context/notification.context";
+import { EventData } from "@/types/event.type";
+import { NotificationType } from "@/types/notification.type";
 
-async function reqCreateClass(data: CreateClassPayload) {
-  const response = await createClass(data);
-  if ([200, 201].includes(response.status)) {
-    alert(response.message);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
-  }
-}
-
-async function reqDeleteClassTournament(eventID: string, classID: string) {
+// Helper functions OUTSIDE the component, accept showNotification as parameter
+async function reqDeleteClassTournament(eventID: string, classID: string, showNotification: (msg: string, type?: NotificationType) => void) {
   const response = await deleteClassTournament(eventID, classID);
-  console.log("response", response);
   if ([200, 201].includes(response.status)) {
-    alert(response.message);
+    showNotification(response.message, "success");
   } else {
-    alert("Gagal menghapus kelas turnamen, dengan error: " + response.error);
+    showNotification(
+      "Gagal menghapus kelas turnamen, dengan error: " + (response.error || response.message),
+      "error"
+    );
   }
 }
 
 async function reqUpdatePriceClassTournament(
   eventID: string,
   classID: string,
-  data: UpdatePriceClassTournamentPayload
+  data: UpdatePriceClassTournamentPayload,
+  showNotification: (msg: string, type?: NotificationType) => void
 ) {
   const response = await updatePriceClassTournament(eventID, classID, data);
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message, "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(
+      "Gagal membuat data respon, dengan error: " + (response.error || response.message),
+      "error"
+    );
   }
 }
 
 async function reqGetClass(
   sportID: string,
-  setData: (data: ClassMultiple) => void
+  setData: (data: ClassMultiple) => void,
+  showNotification: (msg: string, type?: NotificationType) => void
 ) {
   const response = await getClass(sportID);
-  console.log("response", response);
   if (response.status === 200) {
     setData(response);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(
+      "Gagal membuat data respon, dengan error: " + (response.error || response.message),
+      "error"
+    );
   }
 }
 
 async function reqGetClassRules(
   page: string,
   pageSize: string,
-  setData: (data: ClassRulesMultiple) => void
+  setData: (data: ClassRulesMultiple) => void,
+  showNotification: (msg: string, type?: NotificationType) => void
 ) {
   const response = await getClassRules(page, pageSize);
-  console.log("response", response);
   if (response.status === 200) {
     setData(response);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(
+      "Gagal membuat data respon, dengan error: " + (response.error || response.message),
+      "error"
+    );
   }
 }
 
 async function reqStoreClassTournament(
   eventID: string,
-  data: StoreClassTournamentPayload
+  data: ClassAssignmentItem[],
+  showNotification: (msg: string, type?: NotificationType) => void
 ) {
   const response = await storeClassTournament(eventID, data);
   if ([200, 201].includes(response.status)) {
-    alert(response.message);
+    showNotification(response.message, "success");
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    showNotification(
+      "Gagal membuat data respon, dengan error: " + (response.error || response.message),
+      "error"
+    );
   }
 }
 
-interface CardClassTournamentProps {
-  tournament: EventData | null;
-}
-
-const CardClassTournament: React.FC<CardClassTournamentProps> = ({
+const CardClassTournament = ({
   tournament,
+}:{
+  tournament: EventData
 }) => {
   const loading = useLoading();
   const params = useParams<{ id: string }>();
+  const notification = useNotification();
   const {
     handleSubmit,
     control,
@@ -132,7 +139,6 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
 
   const alreadyFetch = useRef(false);
 
-  const [id, setId] = useState<string>("");
   const [classRule, setClassRule] = useState<ClassRulesMultiple | null>(null);
   const [classTournament, setClassTournament] =
     useState<ClassMultiple | null>();
@@ -179,26 +185,32 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
 
   const handleDeleteClass = async (class_id: string) => {
     setLoading(true);
-    await reqDeleteClassTournament(params.id!, class_id);
+    await reqDeleteClassTournament(params.id!, class_id, notification.showNotification);
     setLoading(false);
     closeDialogClass();
   };
 
   const onSubmit = async (formData: { class_id: string; price: number }) => {
     setLoading(true);
-
     if (dialogClass.edit && dialogClass.data) {
-      await reqUpdatePriceClassTournament(params.id!, dialogClass.data.id, {
-        price: formData.price,
-      });
+      await reqUpdatePriceClassTournament(
+        params.id!,
+        dialogClass.data.id,
+        { price: formData.price.floatValue },
+        notification.showNotification
+      );
     } else {
-      await reqStoreClassTournament(params.id!, { data: [formData] });
+      await reqStoreClassTournament(
+        params.id!,
+        [{ class_id: formData.class_id, price: formData.price.floatValue }],
+        notification.showNotification
+      );
     }
     closeDialogClass();
+    setValue("class_id", "");
+    setValue("price", 0);
     setLoading(false);
   };
-
-  console.log("classTournament", dialogClass);
 
   useEffect(() => {
     if (!alreadyFetch.current) {
@@ -210,12 +222,11 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
       const setRule = (data: ClassRulesMultiple) => {
         setClassRule(data);
       };
-      reqGetClass(tournament?.sport_id || "", setData);
-      reqGetClassRules("", "", setRule);
-
+      reqGetClass(tournament?.sport_id || "", setData, notification.showNotification);
+      reqGetClassRules("", "", setRule, notification.showNotification);
       setLoading(false);
     }
-  }, [tournament?.sport_id, setLoading]);
+  }, [tournament?.sport_id, setLoading, notification.showNotification]);
 
   useEffect(() => {
     if (dialogClass.edit && dialogClass.data) {
@@ -245,7 +256,9 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
                 </Typography>
               </div>
               <div>
-                <IconButton onClick={() => openDialogClass(false, null)}>
+                <IconButton 
+                  data-testid="add-class-tournament"
+                  onClick={() => openDialogClass(false, null)}>
                   <AddIcon />
                 </IconButton>
               </div>
@@ -258,6 +271,7 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
               <Grid size={12}>
                 {tournament?.class_events.map((value) => (
                   <Box
+                    data-testid="class-tournament-item"
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
@@ -265,8 +279,6 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
                       marginBottom: 2,
                     }}
                     key={value.id}
-                    onMouseEnter={() => setId(value.id)}
-                    onMouseLeave={() => setId("")}
                   >
                     <div>
                       <Typography sx={{ fontWeight: "bold", fontSize: "16px" }}>
@@ -283,21 +295,21 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
                         decimalSeparator=","
                       />
                     </div>
-                    {id === value.id && (
                       <div>
                         <IconButton
-                          onClick={() =>
+                          data-testid="edit-class-tournament"
+                          onClick={() =>{
+                            console.log("Open Dialog Edit", value);
                             setDialogClass({
                               open: true,
                               edit: true,
                               data: { ...value, class_id: value.id },
-                            })
+                            })}
                           }
                         >
                           <EditIcon sx={{ fontSize: "20px" }} />
                         </IconButton>
                       </div>
-                    )}
                   </Box>
                 ))}
                 {tournament?.class_events.length === 0 && (
@@ -318,7 +330,9 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
         maxWidth="sm"
         fullWidth
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form 
+        data-testid="dialog-class-tournament"
+        onSubmit={handleSubmit(onSubmit)}>
           <StyledDialogTitle onClose={closeDialogClass}>
             {dialogClass.edit ? "Edit Biaya Kelas" : "Tambah Kelas Tournament"}
           </StyledDialogTitle>
@@ -391,13 +405,16 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
           <DialogActions>
             {dialogClass.edit && (
               <Button
+                data-testid="delete-class-tournament"
                 variant="contained"
                 onClick={() => handleDeleteClass(dialogClass.data!.id)}
               >
                 Delete
               </Button>
             )}
-            <Button variant="contained" color="primary" type="submit">
+            <Button 
+            data-testid="dialog-class-tournament-submit"
+            variant="contained" color="primary" type="submit">
               {dialogClass.edit ? "update" : "simpan"}
             </Button>
           </DialogActions>
@@ -408,7 +425,6 @@ const CardClassTournament: React.FC<CardClassTournamentProps> = ({
         onClose={() => setDialogCustom(false)}
         rules={classRule?.data || []}
         sportId={tournament?.sport_id || ""}
-        action={(formData) => reqCreateClass(formData as CreateClassPayload)}
       />
     </>
   );

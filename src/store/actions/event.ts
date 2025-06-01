@@ -12,14 +12,16 @@ interface InfinityQueryParams {
 }
 
 export async function getTournamentDetail({ id }: { id: string }) {
-  /*
-  const testData = {
-    ...EVENT,
-
-    status: 200
-  }
-  testData.data.remark = 'open'; // Simulating ongoing status for testing purposes
-  return testData;*/
+  // const testData = {
+  //   ...EVENT,
+  //   data:{
+  //     ...EVENT.data,
+  //     remark: 'open', // Simulating ongoing status for testing purposes
+  //   },
+  //   status: 200
+  // }
+  // // testData.data.remark = 'open'; // Simulating ongoing status for testing purposes
+  // return testData
   const url = `/event/${id}`;
   const result = await handleFetch({ url, method: 'GET' });
   return result;
@@ -27,7 +29,7 @@ export async function getTournamentDetail({ id }: { id: string }) {
 
 
 export async function getOwnTournament({ page = 1, page_size = 10 }) {
-
+  // return {...EVENT_INFINITY, status:200}
   const url = `/event/own?page=${page}&page_size=${page_size}`;
   const result = await handleFetch({ url, method: 'GET' });
   return result;
@@ -50,6 +52,7 @@ export async function getTournamentInfinity(params: InfinityQueryParams) {
 }
 
 export async function getTournamentParticipants({ eventID }: { eventID: string | string[] }) {
+  // return {...EVENT_PARTICIPANTS, status:200}
   const url = `/event/${eventID}/participant`;
   const result = await handleFetch({ url, method: 'GET' });
   return result;

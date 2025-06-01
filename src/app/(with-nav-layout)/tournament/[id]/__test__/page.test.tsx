@@ -4,37 +4,11 @@ import * as eventStore from "@/store/actions/event";
 import * as bracketStore from "@/store/actions/bracket";
 import TournamentDetailPage from "../page";
 import { render, screen, waitFor } from "@testing-library/react";
-import * as navigation from "next/navigation";
 import { BracketOrder, BracketSingle } from "@/store/bracket";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("next/navigation");
-jest.mock("@/store/actions/event");
-jest.mock("@/store/actions/bracket");
 
 describe('Tournament Page', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-        (eventStore.getTournamentInfinity as jest.Mock).mockResolvedValue({
-            ...EVENT_INFINITY,
-            status: 200,
-        });
-
-        (eventStore.getTournamentDetail as jest.Mock).mockResolvedValue({
-            ...EVENT,
-            status: 200,
-        });
-
-        (eventStore.getTournamentParticipants as jest.Mock).mockResolvedValue({
-            data: EVENT_PARTICIPANTS.data,
-            status: 200,
-        });
-
-        (navigation.useParams as jest.Mock).mockReturnValue({
-            id: EVENT.data.id,
-        });
-    });
-
     it("Melakukan render daftar kartu turnamen", async()=>{
         render(
             <WrapperContext>
@@ -78,7 +52,7 @@ describe('Tournament Page', () => {
     });
 
     it("Memeriksa bagian bracket di render dengan benar, (Single Elimination)", async () => {
-        (bracketStore.getBracketDetails as jest.Mock).mockResolvedValue({
+        (bracketStore.getBracketDetails as jest.Mock).mockResolvedValueOnce({
             ...BracketSingle,
             status: 200,
         })
@@ -103,7 +77,7 @@ describe('Tournament Page', () => {
 
         await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native");
-
+            
             expect(screen.getByText("Bagan Turnamen")).toBeInTheDocument();
             expect(selectClassEvent).toBeInTheDocument();
 
@@ -125,7 +99,7 @@ describe('Tournament Page', () => {
 
     it("Memeriksa bagian bracket di render dengan benar, (Order Bracket)", async () => {
 
-        (bracketStore.getBracketDetails as jest.Mock).mockResolvedValue({
+        (bracketStore.getBracketDetails as jest.Mock).mockResolvedValueOnce({
             ...BracketOrder,
             status: 200,
         })
@@ -176,7 +150,7 @@ describe('Tournament Page', () => {
             status: 200,
         };
         mockData.data.remark = "open";
-        (eventStore.getTournamentDetail as jest.Mock).mockResolvedValue(mockData);
+        (eventStore.getTournamentDetail as jest.Mock).mockResolvedValueOnce(mockData);
 
         render(
             <WrapperContext>

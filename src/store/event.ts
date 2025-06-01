@@ -24,6 +24,7 @@ export const EVENT = {
     "quota": 100,
     "open": "Thursday, 30 September 2021, 10:00",
     "remark": "done",
+    //"remark": "closed",
     "class_events": [
       {
         "id": "c49e3e2d-2318-40a2-812f-b84dd8badbcf",

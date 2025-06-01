@@ -6,10 +6,11 @@ import { AuthProvider } from "@/context/auth.context";
 import { NotificationProvider } from "@/context/notification.context";
 import { LoadingProvider } from "@/context/loading.context";
 
-
-
-
-export default function WrapperContext({ children }: {children: React.ReactNode}) {
+export default function WrapperContext(
+  { 
+    children,
+  }: {
+    children: React.ReactNode}) {
   return (
     <NotificationProvider>
       <LoadingProvider>

@@ -11,13 +11,26 @@ import { useForm, Controller } from "react-hook-form";
 import StyledDialogTitle from "@/components/dialog/StyledDialogTitle";
 import { ClassRules, CreateClassPayload } from "@/types/class.types";
 import { useLoading } from "@/context/loading.context";
+import { createClass } from "@/store/actions/classTournament";
+import { useNotification } from "@/context/notification.context";
+import { NotificationType } from "@/types/notification.type";
 
+async function reqCreateClass(
+  data: CreateClassPayload,
+  notification: (message:string,status?:NotificationType) => void
+) {
+  const response = await createClass(data);
+  if ([200, 201].includes(response.status)) {
+    notification(response.message || "Kelas berhasil dibuat", "success");
+  } else {
+    notification("Gagal membuat data respon, dengan error: " + response.error, "error");
+  }
+}
 interface DialogCustomProps {
   open: boolean;
   onClose: () => void;
   rules: ClassRules[];
   sportId: string;
-  action: (params: CreateClassPayload) => Promise<void>; // Corrected type and return annotation
 }
 
 interface FormCreateClass {
@@ -31,9 +44,9 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
   onClose,
   rules,
   sportId,
-  action,
 }) => {
   const loading = useLoading();
+  const notification = useNotification();
   const { handleSubmit, control, register, formState: { errors } } = useForm<FormCreateClass>();
 
   function setLoading(value: boolean) {
@@ -49,14 +62,16 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
       class_type: "custom",
     };
     setLoading(true);
-    await action(formData);
+    await reqCreateClass(formData, notification.showNotification);
     setLoading(false);
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form 
+        data-testid="dialog-custom-class"
+        onSubmit={handleSubmit(onSubmit)}>
         <StyledDialogTitle onClose={onClose}>
           Create Custom Class
         </StyledDialogTitle>
@@ -66,7 +81,7 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
             size="small"
             label="Nama Kelas Tournament"
             margin="normal"
-            inputRef={register("name").ref}
+            {...register("name", {required: true})}
             name="name"
             error={!!errors?.name}
           />
@@ -115,7 +130,9 @@ const DialogCustom: React.FC<DialogCustomProps> = ({
           />
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="primary" type="submit">
+          <Button 
+          data-testid="submit-custom-class"
+          variant="contained" color="primary" type="submit">
             Tambah Kelas
           </Button>
         </DialogActions>
