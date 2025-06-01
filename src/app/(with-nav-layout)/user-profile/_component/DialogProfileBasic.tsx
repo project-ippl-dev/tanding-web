@@ -19,7 +19,7 @@ import { useAuth } from "@/context/auth.context";
 import Image from "next/image";
 import moment from "moment";
 import { ProfileBasicResponse, ProfileUpdate } from "@/types/profile";
-import { storeProfilePhoto, updateProfileData } from "@/store/actions/profile";
+import { retrieveAPIURL, updateProfileData } from "@/store/actions/profile";
 import { useNotification } from "@/context/notification.context";
 import { useLoading } from "@/context/loading.context";
 
@@ -73,11 +73,18 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         URL.revokeObjectURL(formData.photo); // Hapus URL lama
       }
       setLoading(true); // Set loading state to true
+      const data = new FormData();
+      data.append("file", file);
+      data.append("dir", "profile"); // Tambahkan tipe file jika diperlukan
       try{
-        const fotoFormData = new FormData();
-        fotoFormData.append("dir", "profile"); // Tambahkan file gambar ke FormData
-        fotoFormData.append("file", file); // Tambahkan file gambar ke FormData
-        const response = await storeProfilePhoto(fotoFormData)
+        const APIURL = await retrieveAPIURL()
+        const response = await fetch(`${APIURL}/storage/upload`,{
+          method: "POST",
+          body: data,
+          headers: {
+            "Authorization": `Bearer ${authData?.token.access_token || ""}`,
+          },
+        })
 
         if ([200, 201].includes(response.status)) {
           console.log("Gambar berhasil diunggah:", response);

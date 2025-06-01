@@ -38,12 +38,13 @@ export default function UserProfile() {
   const [profileData, setProfileData] = useState<ProfileBasicResponse | null>(
     null
   );
+
+
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         setLoadingProfile(true);
-        console.log(authData)
         const response = await getProfileData({
           uuid: authData?.user_id || "", //NOTE: URL now uses own, uuid is accessible by admin only
         });
@@ -70,8 +71,10 @@ export default function UserProfile() {
       }
     };
 
-    fetchProfileData();
-  }, []);
+    if(authData?.user_id) {
+      fetchProfileData();
+    }
+  }, [authData?.user_id]);
 
   function updateProfileData(updatedData: ProfileUpdate) {
     setProfileData((prevState) => {

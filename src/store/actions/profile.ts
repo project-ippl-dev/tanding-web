@@ -18,7 +18,11 @@ export async function updateProfileData({ uuid, payload }: { uuid: string; paylo
 
 export async function storeProfilePhoto(payload : FormData ) {
   const url = `/storage/upload`
-  const result = await handleFetch({ url, method: 'POST', data: payload, contentType: 'multipart/form-data' });
+  const result = await handleFetch({ url, method: 'POST', data: payload, skipContentType: true });
 
   return result;
+}
+
+export async function retrieveAPIURL(){
+  return process.env.TANDING_API_BASE_URL
 }
