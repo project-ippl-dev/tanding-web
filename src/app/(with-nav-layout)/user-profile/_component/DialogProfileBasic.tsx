@@ -64,45 +64,21 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
   const {changeState: setLoading} = useLoading()
   const notification = useNotification();
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
-  const [image, setImage] = useState<string>(""); // Annotate image as a File or null
+  const [image, setImage] = useState<{url: string | null,file: File|null}>({
+    url: profile?.data.photo || null,
+    file: null
+  }); // Annotate image as a File or null
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      if (formData.photo) {
-        URL.revokeObjectURL(formData.photo); // Hapus URL lama
+      if (image.file && image.url) {
+        URL.revokeObjectURL(image.url); // Hapus URL lama
       }
-      setLoading(true); // Set loading state to true
-      const data = new FormData();
-      data.append("file", file);
-      data.append("dir", "profile"); // Tambahkan tipe file jika diperlukan
-      try{
-        const APIURL = await retrieveAPIURL()
-        const response = await fetch(`${APIURL}/storage/upload`,{
-          method: "POST",
-          body: data,
-          headers: {
-            "Authorization": `Bearer ${authData?.token.access_token || ""}`,
-          },
-        })
-
-        if ([200, 201].includes(response.status)) {
-          console.log("Gambar berhasil diunggah:", response);
-          setImage(response.data); // Simpan file gambar
-          setFormData(prevState => ({
-            ...prevState,
-            photo: response.data, // Simpan URL gambar
-          }))
-        } else {
-          notification.showNotification(`Gagal mengunggah foto profil: ${response.error || 'Error tidak diketahui'}`, "error");
-        }
-
-      } catch (error) {
-        console.error("Error while revoking object URL:", error);
-      } finally{
-        setLoading(false); // Set loading state to false
-      }
-
+      setImage({
+        url: URL.createObjectURL(file), // Buat URL baru untuk pratinjau
+        file: file // Simpan file untuk diunggah nanti
+      })
     }
   };
 
@@ -126,17 +102,58 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  async function storeImage(file: File): Promise<string|boolean> {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("dir", "profile"); // Tambahkan tipe file jika diperlukan
+      try{
+        const APIURL = await retrieveAPIURL()
+        const response = await fetch(`${APIURL}/storage/upload`,{
+          method: "POST",
+          body: data,
+          headers: {
+            "Authorization": `Bearer ${authData?.token.access_token || ""}`,
+          },
+        })
+        const responseData = await response.json();
+        responseData.status = response.status; // Tambahkan status ke responseData
+        console.log("Response from image upload:", responseData);
+
+        if ([200, 201].includes(response.status)) {
+          return responseData.data; // Kembalikan URL gambar
+        } else {
+          notification.showNotification(`Gagal mengunggah foto profil: ${response.error || 'Error tidak diketahui'}`, "error");
+          return false
+        }
+      } catch (error) {
+        notification.showNotification(`Terjadi kesalahan saat mengunggah gambar: ${error}`, "error");
+        return false
+      }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setLoading(true);
     try {
+        let profileURL: string | boolean | null = null; // Inisialisasi profileURL sebagai string atau booleanl
+        // Mengirimkan gambar ke server
+        if(image.file) {
+          profileURL = await storeImage(image.file as File)
+        }
+
+        if (profileURL === false) {
+          // Jika ada kesalahan saat mengunggah gambar, hentikan proses
+          return;
+        }
+  
       const payload = {
         ...formData,
-        photo: image || profile?.data.photo, // Gunakan gambar baru jika ada
+        photo: profileURL ? profileURL : profile?.data.photo, // Gunakan gambar baru jika ada
       };
-
+    console.log("Payload to update profile:", payload);
+    
     const serverResponse  = await updateProfileData({ uuid: authData?.user_id || "", payload: payload})
 
     if ([200,201].includes(serverResponse.status)) {
@@ -169,15 +186,15 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
     }
   }, [open]);
 
-  /*
+  
   useEffect(() => {
     return () => {
-      if (formData.photo) {
-        URL.revokeObjectURL(formData.photo); // Bersihkan URL saat komponen unmount
+      if (image.url && image.file) {
+        URL.revokeObjectURL(image.url); // Bersihkan URL saat komponen unmount
       }
     };
-  }, [formData.photo]);
-  */
+  }, []);
+
 
   return (
     <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose}>
@@ -186,10 +203,9 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         <DialogContent style={{ padding: "0 24px" }}>
           <Box marginTop={3} paddingX={1}>
             <Typography>Photo Profile</Typography>
-            {formData.photo && (
               <Box marginBottom={2} display="flex" justifyContent="center">
                 <Image
-                  src={formData.photo}
+                  src={image.url}
                   alt="Preview"
                   width={100} // Ukuran tetap untuk lebar
                   height={100} // Ukuran tetap untuk tinggi
@@ -202,7 +218,6 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
                   }}
                 />
               </Box>
-            )}
             <Box display="flex" alignItems="center" justifyContent="center">
               <Button
                 component="label"
