@@ -92,11 +92,9 @@ describe("Menguji render bagian register halaman", () => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
         });
 
-        await waitFor(async () => {
             const tabRegister = screen.getByTestId("register-button");
             expect(tabRegister).toBeInTheDocument();
             await userEvent.click(tabRegister);
-        });
 
         await waitFor(async () => {
             const registerForm = screen.getByTestId("register-dialog");

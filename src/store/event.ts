@@ -1,3 +1,5 @@
+import { EventCreatePayload } from '../types/event.type';
+
 export const EVENT = {
   "message": "fetch one event success",
   "data": {
@@ -354,4 +356,23 @@ export const EVENT_OWN = {
   "last_page": 1,
   "total_item": 4
 }
+
+export const EVENT_CREATE_PAYLOAD: EventCreatePayload = {
+  name: "Taekwondo Tournament",
+  type: "competition",
+  description: "Pertandingan Taekwondo",
+  prize_pool: "500000000",
+  location: "Jl. Tangerang",
+  province: "Banten",
+  city: "Kota Tangerang",
+  thumbnail: "http://google.com",
+  start_date: "2021-07-21",
+  end_date: "2021-07-21",
+  deadline: "2021-09-02T19:00:10",
+  sport_id: "07302ca3-0350-46ad-861e-f9bcb99668df",
+  rules: "peraturan apa aja",
+  proposal_link: "http://google.com",
+  quota: 150,
+  open: "2021-09-02T15:00:10"
+};
 

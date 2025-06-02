@@ -5,10 +5,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import UserProfile from "../page";
 import { userProfileData } from "@/store/profile";
 import * as profileStore from "@/store/actions/profile";
+import { profile } from "console";
 
 
 
-describe("Heya boy",()=>{
+describe("Menguji rendering halaman user profile",()=>{
   it('Menampilkan DialogProfileBasic saat tombol edit diklik', async () => {
     render(
       <AuthProvider>
@@ -38,11 +39,16 @@ describe("Heya boy",()=>{
       </AuthProvider>
     );
 
-    const editButton = screen.getByTestId('edit-button');
-    await userEvent.click(editButton);
+    await waitFor(() => {
+      expect(profileStore.getProfileData).toHaveBeenCalled();
+    })
+
     await waitFor(() => {
         expect(screen.getByText(/Gagal memuat data/i)).toBeInTheDocument();
     })
+
+    const editButton = screen.getByTestId('edit-button');
+    await userEvent.click(editButton);
   })
 
   it("Menampilkan halaman secara normal", async () => {

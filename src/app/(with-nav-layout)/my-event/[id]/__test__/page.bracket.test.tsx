@@ -47,21 +47,17 @@ describe('Menguji render bagian bracket halaman', () => {
             await userEvent.click(tabBracket);
         });
 
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
             expect(screen.getByText("Bagan Turnamen")).toBeInTheDocument();
             expect(selectClassEvent).toBeInTheDocument();
             // Assuming EVENT is available and selectClassEvent is not null
             await userEvent.selectOptions(selectClassEvent!, EVENT.data.class_events[0].class_name);
-        });
 
-        await waitFor(() => {
             expect(bracketStore.getBracketDetails).toHaveBeenCalled();
             expect(screen.getByText("Final Result")).toBeInTheDocument();
             expect(screen.getByText("Quarterfinals")).toBeInTheDocument();
             expect(screen.getByText("Semifinals")).toBeInTheDocument();
             expect(screen.getByText("Final")).toBeInTheDocument();
-        });
     });
 
     it("Memeriksa bagian bracket di render dengan benar, (Order Bracket)", async () => {

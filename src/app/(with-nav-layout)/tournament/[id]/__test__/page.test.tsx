@@ -75,7 +75,6 @@ describe('Tournament Page', () => {
             tabBracket.click();
         });
 
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native");
             
             expect(screen.getByText("Bagan Turnamen")).toBeInTheDocument();
@@ -83,7 +82,6 @@ describe('Tournament Page', () => {
 
             await userEvent.selectOptions(selectClassEvent, EVENT.data.class_events[0].class_name);
 
-        });
 
         await waitFor(() => {
             expect(bracketStore.getBracketDetails).toHaveBeenCalled();

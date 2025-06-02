@@ -25,13 +25,10 @@ describe("Pengujian bagian keuangan dalam setting ", ()=>{
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
         });
 
-        await waitFor(async () => {
             const tabSetting = screen.getByTestId("tab-keuangan");
             expect(tabSetting).toBeInTheDocument();
             await userEvent.click(tabSetting)
             expect(screen.getByText("Laporan Keuangan")).toBeInTheDocument();
-        })
-
     // Memeriksa bagian setting kelas pertandingan telah dirender
 
     await waitFor(() => {

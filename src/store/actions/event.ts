@@ -1,5 +1,5 @@
 'use server';
-import { EventUpdatePayload } from '@/types/event.type';
+import { EventCreatePayload, EventUpdatePayload } from '@/types/event.type';
 import { handleFetch } from '@/utils/fetchHandler'; // Import handleFetch
 import { EVENT, EVENT_INFINITY, EVENT_PARTICIPANTS } from '../event';
 
@@ -9,6 +9,13 @@ interface InfinityQueryParams {
   sport_id: string;
   search: string;
   remark: string;
+}
+
+export async function createTournamentEvent(data: EventCreatePayload) {
+  // return {...EVENT_INFINITY, status:200}
+  const url = `/event`;
+  const result = await handleFetch({ url, method: 'POST', data });
+  return result;
 }
 
 export async function getTournamentDetail({ id }: { id: string }) {

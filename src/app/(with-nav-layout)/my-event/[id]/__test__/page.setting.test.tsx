@@ -26,9 +26,10 @@ describe("Menguji proses pengeditan data class turnamen", () => {
                 <OwnTournamentDetail />
             </WrapperContext>
         );
+        
         await waitFor(() => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
-        })
+        }); 
         
         // Mengakses tab setting
         const tabSetting = screen.getByTestId("tab-setting");
@@ -116,16 +117,13 @@ describe("Menguji proses pengeditan data class turnamen", () => {
         });
         
 
-        await waitFor(async () => {
             const tabSetting = screen.getByTestId("tab-setting");
             expect(tabSetting).toBeInTheDocument();
             await userEvent.click(tabSetting)
             expect(screen.getByText("Setting Pertandingan")).toBeInTheDocument();
-        })
         
 
         // Memeriksa bagian setting kelas pertandingan telah dirender
-        await waitFor(async () => {
             expect(screen.getByText("Kelas Pertandingan")).toBeInTheDocument();
             EVENT.data.class_events.forEach((data) => {
                 expect(screen.getByText(data.class_name)).toBeInTheDocument();
@@ -133,19 +131,15 @@ describe("Menguji proses pengeditan data class turnamen", () => {
             const addClassButton = screen.getByTestId("add-class-tournament");
             expect(addClassButton).toBeInTheDocument();
             await userEvent.click(addClassButton);
-        })
 
         expect(screen.getByText("Tambah Kelas Tournament")).toBeInTheDocument();
         const classInput = screen.getByTestId("dialog-class-tournament");
         
-        await waitFor(async()=>{
-            
             
             const comboBox = classInput.querySelectorAll('[role="combobox"]');
             expect(comboBox.length).toEqual(1);
 
             await userEvent.click(comboBox[0]);
-        })
         
         const payload = {
             class_id: CLASS_MULTIPLE.data[0].id,
@@ -157,8 +151,6 @@ describe("Menguji proses pengeditan data class turnamen", () => {
         const listBox = screen.getByRole("listbox");
         expect(listBox).toBeInTheDocument();
         expect(listBox.childNodes.length).toEqual(CLASS_MULTIPLE.data.length);
-
-        
 
         // Simulasi pengisian input
         await userEvent.click(listBox.childNodes[0]);
@@ -266,12 +258,10 @@ describe("Menguji proses pendaftaran panitia",()=>{
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
         });
 
-        await waitFor(async () => {
             const tabSetting = screen.getByTestId("tab-setting");
             expect(tabSetting).toBeInTheDocument();
             await userEvent.click(tabSetting)
             expect(screen.getByText("Setting Pertandingan")).toBeInTheDocument();
-        })
 
         await waitFor(async () => {
             await waitFor(() => expect(committeStore.getCommittee).toHaveBeenCalled());
@@ -288,17 +278,14 @@ describe("Menguji proses pendaftaran panitia",()=>{
                 <OwnTournamentDetail />
             </WrapperContext>
         );
-
         await waitFor(() => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
         });
 
-        await waitFor(async () => {
             const tabSetting = screen.getByTestId("tab-setting");
             expect(tabSetting).toBeInTheDocument();
             await userEvent.click(tabSetting)
             expect(screen.getByText("Setting Pertandingan")).toBeInTheDocument();
-        })
 
         const addButton = screen.getByTestId("add-committee-button");
         expect(addButton).toBeInTheDocument();
@@ -349,20 +336,16 @@ describe("Menguji pengeditan data detail turnamen", ()=>{
                 <OwnTournamentDetail />
             </WrapperContext>
         );
-
         await waitFor(() => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
-        });
+        })
 
-        await waitFor(async () => {
             const tabSetting = screen.getByTestId("tab-setting");
             expect(tabSetting).toBeInTheDocument();
             await userEvent.click(tabSetting)
             expect(screen.getByText("Setting Pertandingan")).toBeInTheDocument();
-        })
 
         // Memeriksa bagian setting kelas pertandingan telah dirender
-        await waitFor(async () => {
             expect(screen.getByText("Data Pertandingan")).toBeInTheDocument();
             await waitFor(() => expect(addressStore.getProvince).toHaveBeenCalled());
             await waitFor(() => expect(sportStore.getSport).toHaveBeenCalled());
@@ -387,7 +370,6 @@ describe("Menguji pengeditan data detail turnamen", ()=>{
             expect(submitButton).toBeInTheDocument();
             await userEvent.click(submitButton);
             expect(eventStore.updateTournamentDetail).toHaveBeenCalled()
-        });
     })
 })
 
