@@ -52,19 +52,17 @@ const OwnTournamentDetail = () => {
   const handleTabs = (event: React.SyntheticEvent, newValue: number) => {
     setTabs(newValue);
   };
-
-  useEffect(() => {
-    async function fetchTournamentDetail(id: string) {
-      try{
-        if (loading.changeState) loading.changeState(true);
-          const response = await getTournamentDetail({ id });
-          if ([200,201].includes(response.status)) {
-            setTournament(response);
-          } else {
-            notification.showNotification("Gagal mengambil data turnamen", "error");
-          }
+    
+  async function fetchTournamentDetail(id: string) {
+    try {
+      if (loading.changeState) loading.changeState(true);
+      const response = await getTournamentDetail({ id });
+      if ([200, 201].includes(response.status)) {
+        setTournament(response);
+      } else {
+        notification.showNotification("Gagal mengambil data turnamen", "error");
       }
-      catch (error) {
+    } catch (error) {
         notification.showNotification("Gagal mengakses server", "error");
         console.error("Error fetching tournament detail:", error);
       } finally {
@@ -72,6 +70,7 @@ const OwnTournamentDetail = () => {
       }
     }
 
+  useEffect(() => {
     if (typeof params.id === "string") {
       fetchTournamentDetail(params.id);
     }
@@ -82,7 +81,7 @@ const OwnTournamentDetail = () => {
       return <Participant />;
     }, []);
 
-  const MemoizedSetting = useMemo(() => (<Setting tournament={tournament} />), [tournament]);
+  const MemoizedSetting = useMemo(() => (<Setting tournament={tournament} updateTournament={fetchTournamentDetail} />), [tournament]);
   return (
       <Container maxWidth="xl" sx={{ padding: 0 }}>
         <Box sx={{ marginTop: { xs: 7, md: 0 } }}>

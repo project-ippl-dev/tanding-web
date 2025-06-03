@@ -25,8 +25,9 @@ async function reqFinishTournament(
 
 
 
-const Setting = ({ tournament }:{
+const Setting = ({ tournament, updateTournament }:{
   tournament: EventSingleResponse | null;
+  updateTournament: (id: string) => void;
 }) => {
   
   const MemoizedFinishTournament = useMemo(() => (
@@ -50,7 +51,9 @@ const Setting = ({ tournament }:{
             </Box>
           )}
           <Box marginTop={3}>
-            <CardClassTournament tournament={tournament?.data || null} />
+            <CardClassTournament 
+              updateTournament={updateTournament || null}
+              tournament={tournament?.data || null} />
           </Box>
           {tournament?.data?.user_privilege.role === "owner" && (
             <Box marginTop={3}>

@@ -45,12 +45,14 @@ import { NotificationType } from "@/types/notification.type";
 async function reqDeleteClassTournament(eventID: string, classID: string, showNotification: (msg: string, type?: NotificationType) => void) {
   const response = await deleteClassTournament(eventID, classID);
   if ([200, 201].includes(response.status)) {
-    showNotification(response.message, "success");
+    showNotification("Berhasil menghapus kelas turnamen", "success");
+    return true;
   } else {
     showNotification(
       "Gagal menghapus kelas turnamen, dengan error: " + (response.error || response.message),
       "error"
     );
+    return false;
   }
 }
 
@@ -62,12 +64,14 @@ async function reqUpdatePriceClassTournament(
 ) {
   const response = await updatePriceClassTournament(eventID, classID, data);
   if (response.status === 200) {
-    showNotification(response.message, "success");
+    showNotification("Berhasil mengupdate harga kelas turnamen", "success");
+    return true
   } else {
     showNotification(
       "Gagal membuat data respon, dengan error: " + (response.error || response.message),
       "error"
     );
+    return false
   }
 }
 
@@ -106,24 +110,28 @@ async function reqGetClassRules(
 
 async function reqStoreClassTournament(
   eventID: string,
-  data: StoreClassTournamentPayload[],
+  data: StoreClassTournamentPayload,
   showNotification: (msg: string, type?: NotificationType) => void
 ) {
   const response = await storeClassTournament(eventID, data);
   if ([200, 201].includes(response.status)) {
-    showNotification(response.message, "success");
+    showNotification("Berhasil membuat kelas turnamen", "success");
+    return true;
   } else {
     showNotification(
       "Gagal membuat data respon, dengan error: " + (response.error || response.message),
       "error"
     );
+    return false;
   }
 }
 
 const CardClassTournament = ({
+  updateTournament,
   tournament,
 }:{
-  tournament: EventData
+  updateTournament: ((id: string) => void);
+  tournament: EventData | null
 }) => {
   const loading = useLoading();
   const params = useParams<{ id: string }>();
@@ -186,32 +194,50 @@ const CardClassTournament = ({
 
   const handleDeleteClass = async (class_id: string) => {
     setLoading(true);
-    await reqDeleteClassTournament(params.id!, class_id, notification.showNotification);
-    setLoading(false);
-    closeDialogClass();
+    try {
+    const result = await reqDeleteClassTournament(params.id!, class_id, notification.showNotification);
+      if (result) {
+        // Fetch data turnament baru
+        await updateTournament(params.id!);
+      }
+    } catch (error) {
+      notification.showNotification("Gagal menghapus kelas turnamen", "error");
+      console.error("Error deleting class tournament:", error);
+    } finally {
+      setLoading(false);
+      closeDialogClass();
+    }
   };
 
   const onSubmit = async (formData: { class_id: string; price: number }) => {
     setLoading(true);
+    let result = false;
     if (dialogClass.edit && dialogClass.data) {
-      await reqUpdatePriceClassTournament(
+      result = await reqUpdatePriceClassTournament(
         params.id!,
         dialogClass.data.id,
         { price: formData.price.floatValue },
         notification.showNotification
       );
     } else {
-      await reqStoreClassTournament(
+      result = await reqStoreClassTournament(
         params.id!,
-        {data:[{ class_id: formData.class_id, price: formData.price.floatValue }]}, 
+        { data:[{ class_id: formData.class_id, price: formData.price.floatValue }]}, 
         notification.showNotification
       );
     }
-    closeDialogClass();
+      if (result) {
+        // Fetch data turnament baru
+       await updateTournament(params.id!);
+      }
+    
+      closeDialogClass();
     setValue("class_id", "");
     setValue("price", 0);
     setLoading(false);
   };
+
+
 
   useEffect(() => {
     if (!alreadyFetch.current) {
