@@ -28,6 +28,8 @@ export default function TopTanding({ data }: { data: Sport[] }) {
             }}
           >
             <Image
+              width={100}
+              height={100}
               className="object-cover w-full h-auto aspect-video block"
               alt="image"
               src={value.thumbnail}
