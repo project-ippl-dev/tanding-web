@@ -1,4 +1,5 @@
 "use client";
+import { useNotification } from "@/context/notification.context";
 import { inviteToClub } from "@/store/actions/club";
 import { searchUser } from "@/store/actions/user";
 import { ClubFetchOneData } from "@/types/club.type";
@@ -6,29 +7,30 @@ import { UserData } from "@/types/user";
 import { Autocomplete, Button, Grid, MenuItem, TextField } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 
-export default function SearchUser({
-  // clubId,
-  club,
-}: {
-  // clubId: string;
-  club: ClubFetchOneData;
-}) {
+export default function SearchUser({ club }: { club: ClubFetchOneData }) {
+  const notification = useNotification();
   const [keyword, setKeyword] = useState<string>("");
   const [userSelected, setUserSelected] = useState<UserData | null>(null);
   const [sportSelected, setSportSelected] = useState("");
   const searchUserRef = useRef([]);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (userSelected) {
-      const data = {
-        participants: [
-          {
-            user_id: userSelected?.id,
-            sport_id: sportSelected,
-          },
-        ],
-      };
-      inviteToClub(club?.id, data);
+      try {
+        const data = {
+          participants: [
+            {
+              user_id: userSelected?.id,
+              sport_id: sportSelected,
+            },
+          ],
+        };
+        await inviteToClub(club?.id, data);
+        notification.showNotification("Undangan telah dikirim", "success");
+      } catch (error) {
+        console.error(error);
+        notification.showNotification("Undangan gagal dikirim", "error");
+      }
     }
   };
 

@@ -32,20 +32,24 @@ function DialogJoinClub({
     formState: { errors },
     setError,
     control,
-  } = useForm<{sport_id: string}>();
+  } = useForm<{ sport_id: string }>();
 
-  const onSubmit = async (data: {sport_id: string}) => {
+  const onSubmit = async (data: { sport_id: string }) => {
     if (!data.sport_id) {
       setError("sport_id", {
-        type: "manual", 
+        type: "manual",
         message: "Olahraga tidak boleh kosong",
       });
     } else {
       try {
-        await joinClub(clubId, data)
-      } catch (error){
-        console.error(error)
-        notification.showNotification("Gagal bergabung dengan club", "error")
+        await joinClub(clubId, data);
+        notification.showNotification(
+          "Permintaan bergabung sudah dikirimkan. Harap tunggu pemilik klub untuk menyetujui klub.",
+          "info"
+        );
+      } catch (error) {
+        console.error(error);
+        notification.showNotification("Gagal bergabung dengan club", "error");
       } finally {
         onClose();
       }
@@ -53,7 +57,13 @@ function DialogJoinClub({
   };
 
   return (
-    <Dialog maxWidth="sm" fullWidth open={open} onClose={onClose} data-testid="dialog-join-club-comp">
+    <Dialog
+      maxWidth="sm"
+      fullWidth
+      open={open}
+      onClose={onClose}
+      data-testid="dialog-join-club-comp"
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <StyledDialogTitle>{`Join to Club ${data?.name}`}</StyledDialogTitle>
         <DialogContent>

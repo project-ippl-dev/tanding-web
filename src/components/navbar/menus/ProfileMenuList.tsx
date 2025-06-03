@@ -48,6 +48,7 @@ export default function ProfileMenuList({
   };
 
   const { logout, authData } = useAuth();
+  console.log("11", authData);
   const club: { id: string; name: string; logo?: string }[] = authData
     ? authData.clubs
     : [];

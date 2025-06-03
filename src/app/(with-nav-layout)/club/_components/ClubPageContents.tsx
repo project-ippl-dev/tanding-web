@@ -72,12 +72,16 @@ export default function ClubPageContents() {
     try {
       setLoading(true);
       const response = await approveInviteRequest(approval_id, status);
-      if (!response || !response.data) {
+      if (!response) {
         throw new Error("Something went wrong in processing the invitation");
       }
       if (response.error) {
         throw new Error(response.error);
       }
+      notification.showNotification(
+        `Sukses ${status ? "menerima" : "menolak"} undangan`,
+        "error"
+      );
     } catch (error) {
       console.error("Error approving invite:", error);
       notification.showNotification("Gagal memproses undangan", "error");
