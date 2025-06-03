@@ -79,7 +79,7 @@ const OwnTournamentDetail = () => {
 
   const MemoizeParticipant = useMemo(() => {
       return <Participant />;
-    }, []);
+    }, [tournament]);
 
   const MemoizedSetting = useMemo(() => (<Setting tournament={tournament} updateTournament={fetchTournamentDetail} />), [tournament]);
   return (

@@ -28,3 +28,19 @@ export async function storeImage(dir: string,file: File, accessToken: string): P
         return false
       }
   }
+
+  export const handleImageChange = async (
+    file: File | null,
+    image: { url: string | null; file: File | null },
+    setImage: React.Dispatch<React.SetStateAction<{ url: string | null; file: File | null }>>
+  ) => {
+    if (file) {
+      if (image.file && image.url) {
+        URL.revokeObjectURL(image.url); // Hapus URL lama
+      }
+      setImage({
+        url: URL.createObjectURL(file), // Buat URL baru untuk pratinjau
+        file: file // Simpan file untuk diunggah nanti
+      })
+    }
+  };

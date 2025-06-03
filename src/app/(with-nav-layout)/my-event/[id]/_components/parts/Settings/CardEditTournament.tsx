@@ -32,6 +32,10 @@ import TextFieldFormat from "@/components/TextFieldFormat/TextFieldFormat";
 import DateTimePickerComp from "@/components/DateTimePicker";
 import DatePickerCustom from "@/components/DatePicker";
 import { updateTournamentDetail } from "@/store/actions/event";
+import { NotificationContextProps,  } from "@/types/notification.type";
+import { handleImageChange, storeImage } from "@/utils/storeAsset";
+import { useAuth } from "@/context/auth.context";
+import { handleFetchClient } from "@/utils/fetctHandlerClient";
 
 async function reqGetProvince(setData: (data: AddressProvince[]) => void, showNotification: (msg: string, type?: string) => void) {
   const response = await getProvince();
@@ -53,30 +57,26 @@ async function reqSport(setData: (data: SportResponseMultiple) => void, showNoti
 
 async function reqUpdateTournamentDetail(
   eventID: string,
-  data: Omit<EventUpdatePayload,'thumbnail'>,
-  bannerFile: File | null,
-  oldBannerURL: string | undefined,
-  changeNewImage: boolean,
-  showNotification: (msg: string, type?: string) => void
-): Promise<void> {
+  data: EventUpdatePayload,
+  showNotification: NotificationContextProps
+): Promise<boolean> {
   const response = await updateTournamentDetail(
     eventID,
     data,
-    bannerFile,
-    oldBannerURL || "",
-    changeNewImage
   );
-  if (response.status === 200) {
+  if ([200, 201].includes(response.status)) {
     showNotification("Berhasil mengupdate data", "success");
+    return true;
   } else {
     showNotification("Gagal mengupdate data tournament detail, dengan error: " + response.error, "error");
+    return false;
   }
 }
 
 async function reqGetCities(
   id_province: number,
   setData: (data: AddressCity[]) => void,
-  showNotification: (msg: string, type?: string) => void
+  showNotification: NotificationContextProps
 ) {
   const response = await getCities(id_province.toString());
   if (response.status === 200) {
@@ -94,6 +94,7 @@ interface TournamentAddress {
 
 interface CardEditTournamentProps {
   tournament: EventData | null;
+  updateTournament: (id: string) => void;
 }
 
 type FormInputs = Omit<EventUpdatePayload, 'thumbnail'> & {
@@ -102,8 +103,10 @@ type FormInputs = Omit<EventUpdatePayload, 'thumbnail'> & {
 
 const CardEditTournament: React.FC<CardEditTournamentProps> = ({
   tournament,
+  updateTournament
 }) => {
   const notification = useNotification();
+  const {authData} = useAuth();
   const params = useParams();
   const [address, setAddress] = useState<TournamentAddress>({
     province: [],
@@ -112,10 +115,13 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
   const [sport,setSport] = useState<SportResponseMultiple | null>(null)
   const [formDisabled, setFormDisabled] = useState(true);
   const [isOnline, setIsOnline] = useState(false);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [oldBanner, setOldBanner] = useState<string | undefined>(tournament?.thumbnail);
   const [loading, setLoading] = useState(false);
   const alreadyFetch = useRef(false)
+  const [image, setImage] = useState<{url: string | null,file: File|null}>({
+    url: typeof(tournament?.thumbnail) !== "string" ||  tournament?.thumbnail === "" ? null : tournament?.thumbnail,
+    file: null
+  }); // Annotate image as a File or null
+
 
   const {
     handleSubmit,
@@ -144,9 +150,24 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
     }
   });
 
-  const onSubmit = (value: FormInputs): void => {
+
+  const onSubmit = async (value: FormInputs): Promise<void> => {
     setLoading(true);
-    const formData: Omit<EventUpdatePayload, "thumbnail"> = {
+    let result: boolean = false; // Inisialisasi result sebagai boolean
+    try {
+        let profileURL: string | boolean | null = null; // Inisialisasi profileURL sebagai string atau booleanl
+        // Mengirimkan gambar ke server
+        if(image.file) {
+          profileURL = await storeImage('banner',image.file as File, authData?.token.access_token || "");
+        }
+
+        if (profileURL === false) {
+          // Jika ada kesalahan saat mengunggah gambar, hentikan proses
+          notification.showNotification("Gagal mengunggah banner, silakan coba lagi", "error");
+          return;
+        }
+
+    const formData: EventUpdatePayload = {
       ...value,
       start_date: value.start_date ? moment(value.start_date).format("YYYY-MM-DD") : "",
       end_date: value.end_date ? moment(value.end_date).format("YYYY-MM-DD") : "",
@@ -156,19 +177,39 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
       city: value.city || tournament?.city || "",
       province: value.province || tournament?.province || "",
       type: value.type || tournament?.type || "competition",
+      thumbnail: typeof profileURL === "string" ? profileURL : tournament?.thumbnail || "",
     };
-    reqUpdateTournamentDetail(
+      // const serverResponse = await handleFetchClient({
+      //   url: `/event/${params.id}`,
+      //   method: "PUT",
+      //   token: authData?.token.access_token || "",
+      //   data: formData,
+      // });
+
+      // if ([200, 201].includes(serverResponse.status)) {
+      //   notification.showNotification("Berhasil mengupdate data tournament", "success");
+      //   result = true; // Set result to true if the update was successful
+      // } else {
+      //   notification.showNotification("Gagal mengupdate data tournament, dengan error: " + serverResponse.error, "error");
+      // }
+
+      reqUpdateTournamentDetail(
       params.id as string,
       formData,
-      bannerFile,
-      oldBanner,
-      !!bannerFile,
       notification.showNotification
-    ).finally(() => {
-      setLoading(false);
-      setFormDisabled(true);
-    });
-  };
+    );
+
+  } catch (error) {
+    notification.showNotification("Gagal mengupdate data tournament", "error");
+    console.error("Error updating tournament:", error);
+  } finally {
+    if (result) {
+      await updateTournament(params.id as string);
+    }
+    setLoading(false);
+    setFormDisabled(true);
+  }
+};
 
   useEffect(() => {
     async function initialStage(){
@@ -194,7 +235,6 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
       setValue("rules", tournament?.rules || "");
       setValue("type", (tournament?.type as "competition" | "training") || "competition");
       setValue("proposal_link", tournament?.proposal_link || "");
-      setOldBanner(tournament?.thumbnail);
 
       const setSportData = (data: SportResponseMultiple) => {
         setSport(data)
@@ -289,7 +329,7 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
               >
                 <Image
                   alt="banner"
-                  src={oldBanner || tournament?.thumbnail || "/default-banner.png"}
+                  src={tournament?.thumbnail || "/default-banner.png"}
                   fill
                   style={{
                     objectFit: "cover",
@@ -306,14 +346,15 @@ const CardEditTournament: React.FC<CardEditTournamentProps> = ({
                 >
                   <Typography align="center">Update Banner</Typography>
                   <ImageUploaderMui
+
                     buttonText="Update banner"
-                    onChange={(file) => setBannerFile(file)}
+                    onChange={(file) => {handleImageChange(file,image,setImage)}}
                     imgExtension={[".jpg", ".jpeg", ".png"]}
                     maxFileSize={2242880}
                     withPreview={true}
                     label="Max file size: 2MB. Formats: JPG, JPEG, PNG"
                     accept="image/jpeg,image/png"
-                    defaultImage={oldBanner || ""}
+                    defaultImage={image.url || "/default-banner.png"}
                   />
                 </Box>
               )}

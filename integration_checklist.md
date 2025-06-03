@@ -4,7 +4,7 @@
 
 - [x] Render halaman secara normal
 - [x] Proses pengeditan secara normal
-- [x] Refresh tampilan ketika update halaman
+    - [] Refresh tampilan ketika update halaman Tanpa Reload
 
 
 ## My Tournament Details
@@ -15,9 +15,12 @@
 
 - [x] Pembuatan Kelas Pertandingan Custom baru
 - [x] Pembuatan Kelas pertandingan dan biaya pendaftaran
-  - [] Refresh tampilan baru (tanpa reload)
-- [] Pengeditan data kelas dan biaya registrasi yang telah dibuat
-- [] Penghapusan data kelas dan biaya registrasi yang telah dibuat
+  - [x] Refresh tampilan baru (tanpa reload)
+- [x] Pengeditan data kelas dan biaya registrasi yang telah dibuat
+  - [x] Refresh tampilan baru (tanpa reload)
+  - [] BUG: saat form edit ditunjukkan, jika disimpan langsung input bernilai 0 walau sudah ada angkanya
+- [x] Penghapusan data kelas dan biaya registrasi yang telah dibuat
+  - [x] Refresh tampilan baru (tanpa reload)
 
 #### Panitia
 
@@ -28,9 +31,12 @@
 
 #### Edit Data Turnamen
 
-- [] Edit Banner
-- [] Edit Nama
-- [] Edit Waktu Turnamen
-- [] Edit Deskripsi pertandingan
-- [] Edit Peraturan
-- [] Edit Lokasi
+- [x] Edit Banner
+- [x] Edit Nama
+- [x] Edit Waktu Turnamen
+- [x] Edit Biaya
+  - [] Bug: Nilai uang akan balik reset ke default, kalau nilai uang dihapus menjadi nilai 0
+- [x] Edit Deskripsi pertandingan
+- [x] Edit Peraturan
+- [x] Edit Lokasi
+- [] Bug: Data tidak terupdate dalam halaman lain

@@ -89,51 +89,10 @@ export async function sendFinishTournament({ eventID }: { eventID: string | stri
 
 export async function updateTournamentDetail(
   id: string,
-  eventData: Omit<EventUpdatePayload, "thumbnail">, // Consider defining a more specific type for eventData
-  newImageFile: File | null,
-  oldImageUrl: string | undefined,
-  changeNewImage: boolean
+  eventData: EventUpdatePayload, // Consider defining a more specific type for eventData
 ) {
-  let imageUrl = oldImageUrl;
-
-  try {
-    // UPLOAD BANNER if a new image is provided and changeNewImage is true
-    if (changeNewImage && newImageFile) {
-      const formBanner = new FormData();
-      formBanner.append("dir", "banner");
-      formBanner.append("file", newImageFile);
-
-      const uploadResult = await handleFetch({
-        url: '/file/upload',
-        method: 'POST',
-        data: formBanner,
-        contentType: undefined, // Let fetch set Content-Type for FormData
-      });
-
-      if (uploadResult.error || !uploadResult.data) {
-        return {
-          error: uploadResult.error || 'File upload failed or did not return data.',
-          status: uploadResult.status,
-        };
-      }
-      imageUrl = uploadResult.data; // Assuming the URL is in uploadResult.data
-    }
-
-    // Update tournament details
-    const updatePayload = { ...eventData, thumbnail: imageUrl };
-    const result = await handleFetch({
-      url: `/event/${id}`,
-      method: 'PUT',
-      data: updatePayload,
-    });
-
+    const url = `/event/${id}`;
+    const result = await handleFetch({ url, method: 'PUT', data: eventData });
     return result;
-  } catch (error) {
-    // Catch any unexpected errors during the process
-    console.error("Error in updateTournamentDetail:", error);
-    return {
-      error: error.message || 'An unexpected error occurred while updating tournament details.',
-      status: 500, // Generic server error status
-    };
-  }
+
 }

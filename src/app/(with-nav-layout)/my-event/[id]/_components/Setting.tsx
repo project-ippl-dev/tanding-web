@@ -61,7 +61,9 @@ const Setting = ({ tournament, updateTournament }:{
             </Box>
           )}
           <Box marginTop={3} paddingBottom={5}>
-            <CardEditTournament tournament={tournament?.data || null} />
+            <CardEditTournament 
+            updateTournament={updateTournament || null}
+            tournament={tournament?.data || null} />
           </Box>
         </Box>
       </Container>

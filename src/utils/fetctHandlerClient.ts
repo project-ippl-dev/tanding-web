@@ -1,33 +1,36 @@
-"use server";
+"use client";
 
-import { retrieveAPIURL } from '@/store/actions/profile';
-import { getExternalApiUrl } from '@/utils/api';
-import { cookies } from 'next/headers';
+import { retrieveAPIURL } from "@/store/actions/profile";
+
 
 interface FetchHandlerParams {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  token?: string; // Optional, if you want to pass a specific token instead of using cookies
   isAuthorized?: boolean;
   contentType?: string;
   skipContentType?: boolean; // Optional, default is false
   externalURL?: boolean; // Optional, default is false
 }
 
-export async function handleFetch({
+
+export async function handleFetchClient({
   url,
   method,
   data,
   isAuthorized = true, // Default to true, as most of your functions require authorization
+  token,
   contentType = 'application/json',
   skipContentType = false, // Optional, default is false
   externalURL = false,
 }: FetchHandlerParams) {
+  "use client";
   console.log(`Fetching URL: ${url} with method: ${method}`);
   const headers: HeadersInit = {};
   // throw new Error(`This function is not implemented yet ${url}`); // Placeholder for the actual implementation
   if (isAuthorized) {
-    const tokenHeader = (await cookies()).get('access_token')?.value;
+    const tokenHeader = token; 
     if (!tokenHeader && !(process.env.BYPASS_REQ_AUTH === 'true')) {
       return {
         error: 'Unauthorized: Bearer token is missing or invalid',
@@ -55,10 +58,12 @@ export async function handleFetch({
       fetchOptions.body = data; // For FormData or other types
     }
   }
+
+  const baseURL = await retrieveAPIURL();
   
   let apiUrl = url;
   if (!externalURL) {
-    apiUrl = getExternalApiUrl(url);
+    apiUrl = `${baseURL}${url}`;
   }
   
   const response = await fetch(apiUrl, fetchOptions);
