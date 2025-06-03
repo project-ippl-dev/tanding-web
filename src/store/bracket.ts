@@ -471,7 +471,320 @@ export const BracketSingle: BracketSingleResponse = {
                 "Aditya Mardiansyah"
             ]
         }
-    ]
+    ],
+}
+
+export const BRACKET_SINGLE_RANDOM = {
+  "message": "round down bracket success",
+  "data": [
+    {
+      "title": "Quarterfinals",
+      "seeds": [
+        {
+          "id": "ba62b6df-073f-4cc7-b178-5c038dbf2746",
+          "event_turn": 0,
+          "match_order": 1,
+          "is_active": 1,
+          "teams": [
+            {
+              "id": 0,
+              "club_id": "41510e3f-f3ed-4b86-811d-74755b794519",
+              "club_name": {
+                "String": "Black Jaguar Taekwondo Club",
+                "Valid": true
+              },
+              "type": "home",
+              "participants": [
+                "Aditya Mardiansyah 95764"
+              ],
+              "is_bye": false,
+              "event_registration_id": "1a498174-f964-4ccd-9097-2c93cdf3945f"
+            },
+            {
+              "id": 0,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "away",
+              "participants": null,
+              "is_bye": true,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            }
+          ]
+        },
+        {
+          "id": "4fccbef8-0795-4be8-a2f2-f4fb89c5a4ae",
+          "event_turn": 0,
+          "match_order": 2,
+          "is_active": 1,
+          "teams": [
+            {
+              "id": 0,
+              "club_id": "41510e3f-f3ed-4b86-811d-74755b794519",
+              "club_name": {
+                "String": "Black Jaguar Taekwondo Club",
+                "Valid": true
+              },
+              "type": "home",
+              "participants": [
+                "Angga Widianto"
+              ],
+              "is_bye": false,
+              "event_registration_id": "2fb015eb-0433-4217-acb7-854abb5a745c"
+            },
+            {
+              "id": 0,
+              "club_id": "41510e3f-f3ed-4b86-811d-74755b794519",
+              "club_name": {
+                "String": "Black Jaguar Taekwondo Club",
+                "Valid": true
+              },
+              "type": "away",
+              "participants": [
+                "Aditya Mardiansyah"
+              ],
+              "is_bye": false,
+              "event_registration_id": "5ab09c59-2ac3-490b-8330-4bcb08d26300"
+            }
+          ]
+        },
+        {
+          "id": "8485c885-a355-4992-9029-8abad430ff34",
+          "event_turn": 0,
+          "match_order": 3,
+          "is_active": 1,
+          "teams": [
+            {
+              "id": 0,
+              "club_id": "41510e3f-f3ed-4b86-811d-74755b794519",
+              "club_name": {
+                "String": "Black Jaguar Taekwondo Club",
+                "Valid": true
+              },
+              "type": "home",
+              "participants": [
+                "Aditya Lityanian Al Nasir 93934"
+              ],
+              "is_bye": false,
+              "event_registration_id": "b7b8e133-21e0-4144-b4f8-6d38641fbbc1"
+            },
+            {
+              "id": 0,
+              "club_id": "41510e3f-f3ed-4b86-811d-74755b794519",
+              "club_name": {
+                "String": "Black Jaguar Taekwondo Club",
+                "Valid": true
+              },
+              "type": "away",
+              "participants": [
+                "Angga Widianto"
+              ],
+              "is_bye": false,
+              "event_registration_id": "2fb015eb-0433-4217-acb7-854abb5a745c"
+            }
+          ]
+        },
+        {
+          "id": "9ef4f963-4898-4866-b415-eb837201d82c",
+          "event_turn": 0,
+          "match_order": 4,
+          "is_active": 1,
+          "teams": [
+            {
+              "id": 0,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "home",
+              "participants": null,
+              "is_bye": true,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+              "id": 0,
+              "club_id": "41510e3f-f3ed-4b86-811d-74755b794519",
+              "club_name": {
+                "String": "Black Jaguar Taekwondo Club",
+                "Valid": true
+              },
+              "type": "away",
+              "participants": [
+                "Aditya Lityanian Al Nasir 93934"
+              ],
+              "is_bye": false,
+              "event_registration_id": "b7b8e133-21e0-4144-b4f8-6d38641fbbc1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Semifinals",
+      "seeds": [
+        {
+          "id": "6c940595-76ed-43e8-877e-1b85df0fe90d",
+          "event_turn": 0,
+          "match_order": 1,
+          "is_active": 0,
+          "teams": [
+            {
+              "id": 69,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "home",
+              "participants": [],
+              "is_bye": false,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+              "id": 70,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "away",
+              "participants": [],
+              "is_bye": false,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            }
+          ]
+        },
+        {
+          "id": "d359ed82-d7d1-48a6-bf02-4a1b381630a7",
+          "event_turn": 0,
+          "match_order": 2,
+          "is_active": 0,
+          "teams": [
+            {
+              "id": 71,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "home",
+              "participants": [],
+              "is_bye": false,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+              "id": 72,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "away",
+              "participants": [],
+              "is_bye": false,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Final",
+      "seeds": [
+        {
+          "id": "71383a47-621a-4541-a00d-620b64cad1cf",
+          "event_turn": 0,
+          "match_order": 1,
+          "is_active": 0,
+          "teams": [
+            {
+              "id": 67,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "home",
+              "participants": [],
+              "is_bye": false,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+              "id": 68,
+              "club_id": "00000000-0000-0000-0000-000000000000",
+              "club_name": {
+                "String": "",
+                "Valid": false
+              },
+              "type": "away",
+              "participants": [],
+              "is_bye": false,
+              "event_registration_id": "00000000-0000-0000-0000-000000000000"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "match_type": "single"
+} 
+
+export const BRACKET_ORDER_RANDOM = {
+  "message": "round down bracket success",
+  "data": [
+    {
+      "id": "07deb91e-e877-49b4-919a-cd9d15e18599",
+      "rank": 0,
+      "order_by": 2,
+      "participants": [
+        "Aditya Lityanian Al Nasir 93934",
+        "Jaja Miharja"
+      ],
+      "club_name": "Black Jaguar Taekwondo Club",
+      "event_registration_id": "8e49aa94-aa11-4d78-b92d-12e66cae3718",
+      "iteration": 1
+    },
+    {
+      "id": "8d26c59a-d4da-40bd-bf68-9bcb6fdf84f1",
+      "rank": 0,
+      "order_by": 3,
+      "participants": [
+        "Ditz Dhiza",
+        "Angga"
+      ],
+      "club_name": "Black Jaguar Taekwondo Club",
+      "event_registration_id": "ed938a5d-a490-450a-aa0d-5365e57ac6bc",
+      "iteration": 2
+    },
+    {
+      "id": "3d5a96c8-b178-425e-b55d-a3b94b8720b5",
+      "rank": 0,
+      "order_by": 4,
+      "participants": [
+        "Muhammad Ikbal",
+        "Muhammad Ikbal"
+      ],
+      "club_name": "Black Jaguar Taekwondo Club",
+      "event_registration_id": "f1091975-77e2-4da1-b4c0-284e1cf64a44",
+      "iteration": 3
+    },
+    {
+      "id": "29364a7a-a73f-4368-953a-8d5dc2bc152e",
+      "rank": 0,
+      "order_by": 1,
+      "participants": [
+        "Angga Widianto",
+        "dytlan"
+      ],
+      "club_name": "Black Jaguar Taekwondo Club",
+      "event_registration_id": "899ea2ef-3858-4961-ad14-4c5cd6532d25",
+      "iteration": 4
+    }
+  ],
+  "match_type": "order"
 }
 
 export const BracketOrder: BracketOrderResponse = {

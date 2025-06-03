@@ -45,7 +45,7 @@ export default function HomeTournamentsListSection({
           })}
           noWrap
         >
-          Daftar TournamentList!
+          Daftar Tournament Tanding!
         </Typography>
         <Typography
           sx={(theme) => ({

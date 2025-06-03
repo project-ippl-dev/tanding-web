@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import { AuthData } from "@/types/auth.type";
 import { authLogin, authLogout } from "@/store/actions/auth";
-import { AUTH_DATA } from "@/store/auth";
 
 interface AuthContextType {
   authData: AuthData | null;
@@ -20,7 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authData, setAuthData] = useState<AuthData | null>(AUTH_DATA.data);
+  const [authData, setAuthData] = useState<AuthData | null>(null);
 
   // Restore previous session from localStorage, if any
   useEffect(() => {

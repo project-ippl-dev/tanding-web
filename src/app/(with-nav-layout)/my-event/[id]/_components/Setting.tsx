@@ -7,22 +7,27 @@ import FinishTournament from "./parts/Settings/FinishTournament";
 import CardAssignRole from "./parts/Settings/CardAssignRole";
 import CardClassTournament from "./CardClassTournament";
 import CardEditTournament from "./parts/Settings/CardEditTournament";
+import { NotificationType } from "@/types/notification.type";
 
 
-async function reqFinishTournament(eventID: string) {
+async function reqFinishTournament(
+  eventID: string,
+  notification: (message:string,status?:NotificationType) => void
+) {
   // Finish the tournament
   const response = await sendFinishTournament({ eventID });
   if (response.status === 200) {
-    alert(response.message);
+    notification("Turnamen berhasil diselesaikan", "success");
   } else {
-    alert("Gagal mengambil data summary tournament, dengan error: " + response.error);
+    notification("Gagal menyelesaikan turnamen, dengan error: " + response.error, "error");
   }
 }
 
 
 
-const Setting = ({ tournament }:{
+const Setting = ({ tournament, updateTournament }:{
   tournament: EventSingleResponse | null;
+  updateTournament: (id: string) => void;
 }) => {
   
   const MemoizedFinishTournament = useMemo(() => (
@@ -46,7 +51,9 @@ const Setting = ({ tournament }:{
             </Box>
           )}
           <Box marginTop={3}>
-            <CardClassTournament tournament={tournament?.data || null} />
+            <CardClassTournament 
+              updateTournament={updateTournament || null}
+              tournament={tournament?.data || null} />
           </Box>
           {tournament?.data?.user_privilege.role === "owner" && (
             <Box marginTop={3}>
@@ -54,7 +61,9 @@ const Setting = ({ tournament }:{
             </Box>
           )}
           <Box marginTop={3} paddingBottom={5}>
-            <CardEditTournament tournament={tournament?.data || null} />
+            <CardEditTournament 
+            updateTournament={updateTournament || null}
+            tournament={tournament?.data || null} />
           </Box>
         </Box>
       </Container>

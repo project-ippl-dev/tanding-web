@@ -9,6 +9,7 @@ import Table from "./Table";
 import { useParams } from "next/navigation";
 import { EventData } from "@/types/event.type";
 import { lockBracketScore, storeBracketSingleScore } from "@/store/actions/bracket";
+import { useNotification } from "@/context/notification.context";
 
 
 const RenderSeed = ({ breakpoint, seed }) => {
@@ -98,19 +99,20 @@ const SingleElimination: React.FC<SingleEliminationProps> = ({
 }) => {
   const params = useParams<{ id: string }>();
   const [scoring, setScoring] = useState<DialogState<BracketSeed>>({ open: false, data: null });
+  const notification = useNotification();
 
   const handleLockScoring = async () => {
     if (selected) {
       try {
         const result = await lockBracketScore({ eventID: params.id, classID: selected });
         if (result.status === 200) {
-          alert(result.message || "Score has been locked");
+          notification.showNotification(result.message || "Score has been locked", "success");
           window.location.reload(); // Refresh to update UI
         } else {
-          alert("Failed to lock score: " + (result.error || "Unknown error"));
+          notification.showNotification("Failed to lock score: " + (result.error || "Unknown error"), "error");
         }
       } catch (error) {
-        alert("Error locking score: " + error);
+        notification.showNotification("Error locking score: " + error, "error");
       }
     }
   };
@@ -124,15 +126,15 @@ const SingleElimination: React.FC<SingleEliminationProps> = ({
   ) => {
     try {
       const result = await storeBracketSingleScore({ eventID, bracketID, classID, data });
-      if (result.status === 200) {
-        alert(result.message || "Score has been stored");
+      if ([200,201].includes(result.status)) {
+        notification.showNotification(result.message || "Score has been stored", "success");
         window.location.reload(); // Refresh to update UI
       } else {
-        alert("Failed to store score: " + (result.error || "Unknown error"));
+        notification.showNotification("Failed to store score: " + (result.error || "Unknown error"), "error");
       }
       return result;
     } catch (error) {
-      alert("Error storing score: " + error);
+      notification.showNotification("Error storing score: " + error, "error");
       throw error;
     }
   };

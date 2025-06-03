@@ -45,6 +45,7 @@ const CardSettingBracket = ({ random, lock, hasRandom }) => {
               variant="contained"
               sx={{ mr: 2 }}
               onClick={random}
+              data-testid="random-bracket-button"
             >
               Random Bracket
             </Button>
@@ -54,6 +55,7 @@ const CardSettingBracket = ({ random, lock, hasRandom }) => {
               color="secondary"
               onClick={lock}
               disabled={!hasRandom}
+              data-testid="lock-bracket-button"
             >
               Lock Bracket
             </Button>

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, MenuItem, FormControl, InputLabel, NativeSelect } from "@mui/material";
+import { Box, Typography, Grid, FormControl, InputLabel, NativeSelect } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import OrderElimination from "./OrderElimination";
@@ -14,6 +14,7 @@ import {
 import SingleElimination from "./SingleElimination";
 import { useLoading } from "@/context/loading.context";
 import { getBracketDetails } from "@/store/actions/bracket";
+import { useNotification } from "@/context/notification.context";
 
 
 const StyledContainer = styled("div")(({ theme }) => ({
@@ -36,6 +37,7 @@ export default function Bracket({
     type: null,
   }); // Replace with actual type
   const loadingObj = useLoading();
+  const notification = useNotification();
 
   useEffect(() => {
     async function getBracketDetail() {
@@ -52,8 +54,8 @@ export default function Bracket({
       });
 
 
-      if (!serverResponse) {
-        alert("Gagal mengambil data, dengan error: " + serverResponse.error);
+      if (serverResponse.error || ![200, 201].includes(serverResponse.status)) {
+        notification.showNotification("Gagal mengambil data, dengan error: " + serverResponse.error, "error");
       } else {
         setBracket((prevState) => {
           const result = { ...prevState };
@@ -161,7 +163,7 @@ export default function Bracket({
                   id: "uncontrolled-native",
                 }}
               >
-                {data?.class_events.map((value) => (
+                {["", ...(data?.class_events ?? [])].map((value) => (
                   <option value={value.id} key={value.id}>
                     {value.class_name}
                   </option>

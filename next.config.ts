@@ -16,9 +16,16 @@ const nextConfig: NextConfig = {
         hostname: 'google.com',
       },
       {
-
         protocol: 'http',
         hostname: 'google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
       }
     ],
     domains: ['storage.googleapis.com'],
@@ -28,7 +35,8 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true //Temporary, for previous codes
-  }
+  },
+
 };
 
 export default nextConfig;

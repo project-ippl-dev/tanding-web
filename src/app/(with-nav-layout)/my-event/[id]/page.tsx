@@ -11,8 +11,6 @@ import {
   Tab,
   useMediaQuery,
   useTheme,
-  Backdrop,
-  CircularProgress,
 } from "@mui/material";
 import GavelIcon from "@mui/icons-material/Gavel";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -37,48 +35,42 @@ import Participant from "./_components/Participant";
 import Bracket from "./_components/Bracket";
 import Setting from "./_components/Setting";
 import Keuangan from "./_components/Keuangan";
-import { LoadingProvider } from "@/context/loading.context";
 import { useNotification } from "@/context/notification.context";
+import { useLoading } from "@/context/loading.context";
 
 
 const OwnTournamentDetail = () => {
-  const [loading, setLoading] = useState<boolean>(false);
   const params = useParams<{ id: string }>();
+  const loading = useLoading();
   const notification = useNotification()
   const [tabs, setTabs] = useState<number>(0);
   const [tournament, setTournament] = useState<EventSingleResponse | null>(null);
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
-  const loadingElement = (
-    <Backdrop
-      open={loading}
-      data-testid="backdrop-loading"
-      sx={{
-        color: "#fff",
-        zIndex: (theme) => theme.zIndex.drawer + 1000,
-        backgroundColor: "rgba(0, 0, 0, 0.3)", // Transparent background
-      }}
-    >
-      <CircularProgress
-        color="inherit" />
-    </Backdrop>
-  );
 
   const handleTabs = (event: React.SyntheticEvent, newValue: number) => {
     setTabs(newValue);
   };
-
-  useEffect(() => {
-    async function fetchTournamentDetail(id: string) {
-      const response: EventSingleResponse = await getTournamentDetail({ id });
-      if (response) {
+    
+  async function fetchTournamentDetail(id: string) {
+    try {
+      if (loading.changeState) loading.changeState(true);
+      const response = await getTournamentDetail({ id });
+      if ([200, 201].includes(response.status)) {
         setTournament(response);
       } else {
         notification.showNotification("Gagal mengambil data turnamen", "error");
       }
+    } catch (error) {
+        notification.showNotification("Gagal mengakses server", "error");
+        console.error("Error fetching tournament detail:", error);
+      } finally {
+        if (loading.changeState) loading.changeState(false);
+      }
     }
 
+  useEffect(() => {
     if (typeof params.id === "string") {
       fetchTournamentDetail(params.id);
     }
@@ -87,12 +79,10 @@ const OwnTournamentDetail = () => {
 
   const MemoizeParticipant = useMemo(() => {
       return <Participant />;
-    }, []);
+    }, [tournament]);
 
-  const MemoizedSetting = useMemo(() => (<Setting tournament={tournament} />), [tournament]);
-
+  const MemoizedSetting = useMemo(() => (<Setting tournament={tournament} updateTournament={fetchTournamentDetail} />), [tournament]);
   return (
-    <LoadingProvider initialValue={loading} changeState={setLoading}>
       <Container maxWidth="xl" sx={{ padding: 0 }}>
         <Box sx={{ marginTop: { xs: 7, md: 0 } }}>
           {isMdUp && (
@@ -178,23 +168,25 @@ const OwnTournamentDetail = () => {
                       indicatorColor="primary"
                     >
                       <StyledTab 
-                        data-testid="tab-mobile-preview"
+                        data-testid="tab-preview"
                         label="PREVIEW" {...a11yProps(0)} />
                       <StyledTab 
-                        data-testid="tab-mobile-peserta"
+                        data-testid="tab-peserta"
                         label="PESERTA" {...a11yProps(1)} />
-                      <StyledTab label="BRAKET" {...a11yProps(2)} />
+                      <StyledTab 
+                        data-testid="tab-braket"
+                        label="BRAKET" {...a11yProps(2)} />
                       {(tournament?.data?.user_privilege.role === "owner" ||
                         tournament?.data?.user_privilege.role ===
                           "admin") && (
                         <StyledTab 
-                        data-testid="tab-mobile-setting"
+                        data-testid="tab-setting"
                         label="SETTING" {...a11yProps(3)} />
                       )}
                       {tournament?.data?.user_privilege.role ===
                         "owner" && (
                         <StyledTab 
-                        data-testid="tab-mobile-keuangan"
+                        data-testid="tab-keuangan"
                         label="KEUANGAN" {...a11yProps(4)} />
                       )}
                     </StyledTabs>
@@ -209,24 +201,25 @@ const OwnTournamentDetail = () => {
                       indicatorColor="primary"
                     >
                       <Tab 
-                      label="PREVIEW" {...a11yProps(0)} />
-                      <Tab 
-                        data-testid="tab-peserta"
+                        data-testid="tab-mobile-peserta"
+                        label="PREVIEW" {...a11yProps(0)} />
+                      <Tab
+                        data-testid="tab-mobile-peserta"
                         label="PESERTA" {...a11yProps(1)} />
                       <Tab 
-                        data-testid="tab-braket"
+                        data-testid="tab-mobile-braket"
                         label="BRAKET" {...a11yProps(2)} />
                       {(tournament?.data?.user_privilege.role === "owner" ||
                         tournament?.data?.user_privilege.role ===
                           "admin") && (
                         <Tab 
-                        data-testid="tab-setting"
+                        data-testid="tab-mobile-setting"
                         label="SETTING" {...a11yProps(3)} />
                       )}
                       {tournament?.data?.user_privilege.role ===
                         "owner" && (
                         <Tab 
-                        data-testid="tab-keuangan"
+                        data-testid="tab-mobile-keuangan"
                         label="KEUANGAN" {...a11yProps(4)} />
                       )}
                     </Tabs>
@@ -297,8 +290,6 @@ const OwnTournamentDetail = () => {
           </TabPanel>
         </Box>
       </Container>
-      {loadingElement}
-    </LoadingProvider>
   );
 };
 

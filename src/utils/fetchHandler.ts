@@ -1,5 +1,6 @@
 "use server";
 
+import { retrieveAPIURL } from '@/store/actions/profile';
 import { getExternalApiUrl } from '@/utils/api';
 import { cookies } from 'next/headers';
 
@@ -9,6 +10,7 @@ interface FetchHandlerParams {
   data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   isAuthorized?: boolean;
   contentType?: string;
+  skipContentType?: boolean; // Optional, default is false
   externalURL?: boolean; // Optional, default is false
 }
 
@@ -18,8 +20,10 @@ export async function handleFetch({
   data,
   isAuthorized = true, // Default to true, as most of your functions require authorization
   contentType = 'application/json',
+  skipContentType = false, // Optional, default is false
   externalURL = false,
 }: FetchHandlerParams) {
+  console.log(`Fetching URL: ${url} with method: ${method}`);
   const headers: HeadersInit = {};
   // throw new Error(`This function is not implemented yet ${url}`); // Placeholder for the actual implementation
   if (isAuthorized) {
@@ -35,7 +39,7 @@ export async function handleFetch({
     }
   }
 
-  if (contentType) {
+  if (contentType && !skipContentType) {
     headers['Content-Type'] = contentType;
   }
 

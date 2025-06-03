@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useContext, useState, createContext } from "react";
 import { Typography, Avatar, Box, Button } from "@mui/material";
 import { Bracket, Seed, SeedItem, SeedTeam, SeedTime } from "react-brackets";
 import DialogDetail from "./parts/SingleElimination/DialogDetail";
@@ -9,11 +9,11 @@ import Table from "./Table";
 import { useParams } from "next/navigation";
 import { EventData } from "@/types/event.type";
 import { lockBracketScore, storeBracketSingleScore } from "@/store/actions/bracket";
+import { useNotification } from "@/context/notification.context";
 
 
 const RenderSeed = ({ breakpoint, seed }) => {
-  const [openDetail, setOpenDetail] = useState({ open: false, data: null });
-
+  const { setOpenDetail } = useContext(BracketContext);
   return (
     <>
       <Seed mobileBreakpoint={breakpoint}>
@@ -74,15 +74,18 @@ const RenderSeed = ({ breakpoint, seed }) => {
       </Seed>
 
       {/* DIALOG DETAIL */}
-      <DialogDetail
+      {/* <DialogDetail
         dialog={openDetail}
         onClose={() => setOpenDetail({ open: false, data: null })}
-      />
+      /> */}
     </>
   );
 };
 
-
+const BracketContext = createContext({
+  openDetail: { open: false, data: null } as DialogState<BracketSeed>,
+  setOpenDetail: (state: DialogState<BracketSeed>) => {}
+})
 interface SingleEliminationProps {
   data: BracketRound[];
   tournament?: EventData | null;
@@ -97,25 +100,27 @@ const SingleElimination: React.FC<SingleEliminationProps> = ({
   selected = "", 
   lockScoreStatus = false 
 }) => {
+
   const params = useParams<{ id: string }>();
   const [scoring, setScoring] = useState<DialogState<BracketSeed>>({ open: false, data: null });
+  const [openDetail, setOpenDetail] = useState<DialogState<BracketSeed>>({ open: false, data: null });
+  const notification = useNotification();
 
   const handleLockScoring = async () => {
     if (selected) {
       try {
         const result = await lockBracketScore({ eventID: params.id, classID: selected });
         if (result.status === 200) {
-          alert(result.message || "Score has been locked");
+          notification.showNotification(result.message || "Score has been locked", "success");
           window.location.reload(); // Refresh to update UI
         } else {
-          alert("Failed to lock score: " + (result.error || "Unknown error"));
+          notification.showNotification("Failed to lock score: " + (result.error || "Unknown error"), "error");
         }
       } catch (error) {
-        alert("Error locking score: " + error);
+        notification.showNotification("Error locking score: " + error, "error");
       }
     }
   };
-
   // Function to handle scoring
   const handleStoreBracketScore = async (
     eventID: string, 
@@ -125,28 +130,32 @@ const SingleElimination: React.FC<SingleEliminationProps> = ({
   ) => {
     try {
       const result = await storeBracketSingleScore({ eventID, bracketID, classID, data });
-      if (result.status === 200) {
-        alert(result.message || "Score has been stored");
+      if ([200, 201].includes(result.status)) {
+        notification.showNotification(result.message || "Score has been stored", "success");
         window.location.reload(); // Refresh to update UI
       } else {
-        alert("Failed to store score: " + (result.error || "Unknown error"));
+        notification.showNotification("Failed to store score: " + (result.error || "Unknown error"), "error");
       }
       return result;
     } catch (error) {
-      alert("Error storing score: " + error);
+      notification.showNotification("Error storing score: " + error, "error");
       throw error;
     }
   };
 
   return (
     <div>
+      <BracketContext.Provider value={{ openDetail, setOpenDetail }}>
       <Bracket
         mobileBreakpoint={767}
         rounds={data}
         renderSeedComponent={RenderSeed}
         swipeableProps={{ enableMouseEvents: true, animateHeight: true }}
       />
-      
+      </BracketContext.Provider>
+
+      {/* Display tournament remark */}
+
       {tournament && (tournament.remark === "ongoing" || tournament.remark === "done") && selected && (
         <Box sx={{ marginTop: 5 }}>
           <Typography variant="h5" align="center">
@@ -172,6 +181,10 @@ const SingleElimination: React.FC<SingleEliminationProps> = ({
       )}
 
       {/* Dialog */}
+      <DialogDetail
+        dialog={openDetail}
+        onClose={() => setOpenDetail({ open: false, data: null })}
+      />
       <DialogScore
         state={scoring}
         onClose={() => setScoring({ open: false, data: null })}

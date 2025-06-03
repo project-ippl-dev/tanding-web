@@ -13,28 +13,48 @@ import { useParams } from "next/navigation";
 import { getPaymentForOwner, getPaymentTotalForOwner } from "@/store/actions/payment";
 import { PaymentOwner, PaymentSummary } from "@/types/payment";
 import Table from "./parts/Keuangan/Table";
+import { useLoading } from "@/context/loading.context";
+import { useNotification } from "@/context/notification.context";
+import { NotificationType } from "@/types/notification.type";
 
 
-async function reqGetPayementForOwner(eventID: string, status: string = "", setData: (data: PaymentOwner)=> void) {
+async function reqGetPayementForOwner(
+  eventID: string, 
+  status: string = "", 
+  setData: (data: PaymentOwner)=> void,
+  loading: (state: boolean) => void,
+  notification: (message:string, status?:NotificationType) => void
+) {
   // const response = PAYMENT_OWNER
   // response.status = 200
-  const response = await getPaymentForOwner(eventID,status)
-  if (response.status === 200) {
-    setData(response);
-  } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+  loading(true);
+  try {
+      const response = await getPaymentForOwner(eventID,status)
+      if (response.status === 200) {
+        setData(response);
+      } else {
+        notification("Gagal membuat data respon, dengan error: " + response.error, "error");
+      }
+  } catch (error) {
+    notification("Terjadi kesalahan saat mengambil data pembayaran: " + (error instanceof Error ? error.message : "Unknown error"), "error");
+  } finally {
+    loading(false);
   }
 }
 
 
-async function reqGetPaymentTotalForOwner(eventID: string, setData: (data: PaymentSummary)=> void) {
+async function reqGetPaymentTotalForOwner(
+  eventID: string, 
+  setData: (data: PaymentSummary)=> void,
+  notification: (message:string, status?:NotificationType) => void
+) {
   // const response = PAYMENT_SUMMARY
   // response.status = 200
   const response = await getPaymentTotalForOwner(eventID);
   if (response.status === 200) {
     setData(response);
   } else {
-    alert("Gagal membuat data respon, dengan error: " + response.error);
+    notification("Gagal membuat data respon, dengan error: " + response.error, 'error');
   }
 }
 
@@ -55,6 +75,8 @@ const Keuangan = () => {
   });
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
+  const {showNotification} = useNotification()
+  const {changeState:loading}= useLoading()
 
   useEffect(() => {
     const setPaymentOwnerData = (data: PaymentOwner) => {
@@ -63,7 +85,7 @@ const Keuangan = () => {
         payment: data,
       }));
     };
-    reqGetPayementForOwner(params.id, status, setPaymentOwnerData);
+    reqGetPayementForOwner(params.id, status, setPaymentOwnerData,loading, showNotification);
   }, [params.id, status]);
 
   useEffect(() => {
@@ -107,6 +129,7 @@ const Keuangan = () => {
                     })
                   }>
                       <NumericFormat
+                        data-testid="payment-summary-approved"
                         displayType="text"
                         value={payment?.summary?.data.approved}
                         suffix=",00"
@@ -142,6 +165,7 @@ const Keuangan = () => {
                       }}
                     >
                       <NumericFormat
+                        data-testid="payment-waiting-approved"
                         displayType="text"
                         value={payment.summary?.data.waiting}
                         prefix="Rp"
@@ -172,6 +196,7 @@ const Keuangan = () => {
                       }}
                     >
                       <NumericFormat
+                        data-testid="payment-refund-approved"
                         displayType="text"
                         value={payment.summary?.data.refund}
                         prefix="Rp"

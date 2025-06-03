@@ -26,6 +26,8 @@ import { EventData } from "@/types/event.type";
 import { useLoading } from "@/context/loading.context";
 import { getMembersOfClub } from "@/store/actions/club";
 import { registerToTournament } from "@/store/actions/event";
+import { AUTH_DATA } from "@/store/auth";
+import { useNotification } from "@/context/notification.context";
 
 // const validationSchema = yup.object().shape({
 //   name: yup.string().required("Data harus diisi"),
@@ -53,8 +55,10 @@ const DialogRegister = ({
   onClose: () => void;
 }) => {
   const { authData } = useAuth();
+  // const authData = AUTH_DATA.data;
   const [kelas, setKelas] = useState("");
   const [selectedClass, setSelectedClass] = useState<number>(0);
+  const { showNotification } = useNotification()
   const [inputUser, setInputUser] = useState("");
   const [selectedClub, setSelectedClub] = useState<string>("");
   const [clubMemberOption, setMemberOption] = useState<ClubMemberData | null>(
@@ -74,41 +78,29 @@ const DialogRegister = ({
       club_id: selectedClub,
       members: members.map((value) => ({ user_id: value })),
     };
-    console.log(data);
-    // const url = `/api/event/register/${dataTournament?.id}`;
-    // const serverResponse = await postProxyApi(url, authData.token.access_token, data)
-
-    // if (loadingObj.changeState) loadingObj.changeState(false);
-
-    // if (serverResponse.success){
-    //   if (serverResponse.data?.message?.includes("forbidden")) {
-    //     alert("Gagal mendaftar, Hanya user yang memiliki club yang dapat mendaftar");
-    //   } else {
-    //     alert("Berhasil mendaftar untuk tournament ini");
-    //     emptyRegistrationForm()
-    //   }
-    // } else {
-    //   alert("Terjadi kesalahan dengan error: " + serverResponse.error);
-    // }
     try {
       if (!dataTournament){
         throw new Error("Tidak didapatkan id Event yang valid")
       }
       const serverResponse = await registerToTournament({eventID: dataTournament.id, payload: data})
-      if (loadingObj.changeState) loadingObj.changeState(false);
-      if (serverResponse.success){
+      if ([200,201].includes(serverResponse.status)){
         if (serverResponse.message?.includes("forbidden")) {
           // if (serverResponse.data?.message?.includes("forbidden")) {
-          alert("Gagal mendaftar, Hanya user yang memiliki club yang dapat mendaftar");
+          showNotification(
+            "Gagal mendaftar, Hanya user yang memiliki club yang dapat mendaftar",
+            "error"
+          );
         } else {
-          alert("Berhasil mendaftar untuk tournament ini");
+          showNotification("Berhasil mendaftar untuk tournament ini", "success");
           emptyRegistrationForm()
         }
       } else {
-        throw new Error("Terjadi kesalahan dengan error: " + serverResponse.error);
+        showNotification("Gagal mengambil data dengan error:" + serverResponse.error, "error");
       }
-    } catch (e) {
-      alert(e)
+    } catch (error) {
+        showNotification("Terjadi Kesalahan dengan error:" + error, "error");
+    } finally {
+      if (loadingObj.changeState) loadingObj.changeState(false);
     }
   }
 
@@ -141,7 +133,6 @@ const DialogRegister = ({
       try {
         // const serverResponse = await fetchProxyApi(url, authData.token.access_token)
         const serverResponse = await getMembersOfClub({ clubID: idClub });
-        console.log(serverResponse);
         setMemberOption(serverResponse.data);
       } catch (error) {
         console.error(error);
@@ -162,7 +153,7 @@ const DialogRegister = ({
         multiple
         filterSelectedOptions
         options={
-          clubMemberOption?.data.participants.map((value) => ({
+          clubMemberOption?.participants?.map((value: { name: string; user_id: string }) => ({
             label: value.name,
             id: value.user_id,
           })) || []
@@ -180,10 +171,10 @@ const DialogRegister = ({
       />
     </Box>
   );
-
   return (
     <div>
       <Dialog
+        data-testid="register-dialog"
         maxWidth="sm"
         fullWidth
         open={open}
@@ -193,8 +184,11 @@ const DialogRegister = ({
         }}
       >
         <DialogTitle>Register {dataTournament?.name}</DialogTitle>
-        <DialogContent>
+        <DialogContent
+          data-testid="register-dialog-content"
+        >
           <TextField
+            slotProps={{select: {"data-testid": "register-select-kelas"}}}
             select
             fullWidth
             margin="normal"
@@ -244,8 +238,9 @@ const DialogRegister = ({
                 </Typography>
               </Box>
             )}
-          <Box>
+          <Box data-testid="club-select-box">
             <TextField
+              slotProps={{select: {"data-testid": "register-select-kelas"}}}
               select
               fullWidth
               margin="normal"
@@ -257,13 +252,14 @@ const DialogRegister = ({
                 <MenuItem key={value.id} value={value.id}>
                   {value.name}
                 </MenuItem>
-              )): null}
+              )): []}
             </TextField>
           </Box>
           {memberInputElement}
         </DialogContent>
         <DialogActions>
           <Button
+            data-testid="register-submit"
             variant="contained"
             color="primary"
             onClick={handleRegister}

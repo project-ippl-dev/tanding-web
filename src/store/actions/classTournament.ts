@@ -1,5 +1,5 @@
 import { handleFetch } from "@/utils/fetchHandler";
-import { CreateClassPayload, StoreClassTournamentPayload, UpdatePriceClassTournamentPayload } from "@/types/class.types";
+import { ClassAssignmentItem, CreateClassPayload, StoreClassTournamentPayload, UpdatePriceClassTournamentPayload } from "@/types/class.types";
 
 // --- API Functions ---
 

@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import { useForm, Controller, SubmitHandler} from "react-hook-form";
+import { useForm, Controller, SubmitHandler, set} from "react-hook-form";
 import {
   Add as AddIcon,
   HighlightOff as HighlightOffIcon,
@@ -32,48 +32,48 @@ import { createCommittee, deleteCommittee, getCommittee } from "@/store/actions/
 import { UserData } from "@/types/user";
 import { searchUser } from "@/store/actions/user";
 import { useLoading } from "@/context/loading.context";
+import { useNotification } from "@/context/notification.context";
 
 
-async function reqGetUser(userInput: string, setData:(data: UserData[])=>void, limit: number = 5) {
+async function reqGetUser(userInput: string, setData:(data: UserData[])=>void, showNotification: (msg: string, type?: string) => void, limit: number = 5) {
   // Get user data
   const response = await searchUser(userInput, limit);
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal mendapatkan data pengguna untuk komite, dengan error: " + response.error);
+    showNotification("Gagal mendapatkan data pengguna untuk komite, dengan error: " + response.error, "error");
   }
 }
 
-async function reqGetComittee(eventID: string, setData:(data: CommitteeMember[])=>void) {
+async function reqGetComittee(eventID: string, setData:(data: CommitteeMember[])=>void, showNotification: (msg: string, type?: string) => void) {
   // Get committee members
   const response = await getCommittee(eventID);
-  console.log("response comittee", response);
   if (response.status === 200) {
     setData(response.data);
   } else {
-    alert("Gagal mengambil data komite, dengan error: " + response.error);
+    showNotification("Gagal mengambil data komite, dengan error: " + response.error, "error");
   }
 }
 
 
-async function reqCreateComittee(eventID: string, data: CreateCommitteeRoleData) {
+async function reqCreateComittee(eventID: string, data: CreateCommitteeRoleData, showNotification: (msg: string, type?: string) => void) {
   // Create a committee
   const response = await createCommittee(eventID, data);
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message, "success");
   } else {
-    alert("Gagal membuat data komite, dengan error: " + response.error);
+    showNotification("Gagal membuat data komite, dengan error: " + response.error, "error");
   }
 }
 
 
-async function reqDeleteComittee(eventID: string, committeeID: string) {
+async function reqDeleteComittee(eventID: string, committeeID: string, showNotification: (msg: string, type?: string) => void) {
   // Delete a committee
   const response = await deleteCommittee(eventID, committeeID);
   if (response.status === 200) {
-    alert(response.message);
+    showNotification(response.message, "success");
   } else {
-    alert("Gagal menghapus data komite, dengan error: " + response.error);
+    showNotification("Gagal menghapus data komite, dengan error: " + response.error, "error");
   }
 }
 
@@ -81,7 +81,8 @@ async function reqDeleteComittee(eventID: string, committeeID: string) {
 const CardAssignRole = ({
 }) => {
   const params = useParams<{id:string}>();
-  const { handleSubmit, control, formState: { errors } } = useForm<{ user: UserData; role: string }>({
+  const notification = useNotification();
+  const { register, handleSubmit, control, formState: { errors } } = useForm<{ user: UserData; role: string }>({
     shouldUnregister: false,
   });
   const loading = useLoading();
@@ -109,7 +110,7 @@ const CardAssignRole = ({
   useEffect(() => {
     async function fetchUserData(){
       setIsUserLoading(true);
-      await reqGetUser(userInput, setUser);
+      await reqGetUser(userInput, setUser, notification.showNotification);
       setIsUserLoading(false);
     }
     if (!alreadyFetch.current.user) {
@@ -122,7 +123,7 @@ const CardAssignRole = ({
   useEffect(() => {
     async function fetchCommittee() {
       setIsCommitteeLoading(true);
-      await reqGetComittee(params.id,setCommitte);
+      await reqGetComittee(params.id, setCommitte, notification.showNotification);
       setIsCommitteeLoading(false);
     }
 
@@ -148,23 +149,24 @@ const CardAssignRole = ({
     }
   };
 
-  const onSubmit: SubmitHandler<{ user: UserData; role: string }> = async (data) => { // Explicitly type onSubmit
+  const onSubmit: SubmitHandler<{ user: string; role: string }> = async (data) => { // Explicitly type onSubmit
+    const selectedUser = userData.find((dataUser) => dataUser.name === data.user);
     const formData = { 
         data: [{ 
-            user_id: data.user.id, 
+            user_id: selectedUser?.id || "", // Find user ID from userData
             role: data.role as "reviewer" | "contributor" | "admin" // Explicitly cast role
         }] 
     };
     setLoading(true);
-    await reqCreateComittee(params.id, formData);
+    await reqCreateComittee(params.id, formData, notification.showNotification);
     await refetchCommittee(); // Refetch committee list
     setLoading(false);
-    setDialog(false);
+    //setDialog(false);
   };
 
   const handleDeleteUserAndRefetch = async () => {
     setLoading(true);
-    await reqDeleteComittee(params.id, dialogDelete.id);
+    await reqDeleteComittee(params.id, dialogDelete.id, notification.showNotification);
     await refetchCommittee(); // Refetch committee list
     setLoading(false);
     setDialogDelete({ open: false, id: "" });
@@ -200,7 +202,9 @@ const CardAssignRole = ({
                 </Typography>
               </div>
               <div>
-                <IconButton onClick={() => setDialog(true)}>
+                <IconButton 
+                  data-testid="add-committee-button"
+                  onClick={() => setDialog(true)}>
                   <AddIcon />
                 </IconButton>
               </div>
@@ -275,39 +279,31 @@ const CardAssignRole = ({
         maxWidth="sm"
         fullWidth
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form 
+          data-testid="form-assign-role"
+          onSubmit={handleSubmit(onSubmit)}>
           <StyledDialogTitle onClose={() => setDialog(false)}>
             Tambah Panitia Tournament
           </StyledDialogTitle>
+
+
+
           <DialogContent>
-            <Controller
-              control={control}
-              name="user"
-              defaultValue={undefined}
-              render={({ field: { onChange, value } }) => ( // Destructure field correctly
                 <Autocomplete
-                  value={value || null} // Ensure value is null if empty for Autocomplete
-                  onChange={onChange}
-                  inputValue={userInput}
-                  onInputChange={(event, newInputValue) => {
-                    setUserInput(newInputValue);
-                  }}
-                  options={userData}
-                  getOptionLabel={(option) => option.name || ""} // Handle potential undefined option.name
-                  isOptionEqualToValue={(option, val) => option.id === val.id} // Important for object options
-                  loading={isUserLoading} // Use loading state for Autocomplete
+                  options={userData.map((data)=>({
+                    id: data.id,
+                    name:  data.name,
+                  }))} // Your autocomplete options
+                  getOptionLabel={(option) => option.name} // Customize how options are displayed
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      fullWidth
+                    <TextField {...params}
+                      {...register("user", { required: true })} // Register the field
                       size="small"
                       label="Username"
-                      margin="normal"
-                    />
+                      margin="normal" />
                   )}
                 />
-              )}
-            />
             <Controller
               control={control}
               name="role"
@@ -338,7 +334,9 @@ const CardAssignRole = ({
                 Delete
               </Button>
             )} */}
-            <Button variant="contained" color="primary" type="submit">
+            <Button 
+            data-testid="committee-assign-button"
+            variant="contained" color="primary" type="submit">
               {/* {dialogClass.edit ? "update" : "simpan"} */}
               simpan
             </Button>

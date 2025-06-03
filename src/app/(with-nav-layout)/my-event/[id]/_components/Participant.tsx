@@ -13,9 +13,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { EventParticipantsResponse } from "@/types/event.type";
 import { useParams } from "next/navigation";
 import { getTournamentParticipants } from "@/store/actions/event";
+import { useLoading } from "@/context/loading.context";
+import { useNotification } from "@/context/notification.context";
 
 const Participant = () => {
   const {id} = useParams();
+  const {changeState: loading} = useLoading();
+  const {showNotification} =  useNotification();
   const [expanded, setExpanded] = useState("");
   const [participants, setParticipants] = useState<EventParticipantsResponse | null>(null);
   const alreadyFetch = useRef(false);
@@ -26,9 +30,23 @@ const Participant = () => {
 
   useEffect(() => {
     async function fetchParticipants() {
-      const serverResponse: EventParticipantsResponse = await getTournamentParticipants({eventID: id || "" });
-      console.log(serverResponse);
-      setParticipants(serverResponse)
+      try{
+        loading(true);
+        const serverResponse = await getTournamentParticipants({eventID: id || "" });
+        if([200,201].includes(serverResponse.status) ) {
+          setParticipants(serverResponse)
+        } else{
+          showNotification("Gagal mengambil data peserta, dengan error: " + (serverResponse.error || "Unknown error"), "error"); 
+        }
+
+      }
+      catch (error) {
+        showNotification("Terjadi Kesalaha dengan errror: " + (error instanceof Error ? error.message : "Unknown error"), "error");
+        console.error("Error fetching participants:", error);
+      }
+      finally {
+        loading(false);
+      }
     }
     
     if(!alreadyFetch.current) {
@@ -46,8 +64,9 @@ const Participant = () => {
         </Typography>
       </Box>
       <Box sx={{ paddingTop: 3 }}>
-        {participants?.data.map((value, index) => (
+        {participants?.data?.map((value, index) => (
           <Accordion
+            data-testid={`club-participant`}
             key={index}
             expanded={expanded === `panel${index + 1}`}
             onChange={handleChange(`panel${index + 1}`)}
@@ -71,6 +90,7 @@ const Participant = () => {
               {value.members.map((data, idx) => (
                 <Box
                   key={idx}
+                  data-testid={`participant-${value.id}`}
                   sx={{
                     width: "100%",
                     padding: 3,
@@ -87,7 +107,7 @@ const Participant = () => {
             </AccordionDetails>
           </Accordion>
         ))}
-        {participants?.data.length === 0 && (
+        {participants?.data?.length === 0 && (
           <Box
             sx={{
               display: "flex",

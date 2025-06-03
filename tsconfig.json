@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types", "src/store/actions/committee.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types", "src/store/actions/committee.js", "src/app/(with-nav-layout)/certificate/[id]/__tests__/page.test.sample"],
   "exclude": ["node_modules"]
 }
