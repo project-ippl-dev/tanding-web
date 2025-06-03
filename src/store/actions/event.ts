@@ -124,3 +124,94 @@ export async function updateTournamentDetail(
     };
   }
 }
+
+export async function createTournament({
+  data,
+  bannerFile,
+  proposalFile
+}: {
+  data: EventCreatePayload;
+  bannerFile: File;
+  proposalFile?: File;
+}) {
+  try {
+    // Upload banner
+    const formBanner = new FormData();
+    formBanner.append("dir", "banner");
+    formBanner.append("file", bannerFile);
+    
+    const bannerUploadResult = await handleFetch({
+      url: '/storage/upload',
+      method: 'POST',
+      data: formBanner,
+      // Remove contentType - let browser set it automatically for FormData
+    });
+    
+    console.log("Banner upload result:", bannerUploadResult);
+    
+    if (bannerUploadResult.error || !bannerUploadResult.data) {
+      return {
+        error: bannerUploadResult.error || 'Failed to upload banner.',
+        status: bannerUploadResult.status || 500,
+      };
+    }
+    
+    let proposalUrl = "";
+   
+    if (proposalFile) {
+      const formProposal = new FormData();
+      formProposal.append("dir", "proposal");
+      formProposal.append("file", proposalFile);
+     
+      const proposalUploadResult = await handleFetch({
+        url: '/storage/upload',
+        method: 'POST',
+        data: formProposal,
+        // Remove contentType - let browser set it automatically for FormData
+      });
+      
+      console.log("Proposal upload result:", proposalUploadResult);
+     
+      if (proposalUploadResult.error || !proposalUploadResult.data) {
+        return {
+          error: proposalUploadResult.error || 'Failed to upload proposal.',
+          status: proposalUploadResult.status || 500,
+        };
+      }
+     
+      proposalUrl = proposalUploadResult.data;
+    }
+    
+    // Create tournament with uploaded files
+    const createResult = await handleFetch({
+      url: '/event',
+      method: 'POST',
+      data: {
+        ...data,
+        thumbnail: bannerUploadResult.data,
+        proposal_link: proposalUrl,
+      },
+    });
+    
+    console.log("Create tournament result:", createResult);
+    
+    if (createResult.error) {
+      return {
+        error: createResult.error,
+        status: createResult.status || 500,
+      };
+    }
+    
+    return {
+      success: true,
+      message: "Tournament berhasil dibuat",
+      data: createResult.data,
+    };
+  } catch (error: any) {
+    console.error("Error in createTournament:", error);
+    return {
+      error: error.message || 'An unexpected error occurred while creating tournament.',
+      status: error.status || 500,
+    };
+  }
+}
