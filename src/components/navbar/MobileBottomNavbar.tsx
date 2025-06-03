@@ -60,7 +60,7 @@ export default function MobileBottomNavbar() {
       <BottomNavigationAction
         label="PowerList!"
         icon={<EmojiEvents style={{ fontSize: "23px" }} />}
-        onClick={() => redirectToValueAndPath(1, "/powerlist")}
+        onClick={() => redirectToValueAndPath(1, "/ranking")}
       />
       {authData ? <BottomNavigationAction
         label="Profil"

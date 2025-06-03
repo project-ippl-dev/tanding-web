@@ -20,7 +20,10 @@ import { SportBaseType } from "@/types/sport.type";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { createClubValidationSchema } from "../../../../validation/clubSchema";
 import { getAllSports } from "@/store/actions/sport";
-import { createClub } from "@/store/actions/club";
+import { createClub, uploadClubLogo } from "@/store/actions/club";
+import { useNotification } from "@/context/notification.context";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const InputFieldGrid = styled(Grid)(({ theme }) => ({
   padding: theme.spacing(0, 1),
@@ -40,8 +43,14 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 export default function CreateClubForm() {
+  const router = useRouter();
+  const notification = useNotification();
   const [sportsOption, setSportsOption] = useState<SportBaseType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [errorImage, setErrorImage] = useState<boolean | string>(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [image, setImage] = useState<string>("");
   const {
     handleSubmit,
     formState: { errors },
@@ -52,43 +61,55 @@ export default function CreateClubForm() {
       clubData: {
         name: "",
         short_name: "",
-        logo: "",
+        // logo: undefined,
       },
       phone: "",
       sports: [],
     },
   });
 
-  const onSubmit = async (data: CreateClubFormData) => {
-    // TODO: Actual implementation below (commented out for now)
-    // const sportsIds = data.sports.map((value) => ({ sport_id: value.id }));
-    // const formData: CreateClubRequestBody = {
-    //   name: data.clubData.name,
-    //   logo: 'http://google.com', //TODO: upload image
-    //   short_name: data.clubData.short_name,
-    //   phone: data.phone,
-    //   sports: sportsIds,
-    // };
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    try {
+      setImageUploading(true);
+      const imageUrl = await uploadClubLogo(file);
+      setErrorImage(false);
+      setImage(imageUrl);
+      notification.showNotification("Upload logo berhasil", "success");
+    } catch {
+      setErrorImage("Gagal upload file logo. Cobalah upload file lain.");
+      notification.showNotification("Gagal upload file logo", "error");
+    } finally {
+      setImageUploading(false);
+    }
+  };
 
-    // MOCK DATA
+  const onSubmit = async (data: CreateClubFormData) => {
+    if (!image) {
+      return setErrorImage("*Logo club wajib diupload.");
+    }
+    const sportsIds = data.sports.map((value) => ({ sport_id: value.id }));
     const formData: CreateClubRequestBody = {
-      name: "Black Jaguar Taekwondo Club",
-      logo: "http://google.com",
-      phone: "081218437074",
-      short_name: "BJTC",
-      sports: [
-        {
-          sport_id: "07302ca3-0350-46ad-861e-f9bcb99668df",
-        },
-      ],
+      name: data.clubData.name,
+      short_name: data.clubData.short_name,
+      phone: data.phone,
+      sports: sportsIds,
     };
 
     console.log(data);
     try {
       setLoading(true);
-      await createClub(formData);
+      const response = await createClub(formData, image);
+      if (!response || response.error) {
+        throw new Error();
+      }
+      notification.showNotification("Sukses membuat club!", "success");
+      router.push(`/club/${response.data}`);
     } catch (error) {
-      console.error(error.message);
+      console.error(error);
+      notification.showNotification("Gagal membuat club baru", "error");
     } finally {
       setLoading(false);
     }
@@ -229,7 +250,6 @@ export default function CreateClubForm() {
                     multiple
                     onChange={(_, newValue) => {
                       field.onChange(newValue);
-                      // console.log(field.value)
                     }}
                     value={field.value}
                     fullWidth
@@ -258,9 +278,16 @@ export default function CreateClubForm() {
               />
             </InputFieldGrid>
             {/* </Grid> */}
-            <Box marginTop={2} width="100%">
+            <Box
+              marginTop={2}
+              width="100%"
+              display={"flex"}
+              flexDirection={"column"}
+              justifyContent="center"
+              alignItems="center"
+            >
               <Typography>Logo</Typography>
-              {errors.clubData?.logo ? (
+              {errorImage ? (
                 <Typography
                   sx={{
                     textAlign: "center",
@@ -270,27 +297,33 @@ export default function CreateClubForm() {
                   *logo club wajib diupload
                 </Typography>
               ) : null}
+              {image ? (
+                <Image
+                  data-testid="image-preview"
+                  src={image}
+                  alt="Preview"
+                  width={100} // Ukuran tetap untuk lebar
+                  height={100} // Ukuran tetap untuk tinggi
+                />
+              ) : null}
               <Button
+                data-testid="upload-club-logo-button"
                 component="label"
                 role={undefined}
                 variant="contained"
                 tabIndex={-1}
                 startIcon={<CloudUpload />}
+                disabled={imageUploading}
               >
                 Upload Logo Club
-                <Controller
-                  control={control}
-                  name="clubData.logo"
-                  render={({ field }) => (
-                    <VisuallyHiddenInput
-                      // multiple
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      id="upload-club-logo"
-                      type="file"
-                      onChange={(e) => field.onChange(e.target.files)}
-                    />
-                  )}
+                <VisuallyHiddenInput
+                  // multiple
+                  data-testid="upload-club-logo-input"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="upload-club-logo"
+                  type="file"
+                  onChange={handleImageChange}
                 />
               </Button>
             </Box>
@@ -298,6 +331,7 @@ export default function CreateClubForm() {
         </Card>
         <Box marginTop={5} />
         <Button
+          data-testid="create-club-button"
           fullWidth
           variant="contained"
           color="primary"

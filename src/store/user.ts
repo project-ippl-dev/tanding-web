@@ -1,4 +1,7 @@
-export const USER_SEARCH = {
+import { FetchResponseBody } from "@/types/global"
+import { UserData } from "@/types/user"
+
+export const USER_SEARCH: FetchResponseBody<UserData[]> = {
   "message": "fetch user by search success",
   "data": [
     {

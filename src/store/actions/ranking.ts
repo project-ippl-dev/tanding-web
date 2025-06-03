@@ -1,5 +1,7 @@
 'use server';
 
+import { FetchResponseBody } from "@/types/global";
+import { RankingClubData, RankingUserData } from "@/types/ranking.types";
 import { handleFetch } from "@/utils/fetchHandler";
 
 interface GetPowerListParam {
@@ -8,7 +10,7 @@ interface GetPowerListParam {
   page_size?: number | string;
 }
 
-export async function getPowerListUser({ id, page, page_size }: GetPowerListParam) {
+export async function getPowerListUser({ id, page, page_size }: GetPowerListParam): Promise<FetchResponseBody<RankingUserData[]>> {
   const url = `/rank/user?sport_id=${id}&page=${page}&page_size=${page_size}`;
   return await handleFetch({
     url: url,
@@ -17,7 +19,7 @@ export async function getPowerListUser({ id, page, page_size }: GetPowerListPara
   });
 };
 
-export async function getPowerListClub({ id, page, page_size }: GetPowerListParam) {
+export async function getPowerListClub({ id, page, page_size }: GetPowerListParam): Promise<FetchResponseBody<RankingClubData[]>> {
   const url = `/rank/club?sport_id=${id}&page=${page}&page_size=${page_size}`;
   return await handleFetch({
     url: url,

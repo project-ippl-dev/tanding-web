@@ -29,8 +29,7 @@ export default function ProfileMenuList({
   id,
   open,
   onClose,
-}: 
-{
+}: {
   anchorEl: null | HTMLElement;
   id: string;
   open: boolean;
@@ -49,7 +48,9 @@ export default function ProfileMenuList({
   };
 
   const { logout, authData } = useAuth();
-  const club: { id: string; name: string }[] = authData ? authData.clubs : [];
+  const club: { id: string; name: string; logo?: string }[] = authData
+    ? authData.clubs
+    : [];
 
   const handleLogout = async () => {
     await logout();
@@ -131,14 +132,14 @@ export default function ProfileMenuList({
                 }}
                 onClick={() => redirectToClub(value.id)}
               >
-                {/* <Avatar
-                  src={value.logo}
+                <Avatar
+                  src={value.logo ? value.logo : "/images/logo.png"}
                   sx={{
                     width: 30,
                     height: 30,
                     marginRight: "5px",
                   }}
-                /> */}
+                />
                 <Typography style={{ fontWeight: "bold" }}>
                   {value.name}
                 </Typography>

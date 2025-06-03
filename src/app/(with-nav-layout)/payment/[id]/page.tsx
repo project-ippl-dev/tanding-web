@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import { getDetailPaymentForClub, storePayment } from "@/store/actions/payment";
 import { PaymentDetail } from "@/types/paymet.type";
 import LoadingOverlay from "./_components/LoadingOverlay";
@@ -101,7 +100,7 @@ export default function PaymentDetailPage() {
 
   if (error) {
     return (
-      <div className="p-6 text-center">
+      <div className="p-6 text-center" data-testid="error-state">
         <p className="text-red-500 mb-4">{error}</p>
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded-md"
@@ -115,7 +114,7 @@ export default function PaymentDetailPage() {
 
   if (!paymentDetail) {
     return (
-      <div className="p-6 text-center">
+      <div className="p-6 text-center" data-testid="no-data-state">
         <p>No payment details found</p>
       </div>
     );
@@ -125,13 +124,13 @@ export default function PaymentDetailPage() {
     total + (total > 0 ? parseInt(paymentDetail.unique_number.number) : 0);
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen" data-testid="payment-detail-page">
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         <h1 className="text-2xl font-bold mb-6">Payment Detail</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" data-testid="payment-details">
             <div className="mb-4 flex items-center">
               <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 mr-3">
                 {paymentDetail.event.event_owner?.charAt(0) || "U"}
@@ -197,7 +196,11 @@ export default function PaymentDetailPage() {
                 {paymentDetail.results.map((item) => {
                   const isItemSelected = isSelected(item.id);
                   return (
-                    <div key={item.id} className="mb-6">
+                    <div
+                      key={item.id}
+                      className="mb-6"
+                      data-testid={`class-item-${item.id}`}
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div className="md:col-span-4 flex items-start">
                           <div className="flex items-center">
@@ -207,6 +210,7 @@ export default function PaymentDetailPage() {
                                 className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 rounded"
                                 checked={isItemSelected}
                                 onChange={() => handleSelectClass(item)}
+                                data-testid={`checkbox-${item.id}`}
                               />
                             </label>
                             <div>
@@ -237,7 +241,10 @@ export default function PaymentDetailPage() {
 
           {/* Right Column - Payment Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div
+              className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
+              data-testid="payment-summary"
+            >
               {/* Promo section */}
               <div className="p-4">
                 <div className="border border-gray-200 rounded p-3 flex justify-between items-center cursor-pointer hover:bg-gray-50">
@@ -292,7 +299,7 @@ export default function PaymentDetailPage() {
                   Ringkasan Payment
                 </h3>
 
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2 mb-4" data-testid="selected-classes">
                   {selectedClass.map((item, index) => (
                     <div key={index} className="flex justify-between">
                       <p>Total {item.class_name}</p>
@@ -310,7 +317,10 @@ export default function PaymentDetailPage() {
 
                 <div className="border-t border-gray-200 my-3"></div>
 
-                <div className="flex justify-between font-semibold my-4">
+                <div
+                  className="flex justify-between font-semibold my-4"
+                  data-testid="total-price"
+                >
                   <p>Total Harga</p>
                   <p>{formatCurrency(finalTotal)}</p>
                 </div>
@@ -329,6 +339,7 @@ export default function PaymentDetailPage() {
                     paymentDetail.results.length === 0
                   }
                   onClick={() => setOpenDialog(true)}
+                  data-testid="pay-button"
                 >
                   Bayar
                 </button>
@@ -342,7 +353,7 @@ export default function PaymentDetailPage() {
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         setImage={setImage}
-        total={total}
+        total={finalTotal}
         onSubmit={handleStorePayment}
         image={image}
         isSubmitting={isSubmitting}

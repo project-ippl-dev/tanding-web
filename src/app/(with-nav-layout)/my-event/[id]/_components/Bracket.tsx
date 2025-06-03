@@ -287,7 +287,7 @@ const Bracket = ({
               <CardSettingBracket
                 random={() => reqRandomBracket(params.id, selected, showNotification,(data) => setBracketData(data))}
                 lock={() => handleLock(currentBracket?.match_type || "")}
-                hasRandom={currentBracket?.random || false}
+                hasRandom={currentBracket?.random || true}
               />
             )}
             {!currentBracket?.generate_status && data?.remark === "closed" && (

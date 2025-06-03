@@ -118,6 +118,10 @@ const config: Config = {
   // Use this configuration option to add custom reporters to Jest
   reporters: [
     "default",
+    ["jest-html-reporters", {
+    "filename": "report.html",
+    "darkTheme": true,
+  }],
     ["./node_modules/jest-html-reporter", {
         "pageTitle": "Test Report",
         includeFailureMsg: true,
