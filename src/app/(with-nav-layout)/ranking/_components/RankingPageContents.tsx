@@ -65,7 +65,7 @@ export default function RankingPageContents() {
         result = await getPowerListClub(query);
       }
 
-      console.log(result);
+      
 
       if (
         !result ||
