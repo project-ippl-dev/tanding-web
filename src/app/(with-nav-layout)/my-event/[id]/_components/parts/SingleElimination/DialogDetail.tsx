@@ -39,10 +39,10 @@ const DialogDetail = ({ dialog, onClose }) => {
             >
               Home
             </Typography>
-            <Avatar src={dialog.data?.teams[0].club_logo} />
-            <Typography>{dialog.data?.teams[0].club_name.String}</Typography>
+            <Avatar src={dialog?.data?.teams[0].club_logo} />
+            <Typography>{dialog?.data?.teams[0].club_name.String}</Typography>
             <div>
-              {dialog.data?.teams[0].participants.map((value, index) => (
+              {dialog?.data?.teams[0].participants.map((value, index) => (
                 <div
                   key={index}
                   style={{
@@ -54,7 +54,7 @@ const DialogDetail = ({ dialog, onClose }) => {
                 </div>
               ))}
             </div>
-            {!!dialog.data?.teams[0].Score && (
+            {!!dialog?.data?.teams[0].Score && (
               <Box
                 sx={{
                   width: "100%",
@@ -97,10 +97,10 @@ const DialogDetail = ({ dialog, onClose }) => {
             >
               Away
             </Typography>
-            <Avatar src={dialog.data?.teams[1].club_logo} />
-            <Typography>{dialog.data?.teams[1].club_name.String}</Typography>
+            <Avatar src={dialog?.data?.teams[1].club_logo} />
+            <Typography>{dialog?.data?.teams[1].club_name.String}</Typography>
             <div>
-              {dialog.data?.teams[1].participants.map((value, index) => (
+              {dialog?.data?.teams[1].participants.map((value, index) => (
                 <div
                   key={index}
                   style={{
@@ -112,7 +112,7 @@ const DialogDetail = ({ dialog, onClose }) => {
                 </div>
               ))}
             </div>
-            {!!dialog.data?.teams[1].Score && (
+            {!!dialog?.data?.teams[1].Score && (
               <Box
                 sx={{
                   width: "100%",
@@ -124,10 +124,10 @@ const DialogDetail = ({ dialog, onClose }) => {
                 <TableContainer>
                   <Table>
                     <TableBody>
-                      {Object.keys(dialog.data?.teams[1].Score).map((key) => (
+                      {Object.keys(dialog?.data?.teams[1].Score).map((key) => (
                         <TableRow key={key}>
                           <TableCell>{key}</TableCell>
-                          <TableCell>{dialog.data.teams[1].Score[key]}</TableCell>
+                          <TableCell>{dialog?.data?.teams[1].Score[key]}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

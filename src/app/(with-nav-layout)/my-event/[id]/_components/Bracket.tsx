@@ -212,7 +212,7 @@ const Bracket = ({
         lockScoreStatus={currentBracket.lock_score}
         selected={selected}
       />
-    ) : bracket?.type === "single" && bracket?.singleBracket?.data ? (
+    ) : bracket?.type === "single" ? (
       <SingleElimination
         data={bracket.singleBracket?.data || []}
         tournament={data}
