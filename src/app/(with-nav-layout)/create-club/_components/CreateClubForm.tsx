@@ -88,7 +88,7 @@ export default function CreateClubForm() {
 
   const onSubmit = async (data: CreateClubFormData) => {
     if (!image) {
-      return setErrorImage('*Logo club wajib diupload.');
+      return setErrorImage("*Logo club wajib diupload.");
     }
     const sportsIds = data.sports.map((value) => ({ sport_id: value.id }));
     const formData: CreateClubRequestBody = {
@@ -106,7 +106,7 @@ export default function CreateClubForm() {
         throw new Error();
       }
       notification.showNotification("Sukses membuat club!", "success");
-      router.push(`/club/${response.data}`)
+      router.push(`/club/${response.data}`);
     } catch (error) {
       console.error(error);
       notification.showNotification("Gagal membuat club baru", "error");
@@ -244,14 +244,12 @@ export default function CreateClubForm() {
                 control={control}
                 name="sports"
                 defaultValue={undefined}
-                render={({ field, formState }) => (
+                render={({ field }) => (
                   <Autocomplete
                     {...field}
                     multiple
                     onChange={(_, newValue) => {
                       field.onChange(newValue);
-                      console.log(formState.errors);
-                      // console.log(field.value)
                     }}
                     value={field.value}
                     fullWidth
@@ -283,8 +281,8 @@ export default function CreateClubForm() {
             <Box
               marginTop={2}
               width="100%"
-              display={'flex'}
-              flexDirection={'column'}
+              display={"flex"}
+              flexDirection={"column"}
               justifyContent="center"
               alignItems="center"
             >
@@ -301,6 +299,7 @@ export default function CreateClubForm() {
               ) : null}
               {image ? (
                 <Image
+                  data-testid="image-preview"
                   src={image}
                   alt="Preview"
                   width={100} // Ukuran tetap untuk lebar
@@ -308,6 +307,7 @@ export default function CreateClubForm() {
                 />
               ) : null}
               <Button
+                data-testid="upload-club-logo-button"
                 component="label"
                 role={undefined}
                 variant="contained"
@@ -316,9 +316,9 @@ export default function CreateClubForm() {
                 disabled={imageUploading}
               >
                 Upload Logo Club
-
                 <VisuallyHiddenInput
                   // multiple
+                  data-testid="upload-club-logo-input"
                   accept="image/*"
                   style={{ display: "none" }}
                   id="upload-club-logo"
@@ -331,6 +331,7 @@ export default function CreateClubForm() {
         </Card>
         <Box marginTop={5} />
         <Button
+          data-testid="create-club-button"
           fullWidth
           variant="contained"
           color="primary"
