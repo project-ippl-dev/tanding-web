@@ -1,9 +1,9 @@
 'use server';
 import { ClubFetchAllData, ClubFetchInviteRequestData, ClubFetchJoinRequestData, ClubFetchMemberData, ClubFetchOneData, CreateClubRequestBody } from '@/types/club.type';
-import { getExternalApiUrl } from '@/utils/api';
-import { getAccessToken } from './auth';
 import { FetchResponseBody } from '@/types/global';
+import { getExternalApiUrl } from '@/utils/api';
 import { handleFetch } from '@/utils/fetchHandler';
+import { getAccessToken } from './auth';
 
 export async function getMembersOfClub({ clubID }: { clubID: string }): Promise<FetchResponseBody<ClubFetchMemberData>> {
   // const accessToken = getAccessToken();
@@ -103,32 +103,53 @@ export async function getJoinRequest(clubId: string): Promise<FetchResponseBody<
   return result
 }
 
-export async function createClub(data: CreateClubRequestBody) {
-  const accessToken = getAccessToken();
-  const res = await fetch(
-    getExternalApiUrl(`/club`),
-    {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function uploadClubLogo(image: any) {
+  const accessToken = await getAccessToken();
+  const formData = new FormData();
+  formData.append("dir", "club");
+  formData.append("file", image);
+  try {
+    // UPLOAD LOGO
+    const imageResponse = await fetch(`${getExternalApiUrl('')}/storage/upload`, {
       method: "POST",
+      body: formData,
       headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${accessToken || ""}`,
       },
-      body: JSON.stringify(data),
+    })
+
+    if (!imageResponse) {
+      throw new Error('Failed in uploading image')
     }
-  );
 
-  console.log('res', res)
+    console.log(imageResponse)
+    const responseData = await imageResponse.json();
+    responseData.status = imageResponse.status; // Tambahkan status ke responseData
 
-  if (!res.ok) {
-    const err = await res.json();
-    console.log('hai', err)
-    throw new Error(`Create club failed: ${err.message}`);
+    if ([200, 201].includes(imageResponse.status)) {
+      return responseData.data; // Kembalikan URL gambar
+    } else {
+      throw new Error()
+    }
+  } catch {
+    throw new Error()
   }
+}
 
-  // console.log(res)
-  const result = await res.json();
+export async function createClub(data: CreateClubRequestBody, logo: string) {
 
-  return result
+  // Create Club
+  const dataClub = { ...data, logo: logo };
+
+  const response = await handleFetch({ url: "/club", method: "POST", data: dataClub });
+
+  // const response = await axios.post(`/club`, dataClub, {
+  //   headers: {
+  //     Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+  //   },
+  // });
+  return response;
 }
 
 export async function approveInviteRequest(approval_id: number, status: boolean) {
