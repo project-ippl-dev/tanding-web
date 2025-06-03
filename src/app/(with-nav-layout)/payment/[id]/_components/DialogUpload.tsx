@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
 import { formatCurrency } from "../page";
 
 interface DialogUploadProps {
@@ -76,7 +75,10 @@ export default function DialogUpload({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+      data-testid="upload-dialog"
+    >
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">
@@ -110,11 +112,12 @@ export default function DialogUpload({
               onChange={handleFileChange}
               accept="image/jpg,image/jpeg,image/png"
               className="hidden"
+              data-testid="file-input"
             />
 
             <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
               {previewUrls.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-4" data-testid="image-preview">
                   <div className="relative w-full h-40 mx-auto">
                     <img
                       src={previewUrls[0]}
@@ -127,6 +130,7 @@ export default function DialogUpload({
                       type="button"
                       onClick={triggerFileInput}
                       className="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50"
+                      data-testid="change-image-button"
                     >
                       Change Image
                     </button>
@@ -134,13 +138,20 @@ export default function DialogUpload({
                       type="button"
                       onClick={removeImage}
                       className="px-4 py-2 text-sm text-red-600 border border-red-600 rounded-md hover:bg-red-50"
+                      data-testid="remove-image-button"
                     >
                       Remove
                     </button>
                   </div>
                 </div>
               ) : (
-                <div onClick={triggerFileInput} className="cursor-pointer py-6">
+                <div
+                  onClick={triggerFileInput}
+                  className="cursor-pointer py-6"
+                  data-testid="upload-area"
+                  role="button"
+                  aria-label="Click to upload proof of payment"
+                >
                   <svg
                     className="mx-auto h-12 w-12 text-gray-400"
                     fill="none"
@@ -173,6 +184,7 @@ export default function DialogUpload({
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
               disabled={isSubmitting}
+              data-testid="cancel-button"
             >
               Cancel
             </button>
@@ -185,6 +197,7 @@ export default function DialogUpload({
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600"
               }`}
+              data-testid="submit-button"
             >
               {isSubmitting ? "Submitting..." : "Submit"}
             </button>

@@ -30,6 +30,7 @@ export default function RegisterForm() {
     register,
     handleSubmit,
     watch,
+    reset, 
     formState: { errors },
   } = useForm<RegisterFormValues>();
 
@@ -66,6 +67,11 @@ export default function RegisterForm() {
       }
 
       const result = await res.json();
+      console.log("Register success:", result);
+
+      reset();
+      setShowPassword(false); // Also reset password visibility
+
       // TODO: redirect or toast
     } catch (err: any) {
       console.error("Register failed:", err.message);
@@ -115,6 +121,7 @@ export default function RegisterForm() {
                 value.trim() !== "" || "Nama tidak boleh kosong",
             })}
             label="Nama Lengkap"
+            placeholder="Masukkan nama lengkap"
             variant="outlined"
             size="small"
             fullWidth
@@ -132,6 +139,7 @@ export default function RegisterForm() {
               },
             })}
             label="E-mail"
+            placeholder="Masukkan alamat email"
             variant="outlined"
             size="small"
             fullWidth
@@ -149,6 +157,7 @@ export default function RegisterForm() {
               },
             })}
             label="No Handphone"
+            placeholder="08xxx atau +628xx"
             variant="outlined"
             size="small"
             fullWidth
@@ -167,6 +176,7 @@ export default function RegisterForm() {
             })}
             type={showPassword ? "text" : "password"}
             label="Password"
+            placeholder="Minimal 6 karakter"
             variant="outlined"
             size="small"
             fullWidth
@@ -190,11 +200,11 @@ export default function RegisterForm() {
 
           <TextField
             {...register("confirmPassword", {
-              validate: (value) =>
-                value === password || "Password tidak cocok",
+              validate: (value) => value === password || "Password tidak cocok",
             })}
             type="password"
             label="Ulangi Password"
+            placeholder="Konfirmasi password"
             variant="outlined"
             size="small"
             fullWidth

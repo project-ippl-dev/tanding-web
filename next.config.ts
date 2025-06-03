@@ -4,14 +4,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  images:{
+  images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
       {
-        
+
         protocol: 'https',
         hostname: 'google.com',
       },
@@ -27,7 +27,8 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'i.pinimg.com',
       }
-    ]
+    ],
+    domains: ['storage.googleapis.com'],
   },
   eslint: {
     ignoreDuringBuilds: true //Temporary, for previous codes
@@ -35,7 +36,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true //Temporary, for previous codes
   },
-  reactStrictMode: false,
 
 };
 
