@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Cancel, CheckCircle } from "@mui/icons-material";
-import { notFound, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { SyntheticEvent, useEffect, useState } from "react";
 import TabPanel from "../../_components/TabPanel";
 import {
@@ -35,9 +35,12 @@ import {
 } from "@/types/club.type";
 import DialogJoinClub from "./DialogJoinClub";
 import SearchUser from "../../_components/SearchUser";
+import { useNotification } from "@/context/notification.context";
 
 export default function ClubDetailPageContents() {
+  const router = useRouter();
   const { club_id } = useParams<{ club_id: string }>();
+  const notification = useNotification();
   const [loading, setLoading] = useState<boolean>(true);
   const [club, setClub] = useState<ClubFetchOneData | undefined>(undefined);
   const [clubMember, setClubMember] = useState<ClubFetchMemberData | undefined>(
@@ -58,8 +61,31 @@ export default function ClubDetailPageContents() {
     setTabValue(newValue);
   };
 
-  const handleJoinApprove = (approval_id: number, status: boolean) => {
-    approveJoinRequest(club_id, approval_id, status);
+  const handleJoinApprove = async (approval_id: number, status: boolean) => {
+    try {
+      setLoading(true);
+      const result = await approveJoinRequest(club_id, approval_id, status);
+      if (!result) {
+        throw new Error("Gagal memproses permintaan bergabung");
+      }
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      notification.showNotification(
+        "Berhasil memproses permintaan.",
+        "success"
+      );
+      const joinRequestData = await getJoinRequest(club_id);
+      setClubJoin(joinRequestData.data);
+    } catch (error) {
+      console.error(error);
+      notification.showNotification(
+        "Gagal memproses permintaan bergabung",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -67,8 +93,8 @@ export default function ClubDetailPageContents() {
       try {
         setLoading(true);
         const clubData = await getOneClub(club_id);
-        if (!clubData) {
-          notFound();
+        if (!clubData || !clubData.data) {
+          throw new Error("Club tidak ditemukan");
         }
         setClub(clubData.data);
 
@@ -78,13 +104,14 @@ export default function ClubDetailPageContents() {
         const joinRequestData = await getJoinRequest(club_id);
         setClubJoin(joinRequestData.data);
       } catch (error) {
+        notification.showNotification("Gagal mengambil data club", "error");
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
     fetchClubDetails();
-  }, [club_id]);
+  }, [club_id, notification, router]);
 
   return (
     <>
@@ -126,6 +153,7 @@ export default function ClubDetailPageContents() {
                   {!club?.joined && (
                     <Box marginTop={2}>
                       <Button
+                        data-testid="join-club-button"
                         variant="contained"
                         color="primary"
                         onClick={() => setDialogJoin(true)}
@@ -160,7 +188,9 @@ export default function ClubDetailPageContents() {
             >
               <Tabs value={tabValue} onChange={handleTab}>
                 <Tab label="Member" />
-                {club?.privilege ? <Tab label="Join Request" /> : null}
+                {club?.privilege ? (
+                  <Tab label="Join Request" data-testid="join-club-tab" />
+                ) : null}
               </Tabs>
               <TabPanel value={tabValue} index={0}>
                 {club?.privilege ? <SearchUser club={club} /> : null}
@@ -192,7 +222,7 @@ export default function ClubDetailPageContents() {
                 </Table>
               </TabPanel>
               <TabPanel value={tabValue} index={1}>
-                <Table>
+                <Table data-testid="join-request-list">
                   <TableHead>
                     <TableRow>
                       <TableCell>No</TableCell>

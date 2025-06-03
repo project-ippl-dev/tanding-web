@@ -3,24 +3,29 @@ import { ClubFetchAllData, ClubFetchInviteRequestData, ClubFetchJoinRequestData,
 import { getExternalApiUrl } from '@/utils/api';
 import { getAccessToken } from './auth';
 import { FetchResponseBody } from '@/types/global';
+import { handleFetch } from '@/utils/fetchHandler';
 
 export async function getMembersOfClub({ clubID }: { clubID: string }): Promise<FetchResponseBody<ClubFetchMemberData>> {
-  const accessToken = getAccessToken();
+  // const accessToken = getAccessToken();
+
+  // const url = `/club/${clubID}/participant`
+
+  // const response = await fetch(getExternalApiUrl(url), {
+  //   method: "GET",
+  //   headers: {
+  //     Authorization: `Bearer ${accessToken}`,
+  //   }
+  // });
+  // if (!response.ok) {
+  //   throw new Error("Failed to fetch data");
+  // }
+  // const data = await response.json()
+
+  // return data;
 
   const url = `/club/${clubID}/participant`
-
-  const response = await fetch(getExternalApiUrl(url), {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    }
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-  const data = await response.json()
-
-  return data;
+  const result = await handleFetch({ url, method: "GET" });
+  return result
 }
 
 interface GetAllClubsParams {
@@ -30,7 +35,7 @@ interface GetAllClubsParams {
 }
 
 export async function getAllClubs(query: GetAllClubsParams): Promise<FetchResponseBody<ClubFetchAllData[]>> {
-  const accessToken = getAccessToken();
+  // const accessToken = getAccessToken();
   const queryParams = new URLSearchParams();
   ['page', 'page_size', 'sport_id'].forEach((param) => {
     const value = query[param as keyof GetAllClubsParams];
@@ -44,81 +49,62 @@ export async function getAllClubs(query: GetAllClubsParams): Promise<FetchRespon
   const basePath = '/club'
   const finalFetchUrl = queryString ? `${basePath}?${queryString}` : basePath
 
-  const response = await fetch(getExternalApiUrl(finalFetchUrl), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
+  // const response = await fetch(getExternalApiUrl(finalFetchUrl), {
+  //   method: "GET",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${accessToken}`,
+  //   },
+  // });
+  // if (!response.ok) {
+  //   throw new Error("Failed to fetch data");
+  // }
 
-  const data = await response.json()
-  return data;
+  // const data = await response.json()
+  // return data;
+
+  const result = await handleFetch({ url: finalFetchUrl, method: 'GET' });
+  return result;
+
 }
 
 export async function getOneClub(clubId: string): Promise<FetchResponseBody<ClubFetchOneData>> {
-  const accessToken = getAccessToken();
+  // const accessToken = getAccessToken();
 
-  const response = await fetch(getExternalApiUrl(`/club/${clubId}`), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  // const response = await fetch(getExternalApiUrl(`/club/${clubId}`), {
+  //   method: "GET",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${accessToken}`,
+  //   },
+  // });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
+  // if (!response.ok) {
+  //   throw new Error("Failed to fetch data");
+  // }
 
-  const data = await response.json()
-  return data;
+  // const data = await response.json()
+  // return data;
+
+  const url = `/club/${clubId}`
+  const result = await handleFetch({ url, method: "GET" });
+  return result
 }
 
 export async function getInviteRequest(): Promise<FetchResponseBody<ClubFetchInviteRequestData[]>> {
-  const accessToken = getAccessToken();
-
-  const response = await fetch(getExternalApiUrl(`/club/invite/approval`), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-
-  const data = await response.json()
-  return data;
+  const url = `/club/invite/approval`
+  const result = await handleFetch({ url, method: "GET" });
+  return result
 }
 
 export async function getJoinRequest(clubId: string): Promise<FetchResponseBody<ClubFetchJoinRequestData[]>> {
-  const accessToken = getAccessToken();
-
-  const response = await fetch(getExternalApiUrl(`/club/${clubId}/join/approval`), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch data");
-  }
-
-  const data = await response.json()
-  return data;
+  const url = `/club/${clubId}/join/approval`
+  const result = await handleFetch({ url, method: "GET" });
+  return result
 }
 
 export async function createClub(data: CreateClubRequestBody) {
   const accessToken = getAccessToken();
-  console.log('body', JSON.stringify(data))
   const res = await fetch(
     getExternalApiUrl(`/club`),
     {
@@ -146,76 +132,29 @@ export async function createClub(data: CreateClubRequestBody) {
 }
 
 export async function approveInviteRequest(approval_id: number, status: boolean) {
-  const accessToken = getAccessToken();
+  const url = `/club/invite/approval/${approval_id}`
+  const result = await handleFetch({ url, method: 'PATCH', data: { status } });
 
-  const res = await fetch(
-    getExternalApiUrl(`/club/invite/approval/${approval_id}`),
-    {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status }),
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`Approve club invitation failed: ${err.message}`);
-  }
-
-  const result = await res.json();
-  // console.log(result);
-  return result
+  return result;
 }
 
 export async function approveJoinRequest(club_id: string, approval_id: number, status: boolean) {
-  const accessToken = getAccessToken();
+  const url = `/club/${club_id}/join/approval/${approval_id}`
+  const result = await handleFetch({ url, method: 'PATCH', data: { status } });
 
-  const res = await fetch(
-    getExternalApiUrl(`/club/${club_id}/join/approval/${approval_id}`),
-    {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status }),
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`Approve join invite failed: ${err.message}`);
-  }
-
-  const result = await res.json();
-  // console.log(result);
-  return result
+  return result;
 }
 
 export async function joinClub(club_id: string, data: { sport_id: string }) {
-  const accessToken = getAccessToken();
+  const url = `/club/${club_id}/join`
+  const result = await handleFetch({ url, method: 'POST', data });
 
-  const res = await fetch(
-    getExternalApiUrl(`/club/${club_id}/join`),
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  return result;
+}
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`Join club request failed: ${err.message}`);
-  }
+export async function inviteToClub(club_id: string, data: { participants: { user_id: string; sport_id: string }[] }) {
+  const url = `/club/${club_id}/invite`
+  const result = await handleFetch({ url, method: 'POST', data });
 
-  const result = await res.json();
-  // console.log(result);
-  return result
+  return result;
 }
