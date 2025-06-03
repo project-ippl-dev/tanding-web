@@ -1,14 +1,14 @@
 import { SportBaseType } from "./sport.type";
 
 export interface CreateClubFormData {
-  clubData: Omit<ClubFetchOneData, 'id' | 'owner' | 'privilege' | 'joined' | 'sports'> 
-  sports: SportBaseType[],
+  clubData: Omit<ClubFetchOneData, 'id' | 'owner' | 'privilege' | 'joined' | 'sports' | 'logo'> 
+  sports: Omit<SportBaseType, 'description'|'type' >[],
   phone: string;
 }
 
 export interface CreateClubRequestBody {
   name: string;
-  logo?: string; //TODO: Match logo type
+  // logo?: string; //TODO: Match logo type
   phone: string;
   short_name: string;
   sports:
