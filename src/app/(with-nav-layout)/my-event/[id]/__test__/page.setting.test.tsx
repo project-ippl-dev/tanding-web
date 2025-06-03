@@ -161,10 +161,10 @@ describe("Menguji proses pengeditan data class turnamen", () => {
         await userEvent.click(submitButton);
         expect(classStore.storeClassTournament).toHaveBeenCalledWith(
             EVENT.data.id,
-            [{
+            {data: [{
                 class_id: payload.class_id,
                 price: parseInt(payload.price)
-            }]
+            }]}
         );
     },10000)
     
