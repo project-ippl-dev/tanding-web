@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Grid, Typography, Button } from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -22,6 +22,7 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
   const auth = useAuth();
   const [dialogRegister, setDialogRegister] = useState(false);
   const [dialogReject, setDialogReject] = useState(false);
+  const [thumbnail, setThumbnail] = useState<string | null>("/images/default-thumbnail.png");
   const handleRegister = () => {
     const canRegister = auth.authData?.can_participate
     if (!canRegister) {
@@ -66,6 +67,14 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
     ) : null;
   };
 
+  useEffect(() => {
+    if (data?.thumbnail) {
+      setThumbnail(data.thumbnail);
+    } else {
+      setThumbnail("/images/default-thumbnail.png");
+    }
+  }, [data?.thumbnail]);
+
   const regisButtonDesc = useMemo(() => {
     switch (data?.remark) {
       case "open":
@@ -107,7 +116,7 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
                 height: "auto",
                 objectFit: "cover",
               }}
-              src={data?.thumbnail || null}
+              src={thumbnail}
               alt="Tournament Thumbnail"
               width={800}
               height={450}

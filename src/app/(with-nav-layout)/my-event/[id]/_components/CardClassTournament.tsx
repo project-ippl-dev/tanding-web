@@ -33,6 +33,7 @@ import {
   ClassAssignmentItem,
   ClassMultiple,
   ClassRulesMultiple,
+  StoreClassTournamentPayload,
   UpdatePriceClassTournamentPayload,
 } from "@/types/class.types";
 import { useLoading } from "@/context/loading.context";
@@ -105,7 +106,7 @@ async function reqGetClassRules(
 
 async function reqStoreClassTournament(
   eventID: string,
-  data: ClassAssignmentItem[],
+  data: StoreClassTournamentPayload[],
   showNotification: (msg: string, type?: NotificationType) => void
 ) {
   const response = await storeClassTournament(eventID, data);
@@ -202,7 +203,7 @@ const CardClassTournament = ({
     } else {
       await reqStoreClassTournament(
         params.id!,
-        [{ class_id: formData.class_id, price: formData.price.floatValue }],
+        {data:[{ class_id: formData.class_id, price: formData.price.floatValue }]}, 
         notification.showNotification
       );
     }
