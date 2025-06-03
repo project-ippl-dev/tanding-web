@@ -106,7 +106,6 @@ export default function ClubDetailPageContents() {
       } catch (error) {
         notification.showNotification("Gagal mengambil data club", "error");
         console.error(error);
-        // router.push("/club/not-found");
       } finally {
         setLoading(false);
       }
