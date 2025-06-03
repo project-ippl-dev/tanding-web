@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 import OwnTournamentDetail from "../page";
 import { EVENT } from "@/store/event";
 import { AUTH_DATA } from "@/store/auth";
+import { debug } from "jest-preview";
 
 const MockTestELement = () => (
     <div>
@@ -96,7 +97,6 @@ describe("Menguji render bagian register halaman", () => {
             expect(tabRegister).toBeInTheDocument();
             await userEvent.click(tabRegister);
 
-        await waitFor(async () => {
             const registerForm = screen.getByTestId("register-dialog");
             const comboBox = registerForm.querySelectorAll('[role="combobox"]');
 
@@ -116,5 +116,4 @@ describe("Menguji render bagian register halaman", () => {
             const submitButton = screen.getByTestId("register-submit");
             expect(submitButton).toBeInTheDocument(); 
         });
-    });
 });

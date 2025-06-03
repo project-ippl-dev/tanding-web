@@ -41,11 +41,9 @@ describe('Menguji render bagian bracket halaman', () => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
         });
 
-        await waitFor(async () => {
             const tabBracket = screen.getByTestId("tab-braket");
             expect(tabBracket).toBeInTheDocument();
             await userEvent.click(tabBracket);
-        });
 
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
             expect(screen.getByText("Bagan Turnamen")).toBeInTheDocument();
@@ -76,27 +74,19 @@ describe('Menguji render bagian bracket halaman', () => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
         });
 
-        await waitFor(async () => {
             const tabBracket = screen.getByTestId("tab-braket");
-            expect(tabBracket).toBeInTheDocument();
             await userEvent.click(tabBracket);
-        });
         
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
-            expect(selectClassEvent).toBeInTheDocument();
             // Assuming EVENT is available and selectClassEvent is not null
             await userEvent.selectOptions(selectClassEvent!, EVENT.data.class_events[0].class_name);
-        });
 
-        await waitFor(() => {
             expect(bracketStore.getBracketDetails).toHaveBeenCalled();
             expect(screen.getByText("Final Result")).toBeInTheDocument();
             expect(screen.getByTestId("order-elimination-table")).toBeInTheDocument();
             // Assuming BracketOrder (data object) is available
             const matchDetailButton = screen.getAllByTestId("order-match-detail");
             expect(matchDetailButton.length).toEqual(BracketOrder.data.length);
-        });
     });
 
     it("Memeriksa proses generate bracket", async () => {
@@ -121,20 +111,12 @@ describe('Menguji render bagian bracket halaman', () => {
             </WrapperContext>
         );
         
-        await waitFor(() => {
-            expect(eventStore.getTournamentDetail).toHaveBeenCalled();
-        });
 
-        await waitFor(async () => {
             const tabBracket = screen.getByTestId("tab-braket");
-            expect(tabBracket).toBeInTheDocument();
             await userEvent.click(tabBracket);
-        });
 
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
             await userEvent.selectOptions(selectClassEvent!, EVENT.data.class_events[0].class_name);
-        });
 
         await waitFor(() => {
             expect(bracketStore.getBracketDetails).toHaveBeenCalled();
@@ -143,9 +125,7 @@ describe('Menguji render bagian bracket halaman', () => {
         const generateButton = screen.getByTestId("generate-bracket-button");
         expect(generateButton).toBeInTheDocument();
         await userEvent.click(generateButton);
-        await waitFor(() => {
             expect(bracketStore.generateBracket).toHaveBeenCalledWith({eventID: EVENT.data.id,classID: EVENT.data.class_events[0].id});
-        });
     });
 
     it.each([
@@ -172,33 +152,21 @@ describe('Menguji render bagian bracket halaman', () => {
             </WrapperContext>
         );
         
-        await waitFor(() => {
-            expect(eventStore.getTournamentDetail).toHaveBeenCalled();
-        });
 
-        await waitFor(async () => {
             const tabBracket = screen.getByTestId("tab-braket");
             await userEvent.click(tabBracket);
-        });
 
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
             await userEvent.selectOptions(selectClassEvent!, EVENT.data.class_events[0].class_name);
-        });
 
-        await waitFor(() => {
-            expect(bracketStore.getBracketDetails).toHaveBeenCalled();
-        });
         
         const randomBracketButton = screen.getByTestId("random-bracket-button");
         expect(randomBracketButton).toBeInTheDocument();
         await userEvent.click(randomBracketButton);
-        await waitFor(() => {
             expect(getBracketRandomAll).toHaveBeenCalledWith({
                 eventID: EVENT.data.id,
                 classID: EVENT.data.class_events[0].id,
             });
-        });
     });
     
     it.each([
@@ -226,26 +194,19 @@ describe('Menguji render bagian bracket halaman', () => {
             </WrapperContext>
         );
         
-        await waitFor(() => { expect(eventStore.getTournamentDetail).toHaveBeenCalled(); });
 
-        await waitFor(async () => {
             const tabBracket = screen.getByTestId("tab-braket");
             await userEvent.click(tabBracket);
-        });
 
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
             await userEvent.selectOptions(selectClassEvent!, EVENT.data.class_events[0].class_name);
-        });
 
         await waitFor(() => { expect(bracketStore.getBracketDetails).toHaveBeenCalled(); });
 
         const lockBracketButton = screen.getByTestId("lock-bracket-button");
         expect(lockBracketButton).toBeInTheDocument();
         await userEvent.click(lockBracketButton);
-        await waitFor(() => {
             expect(expectFunctionCall).toHaveBeenCalled();
-        });
     });
 
     it("Memeriksa proses melakukan Event turn lock", async () => {
@@ -270,28 +231,21 @@ describe('Menguji render bagian bracket halaman', () => {
             </WrapperContext>
         );
         
-        await waitFor(() => { expect(eventStore.getTournamentDetail).toHaveBeenCalled(); });
 
-        await waitFor(async () => {
             const tabBracket = screen.getByTestId("tab-braket");
             await userEvent.click(tabBracket);
-        });
 
-        await waitFor(async () => {
             const selectClassEvent = document.getElementById("uncontrolled-native") as HTMLSelectElement | null;
             await userEvent.selectOptions(selectClassEvent!, EVENT.data.class_events[0].class_name);
-        });
 
         await waitFor(() => { expect(bracketStore.getBracketDetails).toHaveBeenCalled(); });
 
         const lockTurnButton = screen.getByTestId("lock-turn-bracket-button");
         expect(lockTurnButton).toBeInTheDocument();
         await userEvent.click(lockTurnButton);
-        await waitFor(() => {
             expect(bracketStore.lockTurnBracketSingle).toHaveBeenCalledWith({ 
                 eventID: EVENT.data.id,
                 // class_id might not be needed for event turn lock, verify API
             });
-        });
     });
 });

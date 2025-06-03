@@ -1,7 +1,7 @@
 import WrapperContext from "@/app/wrapper";
 import * as eventStore from "@/store/actions/event";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import OwnTournamentDetail from "../page";
 import { EVENT_PARTICIPANTS } from "@/store/event";
@@ -28,20 +28,14 @@ describe("Menguji render bagian peserta halaman", () => {
             </WrapperContext>
         );
 
-        await waitFor(() => {
             expect(eventStore.getTournamentDetail).toHaveBeenCalled();
-        });
 
-        await waitFor(async () => {
             const tabPeserta = screen.getByTestId("tab-peserta");
             expect(tabPeserta).toBeInTheDocument();
             await userEvent.click(tabPeserta);
-        });
 
-        await waitFor(() => {
             expect(eventStore.getTournamentParticipants).toHaveBeenCalled();
             expect(screen.getByText("Daftar Peserta")).toBeInTheDocument();
-        });
         
         const clubParticipant = screen.getAllByTestId("club-participant");
         expect(clubParticipant.length).toEqual(EVENT_PARTICIPANTS.data.length);

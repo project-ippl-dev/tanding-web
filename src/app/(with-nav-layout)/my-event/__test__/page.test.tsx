@@ -6,65 +6,73 @@ import WrapperContext from "@/app/wrapper";
 import { useRouter } from "next/navigation";
 import OwnTournament from "../page";
 
-describe("Unit Testing Halaman List Own Tournament View", () => {
+jest.mock("next/navigation", () => ({
+  useRouter: jest.fn(),
+}));
 
-  it("Menampilkan halaman secara normal", async () => {
+describe("Unit Testing Halaman List Own Tournament View", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({
+      push: jest.fn(),
+    });
+  });
+
+  it("Menampilkan halaman secara normal dan merender kartu turnamen yang sesuai", async () => {
     render(
       <WrapperContext>
-          <OwnTournament />
+        <OwnTournament />
       </WrapperContext>
     );
 
     await waitFor(() => {
       expect(eventStore.getOwnTournament).toHaveBeenCalled();
-    })
-
-    // Merender jumlah kartu turnamen yang sesuai
-    await waitFor(() => {
       const tournamentItems = screen.getAllByTestId("tournament-own-item");
       expect(tournamentItems.length).toEqual(EVENT_OWN.data.length);
     });
   });
 
-  it("Menguji handle saat gagal akses server API Tournament", async () => {
+  it("Menampilkan pesan error saat gagal akses server API", async () => {
     (eventStore.getOwnTournament as jest.Mock).mockRejectedValueOnce(new Error("Error fetching data"));
 
     render(
       <WrapperContext>
-          <OwnTournament />
+        <OwnTournament />
       </WrapperContext>
     );
 
     await waitFor(() => {
       expect(eventStore.getOwnTournament).toHaveBeenCalled();
-    })
-
-    await waitFor(() => {
       expect(screen.getByText("Gagal mengakses server")).toBeInTheDocument();
-    })
-  })
+    });
+  });
 
-  
-  it("Menguji url yang dibuat", async () => {
-    const mockRoute = useRouter()
+  it("Mengarahkan ke halaman detail saat kartu turnamen diklik", async () => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+    });
     
     render(
       <WrapperContext>
-          <OwnTournament />
+        <OwnTournament />
       </WrapperContext>
     );
 
     await waitFor(() => {
       expect(eventStore.getOwnTournament).toHaveBeenCalled();
-    })
-
-    await waitFor(async () => {
+      
       const tournamentItems = screen.getAllByTestId("tournament-own-item");
-
-      tournamentItems.forEach((item,index) => {
+      
+      // Test only the first item to avoid redundancy
+      fireEvent.click(tournamentItems[0]);
+      expect(mockPush).toHaveBeenCalledWith(`/my-event/${EVENT_OWN.data[0].id}`);
+      
+      // If you want to test all items, using a more concise approach:
+      tournamentItems.forEach((item, index) => {
         fireEvent.click(item);
-        expect(mockRoute.push).toHaveBeenCalledWith(`/my-event/${EVENT_OWN.data[index].id}`);
+        expect(mockPush).toHaveBeenCalledWith(`/my-event/${EVENT_OWN.data[index].id}`);
       });
-    })
-  })
-})    
+    });
+  });
+});
