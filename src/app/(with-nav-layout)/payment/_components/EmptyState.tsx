@@ -10,7 +10,7 @@ export default function EmptyState({
   icon = "inbox",
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center" data-testid="empty-state">
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
         {icon === "receipt" ? (
           <svg

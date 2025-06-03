@@ -17,6 +17,7 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+// Updates needed for PaymentList component:
 export default function PaymentList({ payments }: PaymentListProps) {
   const router = useRouter();
 
@@ -25,14 +26,15 @@ export default function PaymentList({ payments }: PaymentListProps) {
   };
 
   return (
-    <div className="space-y-3 pb-20">
+    <div className="space-y-3 pb-20" data-testid="payment-list">
       <div className="h-px bg-gray-200 w-full" />
 
       {payments.map((payment) => (
-        <div
+        <button
           key={payment.id}
           onClick={() => handleClick(payment.id)}
-          className="flex items-center p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors rounded-lg cursor-pointer"
+          className="flex items-center p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors rounded-lg cursor-pointer w-full text-left"
+          data-testid={`payment-item-${payment.id}`}
         >
           {payment.payment_link ? (
             <div className="w-16 h-12 relative mr-3 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
@@ -74,7 +76,7 @@ export default function PaymentList({ payments }: PaymentListProps) {
           <div className="ml-2">
             <PaymentStatusBadge status={payment.status} />
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );
