@@ -29,18 +29,11 @@ describe("Pengujian bagian keuangan dalam setting ", () => {
   it("Menguji render bagian keuangan", async () => {
     await renderAndSwitchToFinanceTab();
     // Memeriksa bagian setting kelas pertandingan telah dirender
-    await waitFor(() => {
       expect(paymentStore.getPaymentForOwner).toHaveBeenCalled();
       expect(paymentStore.getPaymentTotalForOwner).toHaveBeenCalled();
-    });
-      expect(paymentStore.getPaymentForOwner).toHaveBeenCalled();
-      expect(paymentStore.getPaymentTotalForOwner).toHaveBeenCalled();
-    });
     const table = screen.getByTestId("payment-table");
     expect(table).toBeInTheDocument();
     const paymentList = screen.getAllByTestId("payment-row-data");
     expect(paymentList.length).toEqual(PAYMENT_OWNER.data.length);
-  });
-});
-  });
-});
+  })
+})
