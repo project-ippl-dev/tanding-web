@@ -1,6 +1,3 @@
-import { createClass, deleteClassTournament, storeClassTournament, updatePriceClassTournament } from "@/store/actions/classTournament";
-import { createCommittee } from "@/store/actions/committee";
-import { updateTournamentDetail } from "@/store/actions/event";
 import { kabupaten, province } from "@/store/address";
 import { CLASS_MULTIPLE, CLASS_RULES_MULTIPLE } from "@/store/class";
 import { CLUB_MEMBER_DATA } from "@/store/club";

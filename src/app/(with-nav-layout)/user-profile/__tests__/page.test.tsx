@@ -5,7 +5,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import UserProfile from "../page";
 import { userProfileData } from "@/store/profile";
 import * as profileStore from "@/store/actions/profile";
-import { profile } from "console";
 
 
 
@@ -21,10 +20,8 @@ describe("Menguji rendering halaman user profile",()=>{
 
     const editButton = screen.getByTestId('edit-button');
     await userEvent.click(editButton);
-    await waitFor(() => {
         // Memastikan form edit di render
-      expect(screen.getByRole("button", { name: /simpan/i })).toBeInTheDocument();
-    }, {interval: 1000});
+    expect(screen.getByRole("button", { name: /simpan/i })).toBeInTheDocument();
   });
 
 
@@ -43,9 +40,7 @@ describe("Menguji rendering halaman user profile",()=>{
       expect(profileStore.getProfileData).toHaveBeenCalled();
     })
 
-    await waitFor(() => {
         expect(screen.getByText(/Gagal memuat data/i)).toBeInTheDocument();
-    })
 
     const editButton = screen.getByTestId('edit-button');
     await userEvent.click(editButton);

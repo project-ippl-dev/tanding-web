@@ -39,7 +39,6 @@ const Participant = () => {
           showNotification("Gagal mengambil data peserta, dengan error: " + (serverResponse.error || "Unknown error"), "error"); 
         }
 
-        console.log(serverResponse);
       }
       catch (error) {
         showNotification("Terjadi Kesalaha dengan errror: " + (error instanceof Error ? error.message : "Unknown error"), "error");

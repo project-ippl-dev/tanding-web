@@ -17,12 +17,10 @@ const renderAndSwitchToFinanceTab = async () => {
   await waitFor(() => {
     expect(eventStore.getTournamentDetail).toHaveBeenCalled();
   });
-  await waitFor(async () => {
     const tabSetting = screen.getByTestId("tab-keuangan");
     expect(tabSetting).toBeInTheDocument();
     await userEvent.click(tabSetting);
     expect(screen.getByText("Laporan Keuangan")).toBeInTheDocument();
-  });
 };
 
 describe("Pengujian bagian keuangan dalam setting ", () => {

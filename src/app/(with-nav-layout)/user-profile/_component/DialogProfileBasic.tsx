@@ -57,7 +57,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
     phone: "",
     gender: "",
     about: "",
-    photo: ""
+    photo: null
   });
 
   const { authData } = useAuth()
@@ -65,7 +65,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
   const notification = useNotification();
   const [errors, setErrors] = useState<Record<string, string>>({}); // Annotate errors as a record of string keys and string values
   const [image, setImage] = useState<{url: string | null,file: File|null}>({
-    url: profile?.data.photo || null,
+    url: typeof(profile?.data.photo) !== "string" ||  profile?.data.photo === "" ? null : profile?.data.photo,
     file: null
   }); // Annotate image as a File or null
 
@@ -117,7 +117,6 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         })
         const responseData = await response.json();
         responseData.status = response.status; // Tambahkan status ke responseData
-        console.log("Response from image upload:", responseData);
 
         if ([200, 201].includes(response.status)) {
           return responseData.data; // Kembalikan URL gambar
@@ -152,7 +151,7 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         ...formData,
         photo: profileURL ? profileURL : profile?.data.photo, // Gunakan gambar baru jika ada
       };
-    console.log("Payload to update profile:", payload);
+      console.log("Payload yang akan dikirim:", payload);
     
     const serverResponse  = await updateProfileData({ uuid: authData?.user_id || "", payload: payload})
 
@@ -165,12 +164,10 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
       onClose();
     } catch (error) {
       notification.showNotification(`Terjadi error saat mengirim data` , "error");
-      console.log(error)
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (profile?.data !== null && open) {
       setFormData({
@@ -181,9 +178,13 @@ const DialogProfileBasic: React.FC<DialogProfileBasicProps> = ({
         phone: profile?.data.phone || "",
         gender: profile?.data.gender || "",
         about: profile?.data.about || "",
-        photo: profile?.data.photo || ""
+        photo: profile?.data.photo || null
       });
     }
+    setImage(prevState => ({
+      ...prevState,
+      url: typeof(profile?.data.photo) !== "string" ||  profile?.data.photo === "" ? null : profile?.data.photo,
+    }));
   }, [open]);
 
   

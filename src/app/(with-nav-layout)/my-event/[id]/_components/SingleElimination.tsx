@@ -97,7 +97,6 @@ const SingleElimination: React.FC<SingleEliminationProps> = ({
   selected = "", 
   lockScoreStatus = false 
 }) => {
-  console.log("SingleElimination data", data);
 
   const params = useParams<{ id: string }>();
   const [scoring, setScoring] = useState<DialogState<BracketSeed>>({ open: false, data: null });

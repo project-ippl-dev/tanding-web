@@ -10,7 +10,7 @@ export interface ProfileUpdate {
     identity_number: string // National identity number
     phone: string; // Phone number
     gender: "male" | "female" | '' // Gender of the user
-    photo: string; // URL to the user's photo
+    photo: string | null; // URL to the user's photo
     about: string; // Additional information about the user
 }
 

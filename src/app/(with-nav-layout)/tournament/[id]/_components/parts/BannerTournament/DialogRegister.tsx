@@ -54,7 +54,6 @@ const DialogRegister = ({
   onClose: () => void;
 }) => {
   const { authData } = useAuth();
-  console.log(authData)
   const [kelas, setKelas] = useState("");
   const [selectedClass, setSelectedClass] = useState<number>(0);
   const [inputUser, setInputUser] = useState("");
@@ -139,7 +138,7 @@ const DialogRegister = ({
       }
       setSelectedClass(index);
     }
-  }, [dataTournament?.class_events, kelas]);
+  }, [kelas]);
 
   useEffect(() => {
     async function getMemberClub(idClub: string) {

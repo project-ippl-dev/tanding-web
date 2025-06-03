@@ -97,7 +97,6 @@ const TournamentContent = () => {
 
   const [tournamentInfinity, setTournamentInfinity] = useState<EventInfinityResponse | null>(null);
 
-  console.log(tournamentInfinity)
   const [dialogFilter, setDialogFilter] = useState(false);
   const [sportID, setSportID] = useState("");
   const [category, setCategory] = useState("");
@@ -161,6 +160,7 @@ const TournamentContent = () => {
       );
     }
   }, []);
+
   return (
     <Box
       sx={{

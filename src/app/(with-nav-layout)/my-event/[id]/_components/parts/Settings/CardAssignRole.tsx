@@ -157,7 +157,6 @@ const CardAssignRole = ({
             role: data.role as "reviewer" | "contributor" | "admin" // Explicitly cast role
         }] 
     };
-    console.log("formData", formData);
     setLoading(true);
     await reqCreateComittee(params.id, formData, notification.showNotification);
     await refetchCommittee(); // Refetch committee list

@@ -163,7 +163,7 @@ export default function Bracket({
                   id: "uncontrolled-native",
                 }}
               >
-                {data?.class_events.map((value) => (
+                {["", ...(data?.class_events ?? [])].map((value) => (
                   <option value={value.id} key={value.id}>
                     {value.class_name}
                   </option>

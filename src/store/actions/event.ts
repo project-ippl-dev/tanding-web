@@ -44,15 +44,21 @@ export async function getOwnTournament({ page = 1, page_size = 10 }) {
 
 
 export async function getTournamentInfinity(params: InfinityQueryParams) {
-
-  const query: InfinityQueryParams = {
+  const query: Partial<InfinityQueryParams> = {
     limit: params.limit || 10,
-    type: params.type || '',
-    sport_id: params.sport_id || '',
-    search: params.search || '',
-    remark: params.remark || '',
   };
-  const url = `/event/infinite?limit=${query.limit}&category=${query.type}&sport_id=${query.sport_id}&name=${query.search}&remark=${query.remark}`;
+
+  if (params.type) query.type = params.type;
+  if (params.sport_id) query.sport_id = params.sport_id;
+  if (params.search) query.search = params.search;
+  if (params.remark) query.remark = params.remark;
+
+  const url = `/event/infinite?limit=${query.limit}` +
+    (query.type ? `&category=${query.type}` : '') +
+    (query.sport_id ? `&sport_id=${query.sport_id}` : '') +
+    (query.search ? `&name=${query.search}` : '') +
+    (query.remark ? `&remark=${query.remark}` : '');
+
   const result = await handleFetch({ url, method: 'GET' });
 
   return result;

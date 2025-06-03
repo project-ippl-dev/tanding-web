@@ -57,7 +57,6 @@ async function reqRandomBracket(
   try {
     const response = await getBracketRandom({eventID, classID});
     if ([200, 201].includes(response.status)) {
-      console.log(response)
       setData(response)
       showNotification(response.message || "Berhasil melakukan random bracket", "success");
       return response // Assuming response.data is of type BracketResponse

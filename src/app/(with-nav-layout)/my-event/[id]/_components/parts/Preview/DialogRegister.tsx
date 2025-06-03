@@ -78,7 +78,6 @@ const DialogRegister = ({
       club_id: selectedClub,
       members: members.map((value) => ({ user_id: value })),
     };
-    console.log(data);
     try {
       if (!dataTournament){
         throw new Error("Tidak didapatkan id Event yang valid")
@@ -134,7 +133,6 @@ const DialogRegister = ({
       try {
         // const serverResponse = await fetchProxyApi(url, authData.token.access_token)
         const serverResponse = await getMembersOfClub({ clubID: idClub });
-        console.log(serverResponse);
         setMemberOption(serverResponse.data);
       } catch (error) {
         console.error(error);

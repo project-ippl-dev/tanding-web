@@ -22,7 +22,6 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
   const auth = useAuth();
   const [dialogRegister, setDialogRegister] = useState(false);
   const [dialogReject, setDialogReject] = useState(false);
-  console.log("data", auth.authData?.can_participate)
   const handleRegister = () => {
     const canRegister = auth.authData?.can_participate
     if (!canRegister) {
@@ -108,7 +107,7 @@ const ContentBannerTournament = ({ data }: {data : EventData | null}) => {
                 height: "auto",
                 objectFit: "cover",
               }}
-              src={data?.thumbnail || "/default-thumbnail.jpg"}
+              src={data?.thumbnail || null}
               alt="Tournament Thumbnail"
               width={800}
               height={450}

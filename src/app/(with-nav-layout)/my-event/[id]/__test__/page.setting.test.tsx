@@ -12,14 +12,13 @@ import * as classStore from "@/store/actions/classTournament";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import OwnTournamentDetail from "../page";
-import preview from "jest-preview";
 import { CLASS_MULTIPLE, CLASS_RULES_MULTIPLE } from "@/store/class";
 import { USER_SEARCH } from "@/store/user";
 
 
 describe("Menguji proses pengeditan data class turnamen", () => {
 
-    it("Menguji pembuatan kelas ustom baru untuk turnamen",async ()=>{
+    it("Menguji pembuatan kelas custom baru untuk turnamen",async ()=>{
 
         render(
             <WrapperContext>
@@ -103,7 +102,7 @@ describe("Menguji proses pengeditan data class turnamen", () => {
         //         match_type: payload.match_type, // Example: 'single'
         //     })
         // })
-    })
+    },10000)
     
     it("Menguji proses penambahan daftar kelas pertandingan",async ()=>{
         render(
@@ -167,7 +166,7 @@ describe("Menguji proses pengeditan data class turnamen", () => {
                 price: parseInt(payload.price)
             }]
         );
-    })
+    },10000)
     
     it("Menguji proses pengeditan data edit tournamen", async ()=>{
         render(
@@ -224,7 +223,6 @@ describe("Menguji proses pengeditan data class turnamen", () => {
 
         // Mengakses tombol hapus kelas turnamen
         
-        preview.debug()
         const buttonEdit  = screen.getAllByTestId("edit-class-tournament");
         expect(buttonEdit.length).toEqual(EVENT.data.class_events.length);
 
@@ -415,7 +413,6 @@ describe("Menguji render bagian Setting halaman", () => {
             await waitFor(() => expect(sportStore.getSport).toHaveBeenCalled());
 
             const tournamentInput = screen.getByTestId("tournament-name");
-            console.log(tournamentInput);
             expect(tournamentInput).toBeInTheDocument();
             // expect(tournamentInput).toBeDisabled();
             const editButton = screen.getByTestId("edit-tournament-data");

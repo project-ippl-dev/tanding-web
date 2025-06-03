@@ -167,9 +167,10 @@ const HeaderTournament = ({
               }}
             >
               <Image
+                style={{ borderRadius: "8px" }}
+                fill
                 alt="Background Image"
                 src={BannerTanding}
-                fill
                 objectFit="cover"
               />
             </Box>

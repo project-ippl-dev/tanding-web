@@ -136,6 +136,7 @@ const BannerTournament = ({
               padding: { xs: 2, md: 3 },
               height: { xs: "auto", md: "400px" },
               display: "flex",
+              position: "relative",
               justifyContent: "center",
               alignItems: "center",
             }}
@@ -145,13 +146,8 @@ const BannerTournament = ({
                 <Image
                 src={data?.thumbnail || null}
                 alt="Tournament Thumbnail"
-                width={800}
-                height={450}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  objectFit: "cover",
-                }}
+                objectFit="cover"
+                fill
                 />
               ) : ""
             }

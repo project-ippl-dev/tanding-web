@@ -66,7 +66,6 @@ export default function RegisterForm() {
       }
 
       const result = await res.json();
-      console.log("Register success:", result);
       // TODO: redirect or toast
     } catch (err: any) {
       console.error("Register failed:", err.message);

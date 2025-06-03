@@ -65,7 +65,6 @@ export default function UserProfile() {
           `Gagal memuat data profil`,
           "error",
         );
-        console.log("Error fetching profile data:", error);
       } finally {
         setLoadingProfile(false);
       }
@@ -75,28 +74,12 @@ export default function UserProfile() {
       fetchProfileData();
     }
   }, [authData?.user_id]);
-
+  console.log("Profile Data:", profileData);
   function updateProfileData(updatedData: ProfileUpdate) {
-    setProfileData((prevState) => {
-      if (prevState) {
-        return {
-          ...prevState,
-          data: {
-            ...prevState.data,
-            ...updatedData,
-            born_on: {
-              Time: updatedData.born_on,
-              Valid: true,
-            },
-          },
-        };
-      } else {
-        // Kondisi yang sepertinya gak akan terjadi
-        // Data Profil Awalnya udah null
-        return null;
-      }
-    });
+    console.log("Update Profile Data:", updatedData);
+    window.location.reload(); // Reload the page to reflect changes
   }
+
 
   const useImageBackground: boolean = false;
   const backgroundProfile = React.useMemo(

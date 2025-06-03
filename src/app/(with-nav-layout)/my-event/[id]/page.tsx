@@ -41,7 +41,6 @@ import { useLoading } from "@/context/loading.context";
 
 const OwnTournamentDetail = () => {
   const params = useParams<{ id: string }>();
-  console.log("params", params);
   const loading = useLoading();
   const notification = useNotification()
   const [tabs, setTabs] = useState<number>(0);
@@ -59,7 +58,6 @@ const OwnTournamentDetail = () => {
       try{
         if (loading.changeState) loading.changeState(true);
           const response = await getTournamentDetail({ id });
-          console.log("tournament", response);
           if ([200,201].includes(response.status)) {
             setTournament(response);
           } else {

@@ -299,7 +299,6 @@ const CardClassTournament = ({
                         <IconButton
                           data-testid="edit-class-tournament"
                           onClick={() =>{
-                            console.log("Open Dialog Edit", value);
                             setDialogClass({
                               open: true,
                               edit: true,

@@ -12,6 +12,7 @@ import CustomPagination from "@/components/common/CustomPagination";
 import SecondTournamentItem from "@/components/SecondTournamentItem";
 import { useNotification } from "@/context/notification.context";
 import { NotificationContextProps } from "@/types/notification.type";
+import { useRouter } from "next/navigation";
 
 const StyledTabs = styled((props: TabsProps) => (
   <Tabs {...props} 
@@ -87,12 +88,18 @@ async function reqTournamentDetailData(
     const response = await getOwnTournament({page,page_size});
     if ([200,201].includes(response.status)) {
       setData(response);
-    } else {
+      return false
+    } else if (response.status === 403) {
+      notification?.showNotification("Anda belum memiliki turnamen untuk dikelola", "error");
+      return "unauthorized";
+    }
+    else {
       notification?.showNotification("Gagal dalam mengambil data turnamen", "error");
     }
   } catch (error) {
     notification?.showNotification("Gagal mengakses server");
     console.error("Error fetching tournament data:", error);
+    return false
   }
 }
 
@@ -102,6 +109,7 @@ export default function OwnTournament () {
   const notification = useNotification();
   const [loading, setLoading] = useState(false);
   const [tournamentOwn, setTournamentOwn] = useState<EventOwnResponse | null>(null);
+  const router = useRouter()
 
   const handleTabs = ( _event: React.SyntheticEvent, newValue: number) => {
     setTabs(newValue);
@@ -113,7 +121,13 @@ export default function OwnTournament () {
         setTournamentOwn(data);
       }
       setLoading(true);
-      await reqTournamentDetailData(page, page_size, saveTournamentData,notification);
+      const response = await reqTournamentDetailData(page, page_size, saveTournamentData,notification);
+      
+      if (response === "unauthorized") {
+        setTimeout(() => {
+          router.push("/login");
+        }, 3000);
+      }
       setLoading(false);
     }
     fetchData();
