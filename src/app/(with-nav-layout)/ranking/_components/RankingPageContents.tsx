@@ -65,7 +65,14 @@ export default function RankingPageContents() {
         result = await getPowerListClub(query);
       }
 
-      if (!result || !result.status || !result.data || !result.last_page) {
+      console.log(result);
+
+      if (
+        !result ||
+        !result.status ||
+        !result.data ||
+        result.last_page === undefined
+      ) {
         throw new Error("Gagal mengambil daftar ranking.");
       }
       if (result.error) {
@@ -238,7 +245,9 @@ export default function RankingPageContents() {
               </Box>
             </>
           ) : (
-            <Typography>Oops! Tidak ada data</Typography>
+            <Typography>
+              Oops! Tidak ada data ranking yang tercatat untuk kategori ini.
+            </Typography>
           )}
         </Grid>
       </Grid>
