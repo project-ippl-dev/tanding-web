@@ -17,6 +17,8 @@ import {
   Autocomplete,
   Snackbar,
   Alert,
+  Divider,
+  Paper,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -30,6 +32,14 @@ import { getProvince, getCities } from "@/store/actions/address";
 import { useAuth } from "@/context/auth.context";
 import DatePicker from "@/components/DatePicker";
 import DateTimePicker from "@/components/DateTimePicker";
+
+// Icons for better visual hierarchy
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import EventIcon from "@mui/icons-material/Event";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import DescriptionIcon from "@mui/icons-material/Description";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 interface RichTextEditorProps {
   value: string;
@@ -216,12 +226,33 @@ export default function CreateTournamentPage() {
     const fetchProvinces = async () => {
       try {
         const response = await getProvince();
-        if (response) {
-          setProvinces(response);
+        console.log("Provinces response:", response);
+
+        // Handle different response formats
+        let provincesData: Province[] = [];
+
+        if (Array.isArray(response)) {
+          // If response is directly an array
+          provincesData = response;
+        } else if (response && response.data && Array.isArray(response.data)) {
+          // If response has a data property that is an array
+          provincesData = response.data;
+        } else if (response && Array.isArray(response.results)) {
+          // If response has a results property that is an array
+          provincesData = response.results;
         }
+
+        // Ensure each province has the required id and name properties
+        const formattedProvinces = provincesData.map((province: any) => ({
+          id: province.id ? String(province.id) : "",
+          name: province.name || province.nama || "",
+        }));
+
+        setProvinces(formattedProvinces);
       } catch (error) {
         console.error("Error fetching provinces:", error);
         showAlert("Error fetching province data", "error");
+        setProvinces([]); // Set empty array on error
       }
     };
 
@@ -233,12 +264,37 @@ export default function CreateTournamentPage() {
       const fetchCities = async () => {
         try {
           const response = await getCities(selectedProvince.id as string);
-          if (response) {
-            setCities(response);
+          console.log("Cities response:", response);
+
+          // Handle different response formats
+          let citiesData: City[] = [];
+
+          if (Array.isArray(response)) {
+            // If response is directly an array
+            citiesData = response;
+          } else if (
+            response &&
+            response.data &&
+            Array.isArray(response.data)
+          ) {
+            // If response has a data property that is an array
+            citiesData = response.data;
+          } else if (response && Array.isArray(response.results)) {
+            // If response has a results property that is an array
+            citiesData = response.results;
           }
+
+          // Ensure each city has the required id and name properties
+          const formattedCities = citiesData.map((city: any) => ({
+            id: city.id ? String(city.id) : "",
+            name: city.name || city.nama || "",
+          }));
+
+          setCities(formattedCities);
         } catch (error) {
           console.error("Error fetching cities:", error);
           showAlert("Error fetching city data", "error");
+          setCities([]); // Set empty array on error
         }
       };
 
@@ -250,16 +306,22 @@ export default function CreateTournamentPage() {
 
   // Form submission
   const onSubmit = async (data: any) => {
+    console.log("Step 1: Form submitted");
+    console.log("Step 1 Data:", data);
+
     if (!isOnline && (!data.location || !data.province || !data.city)) {
+      console.log("Step 2: Location validation failed");
       showAlert("Lokasi tournament harus diisi", "error");
       return;
     }
 
     if (!banner) {
+      console.log("Step 3: Banner validation failed");
       showAlert("Banner tournament belum diupload", "error");
       return;
     }
 
+    console.log("Step 4: Passed validation, preparing data for submission");
     setLoading(true);
 
     try {
@@ -278,37 +340,46 @@ export default function CreateTournamentPage() {
         type: "competition",
       };
 
+      console.log("Step 5: Prepared formData:", formData);
+
       const result = await createTournament({
         data: formData,
         bannerFile: banner,
         proposalFile: proposal || undefined,
       });
 
+      console.log("Step 6: createTournament result:", result);
+
       if (result.error) {
+        console.log("Step 7: Error from createTournament:", result.error);
         showAlert(result.error, "error");
       } else {
+        console.log("Step 8: Tournament created successfully");
         showAlert("Tournament berhasil dibuat", "success");
 
         // Redirect to event page
         if (result.data) {
+          console.log("Step 9: Redirecting to event page:", `/my-event/${result.data}`);
           setTimeout(() => {
             router.push(`/my-event/${result.data}`);
           }, 1500);
         }
       }
     } catch (error: any) {
-      console.error("Error creating tournament:", error);
+      console.error("Step 10: Exception caught:", error);
       showAlert(
         error.message || "Terjadi kesalahan saat membuat tournament",
         "error"
       );
     } finally {
       setLoading(false);
+      console.log("Step 11: Loading set to false");
     }
   };
 
   // Helper to show alerts
   const showAlert = (message: string, severity: "success" | "error") => {
+    console.log("ShowAlert called:", message, severity);
     setAlert({
       open: true,
       message,
@@ -318,6 +389,7 @@ export default function CreateTournamentPage() {
 
   // Handle alert closing
   const handleCloseAlert = () => {
+    console.log("Alert closed");
     setAlert({
       ...alert,
       open: false,
@@ -325,67 +397,89 @@ export default function CreateTournamentPage() {
   };
 
   return (
-    <div style={{ backgroundColor: "#f5f5f5" }}>
+    <Box sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
       <Container maxWidth="lg" sx={{ py: 6 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Typography sx={{ fontSize: "24px", fontWeight: "bold" }}>
-            Buat Pertandingan
-          </Typography>
-          <Typography sx={{ fontSize: "18px", color: "#666666", mb: 2 }}>
-            Pastikan seluruh form terisi dengan lengkap dan jelas demi keaslian
-            data
-          </Typography>
-
-          <Card
+          {/* Header Section */}
+          <Paper
+            elevation={0}
             sx={{
-              p: 3,
-              mb: 2,
-              boxShadow:
-                "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
-              borderRadius: 2,
+              p: 4,
+              mb: 4,
+              background: "linear-gradient(135deg, #CB4492 0%, #384FB9 100%)",
+              color: "white",
+              borderRadius: 3,
             }}
           >
-            <Typography sx={{ fontWeight: "bold", fontSize: "18px" }}>
-              Data Pertandingan
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              Buat Pertandingan
             </Typography>
-            <Typography sx={{ fontSize: "14px", color: "#666666", mb: 2 }}>
-              Silahkan isi dengan benar
+            <Typography variant="h6" sx={{ opacity: 0.9 }}>
+              Pastikan seluruh form terisi dengan lengkap dan jelas demi
+              keaslian data
             </Typography>
+          </Paper>
 
-            <Box sx={{ px: 1 }}>
-              <TextField
-                label="Nama Pertandingan"
-                placeholder="Tournament Apex Legend Mobile 2th"
-                fullWidth
-                margin="normal"
-                {...register("name")}
-                error={!!errors.name}
-                helperText={errors?.name?.message as string}
-                InputLabelProps={{
-                  shrink: true,
+          {/* Tournament Data Section */}
+          <Card
+            sx={{
+              p: 4,
+              mb: 4,
+              boxShadow:
+                "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
+              borderRadius: 3,
+            }}
+          >
+            {/* Basic Information */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                fontWeight="600"
+                gutterBottom
+                sx={{ display: "flex", alignItems: "center", mb: 3 }}
+              >
+                <SportsSoccerIcon sx={{ mr: 1.5 }} color="primary" />
+                Data Pertandingan
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Silahkan isi dengan benar
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+
+              {/* Tournament Name */}
+              <Box sx={{ mb: 3 }}>
+                <TextField
+                  label="Nama Pertandingan"
+                  placeholder="Tournament Apex Legend Mobile 2th"
+                  fullWidth
+                  {...register("name")}
+                  error={!!errors.name}
+                  helperText={errors?.name?.message as string}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Box>
+
+              {/* Category and Sport */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gap: 3,
+                  mb: 3,
                 }}
-              />
-            </Box>
-
-            <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
+              >
                 <TextField
                   select
                   label="Kategori Olahraga"
                   fullWidth
-                  margin="normal"
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  InputLabelProps={{ shrink: true }}
                 >
                   <MenuItem value="sport">Sport</MenuItem>
                   <MenuItem value="e-sport">E-Sport</MenuItem>
                 </TextField>
-              </Box>
 
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
                 <Controller
                   control={control}
                   name="sport_id"
@@ -402,12 +496,9 @@ export default function CreateTournamentPage() {
                           {...params}
                           label="Olahraga"
                           fullWidth
-                          margin="normal"
                           error={!!errors.sport_id}
                           helperText={errors?.sport_id?.message as string}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
+                          InputLabelProps={{ shrink: true }}
                         />
                       )}
                     />
@@ -416,8 +507,28 @@ export default function CreateTournamentPage() {
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
+            {/* Date & Time Section */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                fontWeight="600"
+                gutterBottom
+                sx={{ display: "flex", alignItems: "center", mb: 3 }}
+              >
+                <EventIcon sx={{ mr: 1.5 }} color="primary" />
+                Waktu dan Tanggal
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+
+              {/* Registration Dates */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gap: 3,
+                  mb: 3,
+                }}
+              >
                 <Controller
                   control={control}
                   name="open"
@@ -432,9 +543,7 @@ export default function CreateTournamentPage() {
                     />
                   )}
                 />
-              </Box>
 
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
                 <Controller
                   control={control}
                   name="deadline"
@@ -451,7 +560,14 @@ export default function CreateTournamentPage() {
                 />
               </Box>
 
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
+              {/* Tournament Dates */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gap: 3,
+                }}
+              >
                 <Controller
                   control={control}
                   name="start_date"
@@ -466,9 +582,7 @@ export default function CreateTournamentPage() {
                     />
                   )}
                 />
-              </Box>
 
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
                 <Controller
                   control={control}
                   name="end_date"
@@ -484,8 +598,30 @@ export default function CreateTournamentPage() {
                   )}
                 />
               </Box>
+            </Box>
 
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
+            {/* Tournament Details */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                fontWeight="600"
+                gutterBottom
+                sx={{ display: "flex", alignItems: "center", mb: 3 }}
+              >
+                <GroupsIcon sx={{ mr: 1.5 }} color="primary" />
+                Detail Pertandingan
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+
+              {/* Quota and Prize */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gap: 3,
+                  mb: 3,
+                }}
+              >
                 <Controller
                   control={control}
                   name="quota"
@@ -499,15 +635,12 @@ export default function CreateTournamentPage() {
                       }
                       label="Quota"
                       placeholder="100"
-                      margin="normal"
                       error={!!errors.quota}
                       helperText={errors?.quota?.message as string}
                     />
                   )}
                 />
-              </Box>
 
-              <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
                 <Controller
                   control={control}
                   name="prize_pool"
@@ -520,7 +653,6 @@ export default function CreateTournamentPage() {
                       onChange={(values: any) => field.onChange(values.value)}
                       label="Total Hadiah"
                       placeholder="Rp 100.000.000"
-                      margin="normal"
                       error={!!errors.prize_pool}
                       helperText={errors?.prize_pool?.message as string}
                     />
@@ -528,26 +660,33 @@ export default function CreateTournamentPage() {
                 />
               </Box>
 
-              <Box sx={{ width: "100%", px: 1 }}>
+              {/* Description */}
+              <Box sx={{ mb: 3 }}>
                 <TextField
                   multiline
                   rows={5}
                   label="Deskripsi pertandingan"
                   placeholder="Silakan jelaskan deskripsi singkat pertandingan"
                   fullWidth
-                  margin="normal"
                   variant="outlined"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  InputLabelProps={{ shrink: true }}
                   {...register("description")}
                   error={!!errors.description}
                   helperText={errors?.description?.message as string}
                 />
               </Box>
 
-              <Box sx={{ width: "100%", px: 1, mt: 2 }}>
-                <Typography sx={{ mb: 1 }}>Peraturan Tournament</Typography>
+              {/* Rules */}
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="600"
+                  gutterBottom
+                  sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                >
+                  <DescriptionIcon sx={{ mr: 1 }} color="primary" />
+                  Peraturan Tournament
+                </Typography>
                 <Controller
                   control={control}
                   name="rules"
@@ -566,10 +705,19 @@ export default function CreateTournamentPage() {
               </Box>
             </Box>
 
-            <Box sx={{ mt: 5 }}>
-              <Typography sx={{ fontWeight: "bold", fontSize: "18px" }}>
+            {/* Location Section */}
+            <Box>
+              <Typography
+                variant="h6"
+                fontWeight="600"
+                gutterBottom
+                sx={{ display: "flex", alignItems: "center", mb: 3 }}
+              >
+                <LocationOnIcon sx={{ mr: 1.5 }} color="primary" />
                 Lokasi Pertandingan
               </Typography>
+              <Divider sx={{ mb: 3 }} />
+
               <FormControlLabel
                 label="Pertandingan dilakukan secara online"
                 control={
@@ -580,114 +728,140 @@ export default function CreateTournamentPage() {
                     sx={{ ml: 1 }}
                   />
                 }
+                sx={{ mb: isOnline ? 0 : 3 }}
               />
 
               {!isOnline && (
                 <>
-                  <Box sx={{ px: 1 }}>
+                  {/* Full Address */}
+                  <Box sx={{ mb: 3 }}>
                     <TextField
                       label="Alamat lengkap"
                       placeholder="Jl. Sukamanah 1 no. 41 Rt 02/15"
                       fullWidth
-                      margin="normal"
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
+                      InputLabelProps={{ shrink: true }}
                       {...register("location")}
                       error={!!errors.location}
                       helperText={errors?.location?.message as string}
                     />
                   </Box>
 
-                  <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                    <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
-                      <Controller
-                        control={control}
-                        name="province"
-                        render={({ field }) => (
-                          <Autocomplete
-                            options={provinces}
-                            getOptionLabel={(option) => option.name ?? ""}
-                            value={field.value}
-                            onChange={(_, value) => field.onChange(value)}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Provinsi"
-                                fullWidth
-                                margin="normal"
-                                error={!!errors.province}
-                                helperText={errors?.province?.message as string}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                              />
-                            )}
-                          />
-                        )}
-                      />
-                    </Box>
+                  {/* Province and City */}
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                      gap: 3,
+                    }}
+                  >
+                    <Controller
+                      control={control}
+                      name="province"
+                      render={({ field }) => (
+                        <Autocomplete
+                          options={provinces || []}
+                          getOptionLabel={(option) => option?.name ?? ""}
+                          value={field.value}
+                          onChange={(_, value) => {
+                            field.onChange(value);
+                            // Reset city when province changes
+                            setValue("city", null);
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Provinsi"
+                              fullWidth
+                              error={!!errors.province}
+                              helperText={errors?.province?.message as string}
+                              InputLabelProps={{ shrink: true }}
+                            />
+                          )}
+                          isOptionEqualToValue={(option, value) =>
+                            option?.id === value?.id
+                          }
+                        />
+                      )}
+                    />
 
-                    <Box sx={{ width: { xs: "100%", md: "50%" }, px: 1 }}>
-                      <Controller
-                        control={control}
-                        name="city"
-                        render={({ field }) => (
-                          <Autocomplete
-                            options={cities}
-                            getOptionLabel={(option) => option.name ?? ""}
-                            value={field.value}
-                            onChange={(_, value) => field.onChange(value)}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Kota/Kabupaten"
-                                fullWidth
-                                margin="normal"
-                                error={!!errors.city}
-                                helperText={errors?.city?.message as string}
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                              />
-                            )}
-                          />
-                        )}
-                      />
-                    </Box>
+                    <Controller
+                      control={control}
+                      name="city"
+                      render={({ field }) => (
+                        <Autocomplete
+                          options={cities || []}
+                          getOptionLabel={(option) => option?.name ?? ""}
+                          value={field.value}
+                          onChange={(_, value) => field.onChange(value)}
+                          disabled={!selectedProvince}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Kota/Kabupaten"
+                              fullWidth
+                              error={!!errors.city}
+                              helperText={errors?.city?.message as string}
+                              InputLabelProps={{ shrink: true }}
+                            />
+                          )}
+                          isOptionEqualToValue={(option, value) =>
+                            option?.id === value?.id
+                          }
+                        />
+                      )}
+                    />
                   </Box>
                 </>
               )}
             </Box>
           </Card>
 
-          <Box sx={{ mt: 4 }}>
+          {/* Banner Upload Section */}
+          <Box sx={{ mb: 4 }}>
             <FormBanner setBanner={setBanner} setProposal={setProposal} />
           </Box>
 
-          <Button
-            fullWidth
-            variant="contained"
-            type="submit"
-            disabled={loading}
-            sx={{
-              mt: 4,
-              background: "linear-gradient(90deg, #CB4492 0%, #384FB9 100%)",
-              textTransform: "none",
-              color: "#fff",
-              fontWeight: "bold",
-              py: 1.5,
-              fontSize: "16px",
-            }}
-          >
-            {loading ? (
-              <CircularProgress size={24} sx={{ color: "#fff" }} />
-            ) : (
-              "Buat Tournament"
-            )}
-          </Button>
+          {/* Submit Button */}
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              variant="contained"
+              type="submit"
+              disabled={loading}
+              size="large"
+              sx={{
+                px: 6,
+                py: 2,
+                background: "linear-gradient(90deg, #CB4492 0%, #384FB9 100%)",
+                textTransform: "none",
+                color: "#fff",
+                fontWeight: "bold",
+                fontSize: "16px",
+                borderRadius: 2,
+                minWidth: 200,
+                "&:hover": {
+                  background:
+                    "linear-gradient(90deg, #B23A82 0%, #2F42A3 100%)",
+                },
+                "&:disabled": {
+                  background:
+                    "linear-gradient(90deg, #CB4492 0%, #384FB9 100%)",
+                  opacity: 0.7,
+                },
+              }}
+            >
+              {loading ? (
+                <>
+                  <CircularProgress size={20} sx={{ color: "#fff", mr: 1 }} />
+                  Membuat Tournament...
+                </>
+              ) : (
+                "Buat Tournament"
+              )}
+            </Button>
+          </Box>
         </form>
 
+        {/* Alert Snackbar */}
         <Snackbar
           open={alert.open}
           autoHideDuration={5000}
@@ -704,6 +878,6 @@ export default function CreateTournamentPage() {
           </Alert>
         </Snackbar>
       </Container>
-    </div>
+    </Box>
   );
 }

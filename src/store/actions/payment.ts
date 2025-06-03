@@ -25,7 +25,7 @@ export async function storePayment(
     imageForm.append("dir", "payment");
     imageForm.append("file", image);
 
-    const imageResponse = await fetch(getExternalApiUrl("/file/upload"), {
+    const imageResponse = await fetch(getExternalApiUrl("/storage/upload"), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,

@@ -91,7 +91,7 @@ export async function updateTournamentDetail(
       formBanner.append("file", newImageFile);
 
       const uploadResult = await handleFetch({
-        url: '/file/upload',
+        url: '/storage/upload',
         method: 'POST',
         data: formBanner,
         contentType: undefined, // Let fetch set Content-Type for FormData
@@ -139,45 +139,49 @@ export async function createTournament({
     const formBanner = new FormData();
     formBanner.append("dir", "banner");
     formBanner.append("file", bannerFile);
-
+    
     const bannerUploadResult = await handleFetch({
-      url: '/file/upload',
+      url: '/storage/upload',
       method: 'POST',
       data: formBanner,
-      contentType: undefined, 
+      // Remove contentType - let browser set it automatically for FormData
     });
-
+    
+    console.log("Banner upload result:", bannerUploadResult);
+    
     if (bannerUploadResult.error || !bannerUploadResult.data) {
       return {
         error: bannerUploadResult.error || 'Failed to upload banner.',
         status: bannerUploadResult.status || 500,
       };
     }
-
-    let proposalUrl = "";
     
+    let proposalUrl = "";
+   
     if (proposalFile) {
       const formProposal = new FormData();
       formProposal.append("dir", "proposal");
       formProposal.append("file", proposalFile);
-      
+     
       const proposalUploadResult = await handleFetch({
-        url: '/file/upload',
+        url: '/storage/upload',
         method: 'POST',
         data: formProposal,
-        contentType: undefined,
+        // Remove contentType - let browser set it automatically for FormData
       });
       
+      console.log("Proposal upload result:", proposalUploadResult);
+     
       if (proposalUploadResult.error || !proposalUploadResult.data) {
         return {
           error: proposalUploadResult.error || 'Failed to upload proposal.',
           status: proposalUploadResult.status || 500,
         };
       }
-      
+     
       proposalUrl = proposalUploadResult.data;
     }
-
+    
     // Create tournament with uploaded files
     const createResult = await handleFetch({
       url: '/event',
@@ -188,14 +192,16 @@ export async function createTournament({
         proposal_link: proposalUrl,
       },
     });
-
+    
+    console.log("Create tournament result:", createResult);
+    
     if (createResult.error) {
       return {
         error: createResult.error,
         status: createResult.status || 500,
       };
     }
-
+    
     return {
       success: true,
       message: "Tournament berhasil dibuat",
