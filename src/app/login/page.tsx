@@ -25,7 +25,8 @@ export default function LoginPage() {
           alt="Illustration"
           width={600}
           height={600}
-          style={{ objectFit: "contain", maxWidth: "100%", height: "auto" }}
+          className="max-w-full h-auto object-contain"
+          // style={{ objectFit: "contain", maxWidth: "100%", height: "auto" }}
         />
       </Box>
 
