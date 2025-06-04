@@ -17,8 +17,13 @@ const mockAuthData = {
   ],
 };
 
-jest.mock("@/store/actions/club");
-jest.mock("@/store/actions/sport");
+jest.mock("@/store/actions/club", () => ({
+  createClub: jest.fn(),
+  uploadClubLogo: jest.fn(),
+}));
+jest.mock("@/store/actions/sport", () => ({
+  getAllSports: jest.fn(),
+}));
 jest.mock("@/context/auth.context", () => {
   const actual = jest.requireActual("@/context/auth.context");
   return {

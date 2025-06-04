@@ -29,9 +29,17 @@ const mockAuthData = {
   ],
 };
 
-jest.mock("@/store/actions/club");
-jest.mock("@/store/actions/user");
-jest.mock("next/navigation");
+jest.mock("@/store/actions/club", () => ({
+  getOneClub: jest.fn(),
+  getMembersOfClub: jest.fn(),
+  getJoinRequest: jest.fn(),
+}));
+jest.mock("@/store/actions/user", () => ({
+  searchUser: jest.fn(),
+}));
+jest.mock("next/navigation", () => ({
+  useParams: jest.fn(),
+}));
 jest.mock("@/context/auth.context", () => {
   const actual = jest.requireActual("@/context/auth.context");
   return {
@@ -183,19 +191,12 @@ describe("Halaman Detail Club", () => {
     );
 
     await waitFor(() => {
-      const inputField = screen.getByTestId(
-        "invite-new-member-text-field"
-      ) as HTMLInputElement;
-      // const autocomplete = screen.getByTestId(
-      //   "invite-new-member-autocomplete"
-      // ) as HTMLInputElement;
-
-      fireEvent.change(inputField, { target: { value: "Aditya" } });
-      // expect(inputField.value).toBe("Aditya Lityanian Al Nasir 93934");
+      const autocomplete = screen.getByTestId("invite-new-member-text-field");
+      const input = autocomplete.querySelector("input");
+      fireEvent.change(input!, { target: { value: "Aditya" } });
       expect(
         screen.getAllByText("Aditya Lityanian Al Nasir 93934").length
       ).toBeGreaterThanOrEqual(1);
-      
     });
   });
 
