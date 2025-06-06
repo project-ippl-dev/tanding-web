@@ -1,3 +1,4 @@
+import { createTournament } from "@/store/actions/event";
 import { kabupaten, province } from "@/store/address";
 import { CLASS_MULTIPLE, CLASS_RULES_MULTIPLE } from "@/store/class";
 import { CLUB_MEMBER_DATA } from "@/store/club";
@@ -36,6 +37,7 @@ jest.mock("@/store/actions/event",()=>({
       ...EVENT_OWN,
       status: 200,
     }),
+    createTournament: jest.fn(),
     updateTournamentDetail: jest.fn().mockResolvedValue({
       status: 200,
       message: "Detail turnamen berhasil diperbarui",

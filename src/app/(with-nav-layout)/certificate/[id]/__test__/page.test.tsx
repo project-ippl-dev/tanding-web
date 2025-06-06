@@ -4,18 +4,16 @@ import { render, screen, waitFor } from "@testing-library/react";
 import CertificateDetailPage from "../page";
 import WrapperContext from "@/app/wrapper";
 import * as certificateActions from "@/store/actions/certificate";
+import * as navigation from "next/navigation";
+import { EVENT } from "@/store/event";
 
 // Mock certificate actions
-jest.mock("@/store/actions/certificate");
-const mockGetDetailCertificate =
-  certificateActions.getDetailCertificate as jest.MockedFunction<
-    typeof certificateActions.getDetailCertificate
-  >;
+jest.mock("@/store/actions/certificate", () => ({
+  ...jest.requireActual("@/store/actions/certificate"),
+  getDetailCertificate: jest.fn(),
+}));
 
 // Mock useParams
-jest.mock("next/navigation", () => ({
-  useParams: () => ({ id: "cert-123" }),
-}));
 
 // Mock TournamentItem component
 jest.mock("@/components/TournamentItem", () => {
@@ -63,10 +61,17 @@ const mockCertificateDetailResponse = {
 describe("Unit Testing Certificate Detail Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+      (navigation.useParams as jest.Mock).mockReturnValue({id: "cert-123"});
+  });
+
+  afterEach(() => {
+    (navigation.useParams as jest.Mock).mockReturnValue({id: EVENT.data.id});
   });
 
   it("Menampilkan loading state", () => {
-    mockGetDetailCertificate.mockImplementation(() => new Promise(() => {})); // Never resolves
+    (certificateActions.getDetailCertificate as jest.Mock).mockImplementationOnce(
+      () => new Promise(() => {})
+    );
 
     render(
       <WrapperContext>
@@ -78,7 +83,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan certificate detail secara normal", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -87,7 +92,7 @@ describe("Unit Testing Certificate Detail Page", () => {
     );
 
     await waitFor(() => {
-      expect(mockGetDetailCertificate).toHaveBeenCalledWith({
+      expect(certificateActions.getDetailCertificate).toHaveBeenCalledWith({
         certificate_id: "cert-123",
       });
     });
@@ -131,7 +136,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   // });
 
   it("Menampilkan error ketika certificate tidak ditemukan", async () => {
-    mockGetDetailCertificate.mockResolvedValue({
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce({
       error: "Certificate not found",
       status: 404,
     });
@@ -155,7 +160,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menguji handle error jaringan", async () => {
-    mockGetDetailCertificate.mockRejectedValue(new Error("Network error"));
+    (certificateActions.getDetailCertificate as jest.Mock).mockRejectedValueOnce(new Error("Network error"));
 
     render(
       <WrapperContext>
@@ -171,7 +176,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan certificate image dengan benar", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -186,7 +191,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan download button dalam state disabled", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -201,7 +206,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan certificate ID dan URL dengan benar", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -218,7 +223,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan tanggal certificate dengan format yang benar", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -234,7 +239,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan certificate layout dengan positioning yang benar", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -251,7 +256,7 @@ describe("Unit Testing Certificate Detail Page", () => {
   });
 
   it("Menampilkan avatar penerima dengan benar", async () => {
-    mockGetDetailCertificate.mockResolvedValue(mockCertificateDetailResponse);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(mockCertificateDetailResponse);
 
     render(
       <WrapperContext>
@@ -292,7 +297,7 @@ describe("Unit Testing Certificate Detail Page", () => {
       event: null, // No event data
     };
 
-    mockGetDetailCertificate.mockResolvedValue(responseWithoutEvent);
+    (certificateActions.getDetailCertificate as jest.Mock).mockResolvedValueOnce(responseWithoutEvent);
 
     render(
       <WrapperContext>

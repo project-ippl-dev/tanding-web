@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as sportStore from "@/store/actions/sport";
 import * as addressStore from "@/store/actions/address";
@@ -9,9 +9,7 @@ import CreateTournamentPage from "../page";
 import WrapperContext from "@/app/wrapper";
 
 // Mock the store actions
-jest.mock("@/store/actions/sport");
 jest.mock("@/store/actions/address");
-jest.mock("@/store/actions/event");
 
 // Mock the auth context
 jest.mock("@/context/auth.context", () => {
@@ -146,7 +144,7 @@ describe("Create Tournament Page", () => {
   });
 
   it("Fills and submits form with valid data", async () => {
-    const user = userEvent.setup();
+    //const user = userEvent.setup();
 
     render(
       <WrapperContext>
@@ -156,30 +154,30 @@ describe("Create Tournament Page", () => {
 
     // Fill tournament name
     const nameField = screen.getByLabelText(/nama pertandingan/i);
-    await user.type(nameField, "Test Tournament");
+    await userEvent.type(nameField, "Test Tournament");
 
     // Select category
     const categoryField = screen.getByLabelText(/kategori olahraga/i);
-    await user.click(categoryField);
-    await user.click(screen.getByText("Sport"));
+    await userEvent.click(categoryField);
+    await userEvent.click(screen.getByText("Sport"));
 
     // Fill quota
     const quotaField = screen.getByLabelText(/quota/i);
-    await user.type(quotaField, "100");
+    await userEvent.type(quotaField, "100");
 
     // Fill prize pool
     const prizeField = screen.getByLabelText(/total hadiah/i);
-    await user.type(prizeField, "1000000");
+    await userEvent.type(prizeField, "1000000");
 
     // Fill description
     const descriptionField = screen.getByLabelText(/deskripsi pertandingan/i);
-    await user.type(descriptionField, "Test tournament description");
+    await userEvent.type(descriptionField, "Test tournament description");
 
     // Toggle to online mode to avoid location validation
     const onlineSwitch = screen.getByRole("checkbox", {
       name: /pertandingan dilakukan secara online/i,
     });
-    await user.click(onlineSwitch);
+    await userEvent.click(onlineSwitch);
 
     // Note: In a real test, you'd also need to handle file uploads and date pickers
     // For now, we're just testing that the form can be interacted with

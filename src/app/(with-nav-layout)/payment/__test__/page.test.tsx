@@ -7,7 +7,10 @@ import PaymentPage from "../page";
 import WrapperContext from "@/app/wrapper";
 
 // Mock the store actions
-jest.mock("@/store/actions/payment");
+jest.mock("@/store/actions/payment", () => ({
+  // ...jest.requireActual("@/store/actions/payment"),
+  getAllPaymentForClub: jest.fn(),
+}));
 
 // Mock next/navigation
 jest.mock("next/navigation", () => ({

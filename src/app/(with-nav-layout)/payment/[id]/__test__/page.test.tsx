@@ -2,18 +2,18 @@ import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as paymentStore from "@/store/actions/payment";
+import * as navigation from "next/navigation";
 import PaymentDetailPage from "../page";
 import WrapperContext from "@/app/wrapper";
+import { EVENT } from "@/store/event";
 
 // Mock the store actions
-jest.mock("@/store/actions/payment");
+jest.mock("@/store/actions/payment", () => ({
+  getDetailPaymentForClub: jest.fn(),
+  storePayment: jest.fn(),
+}));
 
 // Mock next/navigation
-jest.mock("next/navigation", () => ({
-  useParams: () => ({
-    id: "mock-payment-id",
-  }),
-}));
 
 // Mock next/image
 jest.mock("next/image", () => ({
@@ -92,7 +92,15 @@ describe("Payment Detail Page", () => {
       status: 200,
       message: "Payment stored successfully",
     });
+
+      (navigation.useParams as jest.Mock).mockReturnValue({id: "mock-payment-id"});
+    
   });
+
+  afterEach(() => {
+
+      (navigation.useParams as jest.Mock).mockReturnValue({id: EVENT.data.id})
+  })
 
   it("Renders the payment detail page correctly", async () => {
     render(
