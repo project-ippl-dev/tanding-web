@@ -1,4 +1,3 @@
-import { createTournament } from "@/store/actions/event";
 import { kabupaten, province } from "@/store/address";
 import { CLASS_MULTIPLE, CLASS_RULES_MULTIPLE } from "@/store/class";
 import { CLUB_MEMBER_DATA } from "@/store/club";

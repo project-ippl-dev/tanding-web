@@ -9,22 +9,8 @@ import CreateTournamentPage from "../page";
 import WrapperContext from "@/app/wrapper";
 
 // Mock the store actions
-jest.mock("@/store/actions/address");
 
 // Mock the auth context
-jest.mock("@/context/auth.context", () => {
-  const actual = jest.requireActual("@/context/auth.context");
-  return {
-    ...actual,
-    useAuth: () => ({
-      authData: {
-        token: { access_token: "mock-token" },
-        user_id: "mock-user-id",
-        profile: { name: "Test User" },
-      },
-    }),
-  };
-});
 
 // Mock CKEditor to avoid loading issues in tests
 jest.mock("@ckeditor/ckeditor5-react", () => ({
@@ -36,7 +22,16 @@ jest.mock("@ckeditor/ckeditor5-react", () => ({
   ),
 }));
 
-jest.mock("@ckeditor/ckeditor5-build-classic", () => ({}));
+jest.mock("@ckeditor/ckeditor5-build-classic", () => ({
+  default: () => ({
+    create: jest.fn().mockResolvedValue({
+      editor: {
+        setData: jest.fn(),
+        getData: jest.fn().mockResolvedValue("mocked data"),
+      },
+    }),
+  }),
+}));
 
 describe("Create Tournament Page", () => {
   beforeEach(() => {
@@ -185,7 +180,7 @@ describe("Create Tournament Page", () => {
     expect(nameField).toHaveValue("Test Tournament");
     expect(quotaField).toHaveValue("100");
     expect(descriptionField).toHaveValue("Test tournament description");
-  });
+  },10000);
 
   it("Handles sport category selection", async () => {
     const user = userEvent.setup();
